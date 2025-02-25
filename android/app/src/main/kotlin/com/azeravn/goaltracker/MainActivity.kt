@@ -1,4 +1,4 @@
-package com.azeravn.goaltracker
+package com.azeravn.lifeflow
 
 import io.flutter.embedding.android.FlutterActivity
 

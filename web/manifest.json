@@ -1,6 +1,6 @@
 {
-    "name": "goaltracker",
-    "short_name": "goaltracker",
+    "name": "lifeflow",
+    "short_name": "lifeflow",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -10,8 +10,10 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsData = ref.watch(settingProvider);
 
-    return Scaffold(
-      body: Center(child: Text(settingsData)),
+    return SafeArea(
+      child: Scaffold(
+        body: Center(child: Text(settingsData)),
+      ),
     );
   }
 }

@@ -10,8 +10,10 @@ class OverviewScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final overviewData = ref.watch(overviewDataProvider);
 
-    return Scaffold(
-      body: Center(child: Text(overviewData)),
+    return SafeArea(
+      child: Scaffold(
+        body: Center(child: Text(overviewData)),
+      ),
     );
   }
 }

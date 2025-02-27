@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF4A90E2);
-  static const Color secondaryColor = Color(0xFFA7C5EB);
-  static const Color accentColor = Color(0xFF50E3C2);
-  static const Color lightBackground = Color(0xFFF5F7FA);
-  static const Color darkBackground = Color(0xFF121212);
-  static const Color cardLight = Color(0xFFD0E8FF);
-  static const Color cardDark = Color(0xFF1B3A57);
+  static const Color primaryColor = Color(0xFFFFA500);
+  static const Color secondaryColor = Color(0xFF4A90E2);
+  static const Color accentColor = Color(0xFFFF5722);
+  static const Color lightBackground = Color(0xFFFDF6E3);
+  static const Color darkBackground = Color(0xFF1E1E1E);
+  static const Color cardLight = Color(0xFFFDE6C1);
+  static const Color cardDark = Color(0xFF2A2A2A);
   static const Color lightTextColor = Colors.black87;
   static const Color darkTextColor = Colors.white70;
 
@@ -18,7 +18,7 @@ class AppTheme {
       secondary: secondaryColor,
       surface: lightBackground,
       onPrimary: Colors.white,
-      onSecondary: Colors.black,
+      onSecondary: Colors.white,
       onSurface: lightTextColor,
     ),
     scaffoldBackgroundColor: lightBackground,
@@ -60,7 +60,7 @@ class AppTheme {
       secondary: secondaryColor,
       surface: cardDark,
       onPrimary: Colors.white,
-      onSecondary: Colors.black,
+      onSecondary: Colors.white,
       onSurface: darkTextColor,
     ),
     scaffoldBackgroundColor: darkBackground,

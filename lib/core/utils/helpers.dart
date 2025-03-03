@@ -6,6 +6,7 @@ import '../../data/models/habit_category.dart';
 Habit newHabit({
   required String name,
   required HabitCategory category,
+  DateTime? startDate,
   RepeatFrequency? repeatFrequency,
   bool reminderEnabled = false,
   TrackingType trackingType = TrackingType.complete,
@@ -16,7 +17,7 @@ Habit newHabit({
     ..id = 'habit-${Uuid().v4()}'
     ..name = name
     ..category = category.toBuilder()
-    ..startDate = DateTime.now().toUtc()
+    ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()
     ..repeatFrequency = repeatFrequency
     ..reminderEnabled = reminderEnabled
     ..trackingType = trackingType

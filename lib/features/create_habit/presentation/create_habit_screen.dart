@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../data/models/habit_category.dart';
 import '../controllers/create_habit_controller.dart';
@@ -13,6 +14,7 @@ class CreateHabitScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final habitName = ref.watch(habitNameProvider);
     final habitCategory = ref.watch(habitCategoryProvider);
+    final selectedDate = ref.watch(habitDateProvider);
     final controller = ref.read(createHabitControllerProvider);
     final isFormValid = habitName.isNotEmpty && habitCategory != null;
 
@@ -26,13 +28,21 @@ class CreateHabitScreen extends ConsumerWidget {
             TextField(
               decoration: InputDecoration(
                 labelText: "Habit Name",
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      width: 0.5),
+                ),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        width: 0.5)),
                 labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondary),
               ),
               onChanged: controller.updateHabitName,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16.0),
             InkWell(
               onTap: () async {
                 final selectedCategory =
@@ -42,9 +52,17 @@ class CreateHabitScreen extends ConsumerWidget {
                 }
               },
               child: InputDecorator(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Select Category",
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        width: 0.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          width: 0.5)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,7 +93,47 @@ class CreateHabitScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16.0),
+            InkWell(
+              onTap: () async {
+                final pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: selectedDate,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  controller.updateHabitDate(pickedDate);
+                }
+              },
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: "Select Start Date",
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        width: 0.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          width: 0.5)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      DateFormat('dd/MM/yyyy').format(selectedDate),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    Icon(Icons.calendar_today,
+                        color: Theme.of(context).colorScheme.onSurface),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16.0),
             SizedBox(
               width: double.infinity,
               height: 42,

@@ -18,7 +18,7 @@ class AppTheme {
       secondary: secondaryColor,
       surface: lightBackground,
       onPrimary: Colors.white,
-      onSecondary: Colors.white,
+      onSecondary: Colors.grey,
       onSurface: lightTextColor,
     ),
     scaffoldBackgroundColor: lightBackground,
@@ -32,9 +32,9 @@ class AppTheme {
       iconTheme: IconThemeData(color: Colors.white),
     ),
     textTheme: TextTheme(
-      headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      bodyLarge: TextStyle(fontSize: 16),
-      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     ).apply(bodyColor: lightTextColor, displayColor: lightTextColor),
     cardTheme: CardTheme(
       color: cardLight,

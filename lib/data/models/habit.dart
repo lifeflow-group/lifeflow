@@ -2,6 +2,7 @@ import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
 import '../serializers.dart';
+import 'habit_category.dart';
 
 part 'habit.g.dart';
 
@@ -19,7 +20,7 @@ abstract class Habit implements Built<Habit, HabitBuilder> {
 
   String get name;
 
-  String get category;
+  HabitCategory get category;
 
   DateTime get startDate; // use time in startDate
 

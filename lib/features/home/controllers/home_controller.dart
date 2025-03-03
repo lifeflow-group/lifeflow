@@ -60,6 +60,10 @@ class FilteredHabitsNotifier extends StateNotifier<List<Habit>> {
       state = [];
     }
   }
+
+  Future<void> addHabit(Habit habit) async {
+    state.add(habit);
+  }
 }
 
 final filteredHabitsProvider =

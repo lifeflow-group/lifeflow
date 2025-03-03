@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../data/models/habit.dart';
 import '../controllers/home_controller.dart';
-import 'widgets/habit_tiem.dart';
+import 'widgets/habit_item.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -34,15 +36,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: ListView.builder(
                 itemCount: habits.length,
                 itemBuilder: (context, index) =>
-                    HabitTiem(habit: habits[index]),
+                    HabitItem(habit: habits[index]),
               ),
             ),
             const SizedBox(height: 8),
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // TODO: Implement logic to navigate to the add new habit screen
+          onPressed: () async {
+            final newHabit = await context.push('/create-habit');
+            if (newHabit == null) return;
+            ref
+                .read(filteredHabitsProvider.notifier)
+                .addHabit(newHabit as Habit);
           },
           child: const Icon(Icons.add),
         ),

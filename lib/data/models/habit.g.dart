@@ -24,7 +24,7 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
       serializers.serialize(object.name, specifiedType: const FullType(String)),
       'category',
       serializers.serialize(object.category,
-          specifiedType: const FullType(String)),
+          specifiedType: const FullType(HabitCategory)),
       'startDate',
       serializers.serialize(object.startDate,
           specifiedType: const FullType(DateTime)),
@@ -92,8 +92,8 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
               specifiedType: const FullType(String))! as String;
           break;
         case 'category':
-          result.category = serializers.deserialize(value,
-              specifiedType: const FullType(String))! as String;
+          result.category.replace(serializers.deserialize(value,
+              specifiedType: const FullType(HabitCategory))! as HabitCategory);
           break;
         case 'startDate':
           result.startDate = serializers.deserialize(value,
@@ -141,7 +141,7 @@ class _$Habit extends Habit {
   @override
   final String name;
   @override
-  final String category;
+  final HabitCategory category;
   @override
   final DateTime startDate;
   @override
@@ -256,9 +256,10 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
   String? get name => _$this._name;
   set name(String? name) => _$this._name = name;
 
-  String? _category;
-  String? get category => _$this._category;
-  set category(String? category) => _$this._category = category;
+  HabitCategoryBuilder? _category;
+  HabitCategoryBuilder get category =>
+      _$this._category ??= new HabitCategoryBuilder();
+  set category(HabitCategoryBuilder? category) => _$this._category = category;
 
   DateTime? _startDate;
   DateTime? get startDate => _$this._startDate;
@@ -304,7 +305,7 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
     if ($v != null) {
       _id = $v.id;
       _name = $v.name;
-      _category = $v.category;
+      _category = $v.category.toBuilder();
       _startDate = $v.startDate;
       _repeatFrequency = $v.repeatFrequency;
       _reminderEnabled = $v.reminderEnabled;
@@ -333,24 +334,36 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
   Habit build() => _build();
 
   _$Habit _build() {
-    final _$result = _$v ??
-        new _$Habit._(
-          id: BuiltValueNullFieldError.checkNotNull(id, r'Habit', 'id'),
-          name: BuiltValueNullFieldError.checkNotNull(name, r'Habit', 'name'),
-          category: BuiltValueNullFieldError.checkNotNull(
-              category, r'Habit', 'category'),
-          startDate: BuiltValueNullFieldError.checkNotNull(
-              startDate, r'Habit', 'startDate'),
-          repeatFrequency: repeatFrequency,
-          reminderEnabled: BuiltValueNullFieldError.checkNotNull(
-              reminderEnabled, r'Habit', 'reminderEnabled'),
-          trackingType: BuiltValueNullFieldError.checkNotNull(
-              trackingType, r'Habit', 'trackingType'),
-          quantity: quantity,
-          unit: unit,
-          progress: progress,
-          completed: completed,
-        );
+    _$Habit _$result;
+    try {
+      _$result = _$v ??
+          new _$Habit._(
+            id: BuiltValueNullFieldError.checkNotNull(id, r'Habit', 'id'),
+            name: BuiltValueNullFieldError.checkNotNull(name, r'Habit', 'name'),
+            category: category.build(),
+            startDate: BuiltValueNullFieldError.checkNotNull(
+                startDate, r'Habit', 'startDate'),
+            repeatFrequency: repeatFrequency,
+            reminderEnabled: BuiltValueNullFieldError.checkNotNull(
+                reminderEnabled, r'Habit', 'reminderEnabled'),
+            trackingType: BuiltValueNullFieldError.checkNotNull(
+                trackingType, r'Habit', 'trackingType'),
+            quantity: quantity,
+            unit: unit,
+            progress: progress,
+            completed: completed,
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'category';
+        category.build();
+      } catch (e) {
+        throw new BuiltValueNestedFieldError(
+            r'Habit', _$failedField, e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

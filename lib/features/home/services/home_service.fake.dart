@@ -1,3 +1,4 @@
+import '../../../core/utils/helpers.dart';
 import 'home_service.dart';
 import '../../../data/models/habit.dart';
 
@@ -6,7 +7,7 @@ class FakeHomeService implements HomeService {
     Habit((b) => b
       ..id = 'habit0'
       ..name = 'Morning Run'
-      ..category = 'Fitness'
+      ..category = defaultCategories[0].toBuilder()
       ..startDate = DateTime.now()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
@@ -14,7 +15,7 @@ class FakeHomeService implements HomeService {
     Habit((b) => b
       ..id = 'habit1'
       ..name = 'Read a Book'
-      ..category = 'Education'
+      ..category = defaultCategories[2].toBuilder()
       ..startDate = DateTime.now()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
@@ -25,7 +26,7 @@ class FakeHomeService implements HomeService {
     Habit((b) => b
       ..id = 'habit2'
       ..name = 'Meditation'
-      ..category = 'Wellness'
+      ..category = defaultCategories[2].toBuilder()
       ..startDate = DateTime.now()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
@@ -33,7 +34,7 @@ class FakeHomeService implements HomeService {
     Habit((b) => b
       ..id = 'habit3'
       ..name = 'Drink Water'
-      ..category = 'Health'
+      ..category = defaultCategories[0].toBuilder()
       ..startDate = DateTime.now()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
@@ -44,7 +45,7 @@ class FakeHomeService implements HomeService {
     Habit((b) => b
       ..id = 'habit4'
       ..name = 'Practice Coding'
-      ..category = 'Skill'
+      ..category = defaultCategories[1].toBuilder()
       ..startDate = DateTime.now()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true

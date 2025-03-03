@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../../../../data/models/habit.dart';
 
-class HabitTiem extends StatelessWidget {
-  const HabitTiem({super.key, required this.habit});
+class HabitItem extends StatelessWidget {
+  const HabitItem({super.key, required this.habit});
   final Habit habit;
 
   @override
@@ -17,6 +17,9 @@ class HabitTiem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       padding: const EdgeInsets.all(4.0),
       child: ListTile(
+        leading: Padding(
+            padding: const EdgeInsets.only(right: 4.0),
+            child: Image.asset(habit.category.iconPath, width: 32, height: 32)),
         title: Text(habit.name),
         subtitle: Text(
           habit.trackingType == TrackingType.complete

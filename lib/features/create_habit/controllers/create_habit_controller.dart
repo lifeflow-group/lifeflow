@@ -18,6 +18,15 @@ final habitDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
 // Provider for managing the habit start time.
 final habitTimeProvider = StateProvider<TimeOfDay>((ref) => TimeOfDay.now());
 
+// Provider for managing the habit tracking type.
+final habitTrackingTypeProvider =
+    StateProvider<TrackingType>((ref) => TrackingType.complete);
+
+// Providers for progress tracking
+final habitQuantityProvider = StateProvider<int>((ref) => 0);
+
+final habitUnitProvider = StateProvider<String>((ref) => '');
+
 // Provider containing functions to update data
 final createHabitControllerProvider = Provider((ref) {
   final repository = ref.read(createHabitRepositoryProvider);
@@ -46,6 +55,18 @@ class CreateHabitController {
     ref.read(habitTimeProvider.notifier).state = time;
   }
 
+  void updateTrackingType(TrackingType type) {
+    ref.read(habitTrackingTypeProvider.notifier).state = type;
+  }
+
+  void updateHabitQuantity(int quantity) {
+    ref.read(habitQuantityProvider.notifier).state = quantity;
+  }
+
+  void updateHabitUnit(String unit) {
+    ref.read(habitUnitProvider.notifier).state = unit;
+  }
+
   Future<Habit?> saveHabit() async {
     final name = ref.read(habitNameProvider);
     final category = ref.read(habitCategoryProvider);
@@ -53,17 +74,29 @@ class CreateHabitController {
     final date = ref
         .read(habitDateProvider)
         .copyWith(hour: time.hour, minute: time.minute);
+    final trackingType = ref.read(habitTrackingTypeProvider);
+    final quantity = ref.read(habitQuantityProvider);
+    final unit = ref.read(habitUnitProvider);
 
     if (name.isEmpty || category == null) return null;
 
-    final habit = await _repo
-        .saveHabit(newHabit(name: name, category: category, startDate: date));
+    final habit = await _repo.saveHabit(newHabit(
+      name: name,
+      category: category,
+      startDate: date,
+      trackingType: trackingType,
+      quantity: trackingType == TrackingType.progress ? quantity : null,
+      unit: trackingType == TrackingType.progress ? unit : null,
+    ));
 
     // Reset form state after saving
     ref.read(habitNameProvider.notifier).state = '';
     ref.read(habitCategoryProvider.notifier).state = null;
     ref.read(habitDateProvider.notifier).state = DateTime.now();
     ref.read(habitTimeProvider.notifier).state = TimeOfDay.now();
+    ref.read(habitTrackingTypeProvider.notifier).state = TrackingType.complete;
+    ref.read(habitQuantityProvider.notifier).state = 0;
+    ref.read(habitUnitProvider.notifier).state = '';
 
     return habit;
   }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../data/models/habit.dart';
 import '../../../data/models/habit_category.dart';
 import '../controllers/create_habit_controller.dart';
 import 'widgets/category_bottom_sheet.dart';
@@ -15,6 +16,9 @@ class CreateHabitScreen extends ConsumerWidget {
     final habitName = ref.watch(habitNameProvider);
     final habitCategory = ref.watch(habitCategoryProvider);
     final selectedDate = ref.watch(habitDateProvider);
+    final habitTrackingType = ref.watch(habitTrackingTypeProvider);
+    final habitQuantity = ref.watch(habitQuantityProvider);
+    final habitUnit = ref.watch(habitUnitProvider);
     final controller = ref.read(createHabitControllerProvider);
     final isFormValid = habitName.isNotEmpty && habitCategory != null;
 
@@ -25,6 +29,7 @@ class CreateHabitScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// Habit Name
             TextField(
               decoration: InputDecoration(
                 labelText: "Habit Name",
@@ -43,6 +48,8 @@ class CreateHabitScreen extends ConsumerWidget {
               onChanged: controller.updateHabitName,
             ),
             const SizedBox(height: 16.0),
+
+            /// Select Category
             InkWell(
               onTap: () async {
                 final selectedCategory =
@@ -94,6 +101,8 @@ class CreateHabitScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16.0),
+
+            /// Select Date
             InkWell(
               onTap: () async {
                 final pickedDate = await showDatePicker(
@@ -108,7 +117,7 @@ class CreateHabitScreen extends ConsumerWidget {
               },
               child: InputDecorator(
                 decoration: InputDecoration(
-                  labelText: "Select Start Date",
+                  labelText: "Select Date",
                   border: OutlineInputBorder(
                     borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.onSecondary,
@@ -133,8 +142,9 @@ class CreateHabitScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
-            // Select time
+            const SizedBox(height: 16),
+
+            /// Select time
             InkWell(
               onTap: () async {
                 final pickedTime = await showTimePicker(
@@ -173,6 +183,89 @@ class CreateHabitScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16.0),
+
+            /// Select Tracking Type
+            InputDecorator(
+              decoration: InputDecoration(
+                labelText: "Tracking Type",
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      width: 0.5),
+                ),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        width: 0.5)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: RadioListTile<TrackingType>(
+                          title: Text("Complete",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          value: TrackingType.complete,
+                          groupValue: habitTrackingType,
+                          onChanged: (value) {
+                            if (value == null) return;
+                            controller.updateTrackingType(value);
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: RadioListTile<TrackingType>(
+                          title: Text("Progress",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          value: TrackingType.progress,
+                          groupValue: habitTrackingType,
+                          onChanged: (value) {
+                            if (value == null) return;
+                            controller.updateTrackingType(value);
+                            if (value == TrackingType.progress &&
+                                habitQuantity == 0 &&
+                                habitUnit == '') {
+                              _showProgressDialog(context, ref);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  // --- Display Progress value if selected ---
+                  if (habitTrackingType == TrackingType.progress)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Theme.of(context).colorScheme.primary),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                              "Goal: $habitQuantity ${habitUnit.isNotEmpty ? habitUnit : 'unit'}"),
+                          IconButton(
+                            icon: const Icon(Icons.edit, size: 18),
+                            onPressed: () => _showProgressDialog(context, ref),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16.0),
+
+            /// Save Habit
             SizedBox(
               width: double.infinity,
               height: 42,
@@ -211,6 +304,60 @@ class CreateHabitScreen extends ConsumerWidget {
           borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (context) {
         return CategoryBottomSheet();
+      },
+    );
+  }
+
+  void _showProgressDialog(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(createHabitControllerProvider);
+    final quantityController =
+        TextEditingController(text: ref.read(habitQuantityProvider).toString());
+    final unitController =
+        TextEditingController(text: ref.read(habitUnitProvider));
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Set Progress Goal"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: quantityController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Quantity"),
+                onChanged: (value) {
+                  final quantity = int.tryParse(value) ?? 0;
+                  controller.updateHabitQuantity(quantity);
+                },
+              ),
+              const SizedBox(height: 12.0),
+              TextField(
+                controller: unitController,
+                decoration: const InputDecoration(labelText: "Unit"),
+                onChanged: (value) {
+                  controller.updateHabitUnit(value);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                controller.updateHabitQuantity(
+                    int.tryParse(quantityController.text) ?? 0);
+                controller.updateHabitUnit(unitController.text);
+                Navigator.pop(context);
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        );
       },
     );
   }

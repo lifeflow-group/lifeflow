@@ -134,6 +134,45 @@ class CreateHabitScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16.0),
+            // Select time
+            InkWell(
+              onTap: () async {
+                final pickedTime = await showTimePicker(
+                    context: context,
+                    initialTime: ref.read(habitTimeProvider),
+                    initialEntryMode: TimePickerEntryMode.input);
+                if (pickedTime != null) {
+                  controller.updateHabitTime(pickedTime);
+                }
+              },
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: "Time",
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        width: 0.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          width: 0.5)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      ref.watch(habitTimeProvider).format(context),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    Icon(Icons.access_time,
+                        color: Theme.of(context).colorScheme.onSurface),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16.0),
             SizedBox(
               width: double.infinity,
               height: 42,

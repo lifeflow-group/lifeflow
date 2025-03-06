@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/helpers.dart';
@@ -13,6 +14,9 @@ final habitCategoryProvider = StateProvider<HabitCategory?>((ref) => null);
 
 // Provider for managing the habit start date.
 final habitDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+
+// Provider for managing the habit start time.
+final habitTimeProvider = StateProvider<TimeOfDay>((ref) => TimeOfDay.now());
 
 // Provider containing functions to update data
 final createHabitControllerProvider = Provider((ref) {
@@ -38,10 +42,17 @@ class CreateHabitController {
     ref.read(habitDateProvider.notifier).state = date;
   }
 
+  void updateHabitTime(TimeOfDay time) {
+    ref.read(habitTimeProvider.notifier).state = time;
+  }
+
   Future<Habit?> saveHabit() async {
     final name = ref.read(habitNameProvider);
     final category = ref.read(habitCategoryProvider);
-    final date = ref.read(habitDateProvider);
+    final time = ref.read(habitTimeProvider);
+    final date = ref
+        .read(habitDateProvider)
+        .copyWith(hour: time.hour, minute: time.minute);
 
     if (name.isEmpty || category == null) return null;
 
@@ -52,6 +63,7 @@ class CreateHabitController {
     ref.read(habitNameProvider.notifier).state = '';
     ref.read(habitCategoryProvider.notifier).state = null;
     ref.read(habitDateProvider.notifier).state = DateTime.now();
+    ref.read(habitTimeProvider.notifier).state = TimeOfDay.now();
 
     return habit;
   }

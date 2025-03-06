@@ -56,6 +56,10 @@ class AppTheme {
       ),
     ),
     iconTheme: IconThemeData(color: primaryColor),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: Colors.black,
+      selectionColor: Colors.blueAccent.withAlpha(127),
+    ),
   );
 
   static final ThemeData darkTheme = ThemeData(

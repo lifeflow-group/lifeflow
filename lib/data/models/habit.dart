@@ -1,14 +1,56 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
+import 'package:built_collection/built_collection.dart';
 
 import '../serializers.dart';
 import 'habit_category.dart';
 
 part 'habit.g.dart';
 
-enum RepeatFrequency { daily, weekly, monthly }
+class RepeatFrequency extends EnumClass {
+  static const RepeatFrequency daily = _$daily;
+  static const RepeatFrequency weekly = _$weekly;
+  static const RepeatFrequency monthly = _$monthly;
 
-enum TrackingType { complete, progress }
+  const RepeatFrequency._(super.name);
+
+  static BuiltSet<RepeatFrequency> get values => _$repeatFrequencyValues;
+  static RepeatFrequency valueOf(String name) => _$repeatFrequencyValueOf(name);
+
+  String serialize() {
+    return serializers.serializeWith(RepeatFrequency.serializer, this)
+        as String;
+  }
+
+  static RepeatFrequency deserialize(String string) {
+    return serializers.deserializeWith(RepeatFrequency.serializer, string)
+        as RepeatFrequency;
+  }
+
+  static Serializer<RepeatFrequency> get serializer =>
+      _$repeatFrequencySerializer;
+}
+
+class TrackingType extends EnumClass {
+  static const TrackingType complete = _$complete;
+  static const TrackingType progress = _$progress;
+
+  const TrackingType._(super.name);
+
+  static BuiltSet<TrackingType> get values => _$values;
+  static TrackingType valueOf(String name) => _$valueOf(name);
+
+  String serialize() {
+    return serializers.serializeWith(TrackingType.serializer, this) as String;
+  }
+
+  static TrackingType deserialize(String string) {
+    return serializers.deserializeWith(TrackingType.serializer, string)
+        as TrackingType;
+  }
+
+  static Serializer<TrackingType> get serializer => _$trackingTypeSerializer;
+}
 
 abstract class Habit implements Built<Habit, HabitBuilder> {
   @BuiltValueHook(initializeBuilder: true)

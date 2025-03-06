@@ -6,7 +6,90 @@ part of 'habit.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
+const RepeatFrequency _$daily = const RepeatFrequency._('daily');
+const RepeatFrequency _$weekly = const RepeatFrequency._('weekly');
+const RepeatFrequency _$monthly = const RepeatFrequency._('monthly');
+
+RepeatFrequency _$repeatFrequencyValueOf(String name) {
+  switch (name) {
+    case 'daily':
+      return _$daily;
+    case 'weekly':
+      return _$weekly;
+    case 'monthly':
+      return _$monthly;
+    default:
+      throw new ArgumentError(name);
+  }
+}
+
+final BuiltSet<RepeatFrequency> _$repeatFrequencyValues =
+    new BuiltSet<RepeatFrequency>(const <RepeatFrequency>[
+  _$daily,
+  _$weekly,
+  _$monthly,
+]);
+
+const TrackingType _$complete = const TrackingType._('complete');
+const TrackingType _$progress = const TrackingType._('progress');
+
+TrackingType _$valueOf(String name) {
+  switch (name) {
+    case 'complete':
+      return _$complete;
+    case 'progress':
+      return _$progress;
+    default:
+      throw new ArgumentError(name);
+  }
+}
+
+final BuiltSet<TrackingType> _$values =
+    new BuiltSet<TrackingType>(const <TrackingType>[
+  _$complete,
+  _$progress,
+]);
+
+Serializer<RepeatFrequency> _$repeatFrequencySerializer =
+    new _$RepeatFrequencySerializer();
+Serializer<TrackingType> _$trackingTypeSerializer =
+    new _$TrackingTypeSerializer();
 Serializer<Habit> _$habitSerializer = new _$HabitSerializer();
+
+class _$RepeatFrequencySerializer
+    implements PrimitiveSerializer<RepeatFrequency> {
+  @override
+  final Iterable<Type> types = const <Type>[RepeatFrequency];
+  @override
+  final String wireName = 'RepeatFrequency';
+
+  @override
+  Object serialize(Serializers serializers, RepeatFrequency object,
+          {FullType specifiedType = FullType.unspecified}) =>
+      object.name;
+
+  @override
+  RepeatFrequency deserialize(Serializers serializers, Object serialized,
+          {FullType specifiedType = FullType.unspecified}) =>
+      RepeatFrequency.valueOf(serialized as String);
+}
+
+class _$TrackingTypeSerializer implements PrimitiveSerializer<TrackingType> {
+  @override
+  final Iterable<Type> types = const <Type>[TrackingType];
+  @override
+  final String wireName = 'TrackingType';
+
+  @override
+  Object serialize(Serializers serializers, TrackingType object,
+          {FullType specifiedType = FullType.unspecified}) =>
+      object.name;
+
+  @override
+  TrackingType deserialize(Serializers serializers, Object serialized,
+          {FullType specifiedType = FullType.unspecified}) =>
+      TrackingType.valueOf(serialized as String);
+}
 
 class _$HabitSerializer implements StructuredSerializer<Habit> {
   @override

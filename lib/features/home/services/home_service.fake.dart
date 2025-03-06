@@ -8,7 +8,7 @@ class FakeHomeService implements HomeService {
       ..id = 'habit0'
       ..name = 'Morning Run'
       ..category = defaultCategories[0].toBuilder()
-      ..startDate = DateTime.now()
+      ..startDate = DateTime.now().toUtc()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
       ..trackingType = TrackingType.complete),
@@ -16,7 +16,7 @@ class FakeHomeService implements HomeService {
       ..id = 'habit1'
       ..name = 'Read a Book'
       ..category = defaultCategories[2].toBuilder()
-      ..startDate = DateTime.now()
+      ..startDate = DateTime.now().toUtc()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
       ..progress = 2
@@ -27,7 +27,7 @@ class FakeHomeService implements HomeService {
       ..id = 'habit2'
       ..name = 'Meditation'
       ..category = defaultCategories[2].toBuilder()
-      ..startDate = DateTime.now()
+      ..startDate = DateTime.now().toUtc()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
       ..trackingType = TrackingType.complete),
@@ -35,7 +35,7 @@ class FakeHomeService implements HomeService {
       ..id = 'habit3'
       ..name = 'Drink Water'
       ..category = defaultCategories[0].toBuilder()
-      ..startDate = DateTime.now()
+      ..startDate = DateTime.now().toUtc()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
       ..progress = 5
@@ -46,7 +46,7 @@ class FakeHomeService implements HomeService {
       ..id = 'habit4'
       ..name = 'Practice Coding'
       ..category = defaultCategories[1].toBuilder()
-      ..startDate = DateTime.now()
+      ..startDate = DateTime.now().toUtc()
       ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
       ..trackingType = TrackingType.complete),

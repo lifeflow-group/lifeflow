@@ -3,12 +3,18 @@ import 'package:built_value/standard_json_plugin.dart';
 
 import 'models/habit.dart';
 import 'models/habit_category.dart';
+import 'models/performance_metric.dart';
+import 'models/suggestion.dart';
 
 part 'serializers.g.dart';
 
 @SerializersFor([
   Habit,
   HabitCategory,
+  TrackingType,
+  RepeatFrequency,
+  Suggestion,
+  PerformanceMetric,
 ])
 final Serializers serializers =
     (_$serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();

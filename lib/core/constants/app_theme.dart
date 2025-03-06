@@ -4,7 +4,7 @@ class AppTheme {
   static const Color primaryColor = Color(0xFFFFA500);
   static const Color secondaryColor = Color(0xFF4A90E2);
   static const Color accentColor = Color(0xFFFF5722);
-  static const Color lightBackground = Color(0xFFFDF6E3);
+  static const Color lightBackground = Color.fromRGBO(250, 250, 250, 1);
   static const Color darkBackground = Color(0xFF1E1E1E);
   static const Color cardLight = Color(0xFFFDE6C1);
   static const Color cardDark = Color(0xFF2A2A2A);
@@ -15,11 +15,16 @@ class AppTheme {
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
       primary: primaryColor,
-      secondary: secondaryColor,
+      secondary: Color(0xFFBBDEFB),
+      secondaryContainer: Color(0xFFE3F2FD),
       surface: lightBackground,
       onPrimary: Colors.white,
       onSecondary: Colors.grey,
       onSurface: lightTextColor,
+      outline: Color(0xFF9E9E9E),
+      outlineVariant: Color(0xFFE0E0E0),
+      shadow: Color(0x40000000),
+      scrim: Color(0x80000000),
     ),
     scaffoldBackgroundColor: lightBackground,
     appBarTheme: AppBarTheme(

@@ -8,7 +8,11 @@ part of 'serializers.dart';
 
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Habit.serializer)
-      ..add(HabitCategory.serializer))
+      ..add(HabitCategory.serializer)
+      ..add(PerformanceMetric.serializer)
+      ..add(RepeatFrequency.serializer)
+      ..add(Suggestion.serializer)
+      ..add(TrackingType.serializer))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

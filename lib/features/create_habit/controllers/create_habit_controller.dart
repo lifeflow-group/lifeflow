@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/utils/helpers.dart';
 import '../../../data/models/habit.dart';
 import '../../../data/models/habit_category.dart';
 import '../repositories/create_habit_repository.dart';
+import '../services/notification_service.dart';
 
 // Provider for managing the habit name.
 final habitNameProvider = StateProvider<String>((ref) => '');
@@ -26,6 +28,9 @@ final habitTrackingTypeProvider =
 final habitQuantityProvider = StateProvider<int>((ref) => 0);
 
 final habitUnitProvider = StateProvider<String>((ref) => '');
+
+// Provider for managing the habit notification.
+final habitReminderProvider = StateProvider<bool>((ref) => false);
 
 // Provider containing functions to update data
 final createHabitControllerProvider = Provider((ref) {
@@ -67,6 +72,13 @@ class CreateHabitController {
     ref.read(habitUnitProvider.notifier).state = unit;
   }
 
+  Future<void> updateHabitReminder(bool reminder) async {
+    if (reminder) {
+      await NotificationService.requestPermission();
+    }
+    ref.read(habitReminderProvider.notifier).state = reminder;
+  }
+
   Future<Habit?> saveHabit() async {
     final name = ref.read(habitNameProvider);
     final category = ref.read(habitCategoryProvider);
@@ -77,6 +89,7 @@ class CreateHabitController {
     final trackingType = ref.read(habitTrackingTypeProvider);
     final quantity = ref.read(habitQuantityProvider);
     final unit = ref.read(habitUnitProvider);
+    final reminder = ref.read(habitReminderProvider);
 
     if (name.isEmpty || category == null) return null;
 
@@ -87,8 +100,19 @@ class CreateHabitController {
       trackingType: trackingType,
       quantity: trackingType == TrackingType.progress ? quantity : null,
       unit: trackingType == TrackingType.progress ? unit : null,
+      reminderEnabled: reminder,
     ));
 
+    if (reminder) {
+      if (habit != null) {
+        await NotificationService.scheduleNotification(
+          Uuid().v4().hashCode,
+          "Habit: $name",
+          "Time to complete your habit!",
+          date,
+        );
+      }
+    }
     // Reset form state after saving
     ref.read(habitNameProvider.notifier).state = '';
     ref.read(habitCategoryProvider.notifier).state = null;
@@ -97,6 +121,7 @@ class CreateHabitController {
     ref.read(habitTrackingTypeProvider.notifier).state = TrackingType.complete;
     ref.read(habitQuantityProvider.notifier).state = 0;
     ref.read(habitUnitProvider.notifier).state = '';
+    ref.read(habitReminderProvider.notifier).state = false;
 
     return habit;
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../data/models/habit.dart';
+import '../../../../data/domain/models/habit.dart';
 
 class SuggestedHabitCard extends StatelessWidget {
   final Habit habit;

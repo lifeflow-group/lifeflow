@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/models/habit.dart';
-import '../../../data/models/performance_metric.dart';
+import '../../../data/domain/models/habit.dart';
+import '../../../data/domain/models/performance_metric.dart';
 import '../services/habits_service.dart';
 
 final habitsRepositoryProvider = Provider((ref) {

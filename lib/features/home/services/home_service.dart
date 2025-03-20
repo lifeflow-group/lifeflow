@@ -1,6 +1,8 @@
-import '../../../data/models/habit.dart';
+import '../../../data/database/app_database.dart';
+import '../../../data/domain/models/habit.dart';
 
 abstract class HomeService {
   Future<List<Habit>> getHabits();
-  Future<void> updateHabit(Habit habit);
+  Future<List<(HabitTableData, HabitCategoryTableData)>>
+      getHabitsWithCategoriesByDate(DateTime date);
 }

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/utils/helpers.dart';
-import '../../../data/models/habit.dart';
-import '../../../data/models/habit_category.dart';
+import '../../../data/domain/models/habit.dart';
+import '../../../data/domain/models/habit_category.dart';
 import '../repositories/create_habit_repository.dart';
 import '../services/notification_service.dart';
 
@@ -93,7 +93,7 @@ class CreateHabitController {
 
     if (name.isEmpty || category == null) return null;
 
-    final habit = await _repo.saveHabit(newHabit(
+    final habitModel = newHabit(
       name: name,
       category: category,
       startDate: date,
@@ -101,17 +101,17 @@ class CreateHabitController {
       quantity: trackingType == TrackingType.progress ? quantity : null,
       unit: trackingType == TrackingType.progress ? unit : null,
       reminderEnabled: reminder,
-    ));
+    );
+
+    await _repo.saveHabit(habitModel);
 
     if (reminder) {
-      if (habit != null) {
-        await NotificationService.scheduleNotification(
-          Uuid().v4().hashCode,
-          "Habit: $name",
-          "Time to complete your habit!",
-          date,
-        );
-      }
+      await NotificationService.scheduleNotification(
+        Uuid().v4().hashCode,
+        "Habit: $name",
+        "Time to complete your habit!",
+        date,
+      );
     }
     // Reset form state after saving
     ref.read(habitNameProvider.notifier).state = '';
@@ -123,6 +123,6 @@ class CreateHabitController {
     ref.read(habitUnitProvider.notifier).state = '';
     ref.read(habitReminderProvider.notifier).state = false;
 
-    return habit;
+    return habitModel;
   }
 }

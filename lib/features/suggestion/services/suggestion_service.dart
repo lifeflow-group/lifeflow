@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../../data/models/habit.dart';
-import '../../../data/models/performance_metric.dart';
-import '../../../data/models/suggestion.dart';
+import '../../../data/domain/models/habit.dart';
+import '../../../data/domain/models/performance_metric.dart';
+import '../../../data/domain/models/suggestion.dart';
 
 final suggestionServiceProvider = Provider<SuggestionService>((ref) {
   return SuggestionService();

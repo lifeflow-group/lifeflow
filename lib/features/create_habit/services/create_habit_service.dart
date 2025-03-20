@@ -1,14 +1,21 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/models/habit.dart';
+
+import '../../../data/database/app_database.dart';
+import '../../../data/database/database_provider.dart';
 
 final createHabitServiceProvider = Provider<CreateHabitService>((ref) {
-  return CreateHabitService();
+  final repo = ref.read(appDatabaseProvider);
+  return CreateHabitService(repo);
 });
 
 class CreateHabitService {
-  Future<Habit?> saveHabit(Habit habit) async {
-    debugPrint('Saving habit: $habit');
-    return habit;
+  final AppDatabase _database;
+  CreateHabitService(this._database);
+
+  Future<void> saveHabit(HabitTableCompanion habit) async {
+    if (habit.name.value.isEmpty) {
+      throw Exception("Habit name is required");
+    }
+    await _database.habitDao.insertHabit(habit);
   }
 }

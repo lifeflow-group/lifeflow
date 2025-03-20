@@ -1,6 +1,8 @@
+import 'package:lifeflow/data/database/app_database.dart';
+
 import '../../../core/utils/helpers.dart';
+import '../../../data/domain/models/habit.dart';
 import 'home_service.dart';
-import '../../../data/models/habit.dart';
 
 class FakeHomeService implements HomeService {
   final List<Habit> _habits = [
@@ -53,15 +55,16 @@ class FakeHomeService implements HomeService {
   ];
 
   @override
-  Future<List<Habit>> getHabits() async {
-    return _habits;
+  Future<List<(HabitTableData, HabitCategoryTableData)>>
+      getHabitsWithCategoriesByDate(DateTime date) {
+    throw UnimplementedError();
   }
 
   @override
-  Future<void> updateHabit(Habit habit) async {
-    final index = _habits.indexWhere((h) => h.id == habit.id);
-    if (index != -1) {
-      _habits[index] = habit;
-    }
+  Future<List<Habit>> getHabits() async {
+    // Simulate delay to mimic network/database latency
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    return _habits;
   }
 }

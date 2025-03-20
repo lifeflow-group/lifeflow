@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../data/models/habit.dart';
-import '../../../data/models/habit_category.dart';
+import '../../../data/domain/models/habit.dart';
+import '../../../data/domain/models/habit_category.dart';
 import '../controllers/create_habit_controller.dart';
 import 'widgets/category_bottom_sheet.dart';
 

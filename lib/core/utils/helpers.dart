@@ -1,7 +1,7 @@
 import 'package:uuid/uuid.dart';
 
-import '../../data/models/habit.dart';
-import '../../data/models/habit_category.dart';
+import '../../data/domain/models/habit.dart';
+import '../../data/domain/models/habit_category.dart';
 
 Habit newHabit({
   required String name,
@@ -25,6 +25,14 @@ Habit newHabit({
     ..unit = unit
     ..progress = 0
     ..completed = false);
+}
+
+HabitCategory? getHabitCategoryById(String id) {
+  try {
+    return defaultCategories.firstWhere((category) => category.id == id);
+  } catch (e) {
+    return null;
+  }
 }
 
 final List<HabitCategory> defaultCategories = [

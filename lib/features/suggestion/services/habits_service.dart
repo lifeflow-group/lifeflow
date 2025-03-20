@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/models/habit.dart';
+import '../../../data/domain/models/habit.dart';
 
 final habitsServiceProvider = Provider((ref) => HabitsService());
 

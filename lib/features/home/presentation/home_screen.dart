@@ -3,28 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../data/models/habit.dart';
 import '../controllers/home_controller.dart';
 import 'widgets/habit_item.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(
-        () => ref.read(filteredHabitsProvider.notifier).fetchHabits());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final habits = ref.watch(filteredHabitsProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final habitsAsync = ref.watch(homeControllerProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -32,12 +19,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             _DateSelector(),
             const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                itemCount: habits.length,
-                itemBuilder: (context, index) =>
-                    HabitItem(habit: habits[index]),
-              ),
+            habitsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(child: Text('Error: $error')),
+              data: (habits) {
+                if (habits.isEmpty) {
+                  return const Expanded(
+                    child: Center(
+                      child: Text(
+                        "No habits yet. Tap '+' to add your habit!",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  );
+                }
+
+                return Expanded(
+                  child: ListView.builder(
+                    itemCount: habits.length,
+                    itemBuilder: (context, index) =>
+                        HabitItem(habit: habits[index]),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 8),
           ],
@@ -46,9 +50,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           onPressed: () async {
             final newHabit = await context.push('/create-habit');
             if (newHabit == null) return;
-            ref
-                .read(filteredHabitsProvider.notifier)
-                .addHabit(newHabit as Habit);
+            // Re-fetch the homeControllerProvider (auto triggers build())
+            ref.invalidate(homeControllerProvider);
           },
           child: const Icon(Icons.add),
         ),

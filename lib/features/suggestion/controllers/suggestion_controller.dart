@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/models/suggestion.dart';
+import '../../../data/domain/models/suggestion.dart';
 import '../repositories/habits_repository.dart';
 import '../repositories/suggestion_repository.dart';
 

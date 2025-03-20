@@ -1,22 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
-import '../../../data/models/habit.dart';
+import '../../../data/domain/models/habit.dart';
 import '../repositories/home_repository.dart';
-import '../services/home_service.dart';
-import '../services/home_service.fake.dart';
-
-final homeServiceProvider = Provider<HomeService>((ref) => FakeHomeService());
-
-final homeRepositoryProvider = Provider<HomeRepository>((ref) {
-  final homeService = ref.watch(homeServiceProvider);
-  return HomeRepository(homeService);
-});
-
-final habitsProvider = FutureProvider<List<Habit>>((ref) async {
-  final homeRepository = ref.watch(homeRepositoryProvider);
-  return homeRepository.getHabits();
-});
 
 final selectedDateProvider =
     StateNotifierProvider<SelectedDateNotifier, DateTime>(
@@ -30,43 +17,26 @@ class SelectedDateNotifier extends StateNotifier<DateTime> {
   }
 }
 
-class FilteredHabitsNotifier extends StateNotifier<List<Habit>> {
-  final Ref ref;
+final homeControllerProvider =
+    AsyncNotifierProvider.autoDispose<HomeController, List<Habit>>(
+        HomeController.new);
 
-  FilteredHabitsNotifier(this.ref) : super([]) {
-    fetchHabits();
+class HomeController extends AutoDisposeAsyncNotifier<List<Habit>> {
+  HomeRepository get _repo => ref.read(homeRepositoryProvider);
+
+  @override
+  Future<List<Habit>> build() async {
+    ref.listen<DateTime>(selectedDateProvider, (previous, next) {
+      ref.invalidateSelf(); // Re-fetch when selected date changes
+    });
+
+    return await _fetchHabits();
   }
 
-  Future<void> fetchHabits() async {
-    try {
-      // Get habits directly from the repository
-      final homeRepository = ref.read(homeRepositoryProvider);
-      final habits = await homeRepository.getHabits();
+  Future<List<Habit>> _fetchHabits() async {
+    final selectedDate = ref.read(selectedDateProvider);
+    final habits = await _repo.getHabitsByDate(selectedDate);
 
-      final selectedDate = ref.read(selectedDateProvider);
-
-      // Filter habits
-      final filtered = habits.where((habit) {
-        if (habit.repeatFrequency == RepeatFrequency.daily) {
-          return true;
-        }
-        return DateFormat('yyyy-MM-dd').format(habit.startDate) ==
-            DateFormat('yyyy-MM-dd').format(selectedDate);
-      }).toList();
-
-      // Update state
-      state = filtered;
-    } catch (e) {
-      state = [];
-    }
-  }
-
-  Future<void> addHabit(Habit habit) async {
-    state.add(habit);
+    return habits;
   }
 }
-
-final filteredHabitsProvider =
-    StateNotifierProvider<FilteredHabitsNotifier, List<Habit>>((ref) {
-  return FilteredHabitsNotifier(ref);
-});

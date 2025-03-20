@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../data/models/habit.dart';
+import '../../../../data/domain/models/habit.dart';
 
 class HabitItem extends StatelessWidget {
   const HabitItem({super.key, required this.habit});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lifeflow/features/suggestion/presentation/widgets/suggested_habit_card.dart';
 
-import '../../../../data/models/suggestion.dart';
+import '../../../../data/domain/models/suggestion.dart';
 
 class SuggestionCard extends StatelessWidget {
   final Suggestion suggestion;

@@ -9,6 +9,8 @@ part of 'serializers.dart';
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Habit.serializer)
       ..add(HabitCategory.serializer)
+      ..add(HabitException.serializer)
+      ..add(HabitSeries.serializer)
       ..add(PerformanceMetric.serializer)
       ..add(RepeatFrequency.serializer)
       ..add(Suggestion.serializer)

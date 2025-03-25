@@ -13,7 +13,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/splash', builder: (context, state) => SplashScreen()),
       GoRoute(
           path: '/create-habit',
-          builder: (context, state) => const CreateHabitScreen()),
+          builder: (context, state) => CreateHabitScreen()),
     ],
   );
 });

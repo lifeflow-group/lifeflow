@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
+import '../../../data/domain/models/habit_series.dart';
 import '../repositories/create_habit_repository.dart';
 import '../services/notification_service.dart';
 
@@ -19,6 +20,10 @@ final habitDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
 
 // Provider for managing the habit start time.
 final habitTimeProvider = StateProvider<TimeOfDay>((ref) => TimeOfDay.now());
+
+// Provider for managing the habit repeat frequency.
+final habitRepeatFrequencyProvider =
+    StateProvider<RepeatFrequency?>((ref) => null);
 
 // Provider for managing the habit tracking type.
 final habitTrackingTypeProvider =
@@ -60,6 +65,10 @@ class CreateHabitController {
     ref.read(habitTimeProvider.notifier).state = time;
   }
 
+  void updateHabitRepeatFrequency(RepeatFrequency? frequency) {
+    ref.read(habitRepeatFrequencyProvider.notifier).state = frequency;
+  }
+
   void updateTrackingType(TrackingType type) {
     ref.read(habitTrackingTypeProvider.notifier).state = type;
   }
@@ -86,6 +95,7 @@ class CreateHabitController {
     final date = ref
         .read(habitDateProvider)
         .copyWith(hour: time.hour, minute: time.minute);
+    final repeatFrequency = ref.read(habitRepeatFrequencyProvider);
     final trackingType = ref.read(habitTrackingTypeProvider);
     final quantity = ref.read(habitQuantityProvider);
     final unit = ref.read(habitUnitProvider);
@@ -93,36 +103,79 @@ class CreateHabitController {
 
     if (name.isEmpty || category == null) return null;
 
-    final habitModel = newHabit(
+    Habit habitModel = newHabit(
       name: name,
       category: category,
       startDate: date,
       trackingType: trackingType,
-      quantity: trackingType == TrackingType.progress ? quantity : null,
+      targetValue: trackingType == TrackingType.progress ? quantity : null,
       unit: trackingType == TrackingType.progress ? unit : null,
       reminderEnabled: reminder,
     );
 
+    HabitSeries? habitSeries;
+    if (repeatFrequency != null) {
+      habitSeries = newHabitSeries(
+        habitId: habitModel.id,
+        startDate: habitModel.startDate,
+        repeatFrequency: repeatFrequency,
+      );
+      await _repo.saveHabitSeries(habitSeries);
+
+      habitModel =
+          habitModel.rebuild((p0) => p0.habitSeriesId = habitSeries!.id);
+    }
+
     await _repo.saveHabit(habitModel);
 
     if (reminder) {
+      await _scheduleRecurringReminders(habitModel, habitSeries);
+    }
+
+    // Reset form state after saving
+    _resetForm();
+
+    return habitModel;
+  }
+
+  // Schedules reminders for recurring habits
+  Future<void> _scheduleRecurringReminders(
+      Habit habit, HabitSeries? habitSeries) async {
+    if (habitSeries == null) {
+      // One-time habit
       await NotificationService.scheduleNotification(
         Uuid().v4().hashCode,
-        "Habit: $name",
+        "Habit: ${habit.name}",
+        "Time to complete your habit!",
+        habit.startDate,
+      );
+      return;
+    }
+
+    // Get recurring dates for next 30 days
+    final recurringDates = generateRecurringDates(habitSeries, daysAhead: 30);
+
+    for (final date in recurringDates) {
+      await NotificationService.scheduleNotification(
+        Uuid().v4().hashCode,
+        "Habit: ${habit.name}",
         "Time to complete your habit!",
         date,
       );
     }
-    // Reset form state after saving
+
+    debugPrint('Scheduled reminders for ${recurringDates.length} instances');
+  }
+
+  void _resetForm() {
     ref.read(habitNameProvider.notifier).state = '';
     ref.read(habitCategoryProvider.notifier).state = null;
     ref.read(habitDateProvider.notifier).state = DateTime.now();
     ref.read(habitTimeProvider.notifier).state = TimeOfDay.now();
+    ref.read(habitRepeatFrequencyProvider.notifier).state = null;
     ref.read(habitTrackingTypeProvider.notifier).state = TrackingType.complete;
     ref.read(habitQuantityProvider.notifier).state = 0;
     ref.read(habitUnitProvider.notifier).state = '';
     ref.read(habitReminderProvider.notifier).state = false;
-
-    return habitModel;
   }
 }

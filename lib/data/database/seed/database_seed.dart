@@ -10,7 +10,7 @@ Future<void> seedDefaultCategories(AppDatabase db) async {
   if (existing.isEmpty) {
     for (final category in defaultCategories) {
       await db.categoryDao.insertCategory(
-        HabitCategoryTableCompanion.insert(
+        HabitCategoriesTableCompanion.insert(
           id: category.id,
           label: category.label,
           iconPath: category.iconPath,

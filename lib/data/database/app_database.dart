@@ -7,24 +7,29 @@ import 'package:path_provider/path_provider.dart';
 
 import 'dao/category_dao.dart';
 import 'dao/habit_dao.dart';
-import 'tables/habits.dart';
-import 'tables/habit_categories.dart';
+import 'dao/habit_series_dao.dart';
+import 'tables/habit_exceptions_table.dart';
+import 'tables/habit_series_table.dart';
+import 'tables/habits_table.dart';
+import 'tables/habit_categories_table.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(
-    tables: [HabitTable, HabitCategoryTable], daos: [HabitDao, CategoryDao])
+@DriftDatabase(tables: [
+  HabitsTable,
+  HabitCategoriesTable,
+  HabitSeriesTable,
+  HabitExceptionsTable
+], daos: [
+  HabitDao,
+  CategoryDao,
+  HabitSeriesDao,
+])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
-
-  @override
-  HabitDao get habitDao => HabitDao(this);
-
-  @override
-  CategoryDao get categoryDao => CategoryDao(this);
 }
 
 LazyDatabase _openConnection() {

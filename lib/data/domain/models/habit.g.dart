@@ -119,17 +119,23 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
           specifiedType: const FullType(TrackingType)),
     ];
     Object? value;
-    value = object.repeatFrequency;
+    value = object.habitSeriesId;
     if (value != null) {
       result
-        ..add('repeatFrequency')
+        ..add('habitSeriesId')
         ..add(serializers.serialize(value,
-            specifiedType: const FullType(RepeatFrequency)));
+            specifiedType: const FullType(String)));
     }
-    value = object.quantity;
+    value = object.targetValue;
     if (value != null) {
       result
-        ..add('quantity')
+        ..add('targetValue')
+        ..add(serializers.serialize(value, specifiedType: const FullType(int)));
+    }
+    value = object.currentValue;
+    if (value != null) {
+      result
+        ..add('currentValue')
         ..add(serializers.serialize(value, specifiedType: const FullType(int)));
     }
     value = object.unit;
@@ -139,16 +145,10 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    value = object.progress;
+    value = object.isCompleted;
     if (value != null) {
       result
-        ..add('progress')
-        ..add(serializers.serialize(value, specifiedType: const FullType(int)));
-    }
-    value = object.completed;
-    if (value != null) {
-      result
-        ..add('completed')
+        ..add('isCompleted')
         ..add(
             serializers.serialize(value, specifiedType: const FullType(bool)));
     }
@@ -182,10 +182,9 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
           result.startDate = serializers.deserialize(value,
               specifiedType: const FullType(DateTime))! as DateTime;
           break;
-        case 'repeatFrequency':
-          result.repeatFrequency = serializers.deserialize(value,
-                  specifiedType: const FullType(RepeatFrequency))
-              as RepeatFrequency?;
+        case 'habitSeriesId':
+          result.habitSeriesId = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'reminderEnabled':
           result.reminderEnabled = serializers.deserialize(value,
@@ -195,20 +194,20 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
           result.trackingType = serializers.deserialize(value,
               specifiedType: const FullType(TrackingType))! as TrackingType;
           break;
-        case 'quantity':
-          result.quantity = serializers.deserialize(value,
+        case 'targetValue':
+          result.targetValue = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int?;
+          break;
+        case 'currentValue':
+          result.currentValue = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int?;
           break;
         case 'unit':
           result.unit = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
-        case 'progress':
-          result.progress = serializers.deserialize(value,
-              specifiedType: const FullType(int)) as int?;
-          break;
-        case 'completed':
-          result.completed = serializers.deserialize(value,
+        case 'isCompleted':
+          result.isCompleted = serializers.deserialize(value,
               specifiedType: const FullType(bool)) as bool?;
           break;
       }
@@ -228,19 +227,19 @@ class _$Habit extends Habit {
   @override
   final DateTime startDate;
   @override
-  final RepeatFrequency? repeatFrequency;
+  final String? habitSeriesId;
   @override
   final bool reminderEnabled;
   @override
   final TrackingType trackingType;
   @override
-  final int? quantity;
+  final int? targetValue;
+  @override
+  final int? currentValue;
   @override
   final String? unit;
   @override
-  final int? progress;
-  @override
-  final bool? completed;
+  final bool? isCompleted;
 
   factory _$Habit([void Function(HabitBuilder)? updates]) =>
       (new HabitBuilder()..update(updates))._build();
@@ -250,13 +249,13 @@ class _$Habit extends Habit {
       required this.name,
       required this.category,
       required this.startDate,
-      this.repeatFrequency,
+      this.habitSeriesId,
       required this.reminderEnabled,
       required this.trackingType,
-      this.quantity,
+      this.targetValue,
+      this.currentValue,
       this.unit,
-      this.progress,
-      this.completed})
+      this.isCompleted})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(id, r'Habit', 'id');
     BuiltValueNullFieldError.checkNotNull(name, r'Habit', 'name');
@@ -283,13 +282,13 @@ class _$Habit extends Habit {
         name == other.name &&
         category == other.category &&
         startDate == other.startDate &&
-        repeatFrequency == other.repeatFrequency &&
+        habitSeriesId == other.habitSeriesId &&
         reminderEnabled == other.reminderEnabled &&
         trackingType == other.trackingType &&
-        quantity == other.quantity &&
+        targetValue == other.targetValue &&
+        currentValue == other.currentValue &&
         unit == other.unit &&
-        progress == other.progress &&
-        completed == other.completed;
+        isCompleted == other.isCompleted;
   }
 
   @override
@@ -299,13 +298,13 @@ class _$Habit extends Habit {
     _$hash = $jc(_$hash, name.hashCode);
     _$hash = $jc(_$hash, category.hashCode);
     _$hash = $jc(_$hash, startDate.hashCode);
-    _$hash = $jc(_$hash, repeatFrequency.hashCode);
+    _$hash = $jc(_$hash, habitSeriesId.hashCode);
     _$hash = $jc(_$hash, reminderEnabled.hashCode);
     _$hash = $jc(_$hash, trackingType.hashCode);
-    _$hash = $jc(_$hash, quantity.hashCode);
+    _$hash = $jc(_$hash, targetValue.hashCode);
+    _$hash = $jc(_$hash, currentValue.hashCode);
     _$hash = $jc(_$hash, unit.hashCode);
-    _$hash = $jc(_$hash, progress.hashCode);
-    _$hash = $jc(_$hash, completed.hashCode);
+    _$hash = $jc(_$hash, isCompleted.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -317,13 +316,13 @@ class _$Habit extends Habit {
           ..add('name', name)
           ..add('category', category)
           ..add('startDate', startDate)
-          ..add('repeatFrequency', repeatFrequency)
+          ..add('habitSeriesId', habitSeriesId)
           ..add('reminderEnabled', reminderEnabled)
           ..add('trackingType', trackingType)
-          ..add('quantity', quantity)
+          ..add('targetValue', targetValue)
+          ..add('currentValue', currentValue)
           ..add('unit', unit)
-          ..add('progress', progress)
-          ..add('completed', completed))
+          ..add('isCompleted', isCompleted))
         .toString();
   }
 }
@@ -348,10 +347,10 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
   DateTime? get startDate => _$this._startDate;
   set startDate(DateTime? startDate) => _$this._startDate = startDate;
 
-  RepeatFrequency? _repeatFrequency;
-  RepeatFrequency? get repeatFrequency => _$this._repeatFrequency;
-  set repeatFrequency(RepeatFrequency? repeatFrequency) =>
-      _$this._repeatFrequency = repeatFrequency;
+  String? _habitSeriesId;
+  String? get habitSeriesId => _$this._habitSeriesId;
+  set habitSeriesId(String? habitSeriesId) =>
+      _$this._habitSeriesId = habitSeriesId;
 
   bool? _reminderEnabled;
   bool? get reminderEnabled => _$this._reminderEnabled;
@@ -363,21 +362,21 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
   set trackingType(TrackingType? trackingType) =>
       _$this._trackingType = trackingType;
 
-  int? _quantity;
-  int? get quantity => _$this._quantity;
-  set quantity(int? quantity) => _$this._quantity = quantity;
+  int? _targetValue;
+  int? get targetValue => _$this._targetValue;
+  set targetValue(int? targetValue) => _$this._targetValue = targetValue;
+
+  int? _currentValue;
+  int? get currentValue => _$this._currentValue;
+  set currentValue(int? currentValue) => _$this._currentValue = currentValue;
 
   String? _unit;
   String? get unit => _$this._unit;
   set unit(String? unit) => _$this._unit = unit;
 
-  int? _progress;
-  int? get progress => _$this._progress;
-  set progress(int? progress) => _$this._progress = progress;
-
-  bool? _completed;
-  bool? get completed => _$this._completed;
-  set completed(bool? completed) => _$this._completed = completed;
+  bool? _isCompleted;
+  bool? get isCompleted => _$this._isCompleted;
+  set isCompleted(bool? isCompleted) => _$this._isCompleted = isCompleted;
 
   HabitBuilder() {
     Habit._setDefaults(this);
@@ -390,13 +389,13 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
       _name = $v.name;
       _category = $v.category.toBuilder();
       _startDate = $v.startDate;
-      _repeatFrequency = $v.repeatFrequency;
+      _habitSeriesId = $v.habitSeriesId;
       _reminderEnabled = $v.reminderEnabled;
       _trackingType = $v.trackingType;
-      _quantity = $v.quantity;
+      _targetValue = $v.targetValue;
+      _currentValue = $v.currentValue;
       _unit = $v.unit;
-      _progress = $v.progress;
-      _completed = $v.completed;
+      _isCompleted = $v.isCompleted;
       _$v = null;
     }
     return this;
@@ -426,15 +425,15 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
             category: category.build(),
             startDate: BuiltValueNullFieldError.checkNotNull(
                 startDate, r'Habit', 'startDate'),
-            repeatFrequency: repeatFrequency,
+            habitSeriesId: habitSeriesId,
             reminderEnabled: BuiltValueNullFieldError.checkNotNull(
                 reminderEnabled, r'Habit', 'reminderEnabled'),
             trackingType: BuiltValueNullFieldError.checkNotNull(
                 trackingType, r'Habit', 'trackingType'),
-            quantity: quantity,
+            targetValue: targetValue,
+            currentValue: currentValue,
             unit: unit,
-            progress: progress,
-            completed: completed,
+            isCompleted: isCompleted,
           );
     } catch (_) {
       late String _$failedField;

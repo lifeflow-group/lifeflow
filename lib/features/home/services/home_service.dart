@@ -3,6 +3,6 @@ import '../../../data/domain/models/habit.dart';
 
 abstract class HomeService {
   Future<List<Habit>> getHabits();
-  Future<List<(HabitTableData, HabitCategoryTableData)>>
+  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
       getHabitsWithCategoriesByDate(DateTime date);
 }

@@ -12,10 +12,14 @@ class CreateHabitService {
   final AppDatabase _database;
   CreateHabitService(this._database);
 
-  Future<void> saveHabit(HabitTableCompanion habit) async {
+  Future<void> saveHabit(HabitsTableCompanion habit) async {
     if (habit.name.value.isEmpty) {
       throw Exception("Habit name is required");
     }
     await _database.habitDao.insertHabit(habit);
+  }
+
+  Future<void> saveHabitSeries(HabitSeriesTableCompanion habitSeries) async {
+    await _database.habitSeriesDao.insertHabitSeries(habitSeries);
   }
 }

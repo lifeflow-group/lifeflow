@@ -11,7 +11,6 @@ class FakeHomeService implements HomeService {
       ..name = 'Morning Run'
       ..category = defaultCategories[0].toBuilder()
       ..startDate = DateTime.now().toUtc()
-      ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
       ..trackingType = TrackingType.complete),
     Habit((b) => b
@@ -19,10 +18,9 @@ class FakeHomeService implements HomeService {
       ..name = 'Read a Book'
       ..category = defaultCategories[2].toBuilder()
       ..startDate = DateTime.now().toUtc()
-      ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
-      ..progress = 2
-      ..quantity = 10
+      ..currentValue = 2
+      ..targetValue = 10
       ..unit = 'pages'
       ..trackingType = TrackingType.progress),
     Habit((b) => b
@@ -30,7 +28,6 @@ class FakeHomeService implements HomeService {
       ..name = 'Meditation'
       ..category = defaultCategories[2].toBuilder()
       ..startDate = DateTime.now().toUtc()
-      ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
       ..trackingType = TrackingType.complete),
     Habit((b) => b
@@ -38,10 +35,9 @@ class FakeHomeService implements HomeService {
       ..name = 'Drink Water'
       ..category = defaultCategories[0].toBuilder()
       ..startDate = DateTime.now().toUtc()
-      ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
-      ..progress = 5
-      ..quantity = 10
+      ..currentValue = 5
+      ..targetValue = 10
       ..unit = 'glasses'
       ..trackingType = TrackingType.progress),
     Habit((b) => b
@@ -49,13 +45,12 @@ class FakeHomeService implements HomeService {
       ..name = 'Practice Coding'
       ..category = defaultCategories[1].toBuilder()
       ..startDate = DateTime.now().toUtc()
-      ..repeatFrequency = RepeatFrequency.daily
       ..reminderEnabled = true
       ..trackingType = TrackingType.complete),
   ];
 
   @override
-  Future<List<(HabitTableData, HabitCategoryTableData)>>
+  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
       getHabitsWithCategoriesByDate(DateTime date) {
     throw UnimplementedError();
   }

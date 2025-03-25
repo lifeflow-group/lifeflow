@@ -16,7 +16,7 @@ class DriftHomeService implements HomeService {
   DriftHomeService(this._database);
 
   @override
-  Future<List<(HabitTableData, HabitCategoryTableData)>>
+  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
       getHabitsWithCategoriesByDate(DateTime date) async {
     final records =
         await _database.habitDao.getHabitsWithCategoriesByDate(date);

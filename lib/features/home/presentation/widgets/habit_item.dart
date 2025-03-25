@@ -24,12 +24,12 @@ class HabitItem extends StatelessWidget {
         subtitle: Text(
           habit.trackingType == TrackingType.complete
               ? DateFormat('HH:mm').format(habit.startDate.toLocal())
-              : '${habit.progress ?? 0}/${habit.quantity} ${habit.unit}',
+              : '${habit.currentValue ?? 0}/${habit.targetValue} ${habit.unit}',
         ),
         trailing: habit.trackingType == TrackingType.complete
             ? Radio<bool>(
                 value: true,
-                groupValue: habit.completed ?? false,
+                groupValue: habit.isCompleted ?? false,
                 onChanged: (value) {
                   // TODO: Implement the onChanged logic for habit completion
                 },

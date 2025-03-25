@@ -4,7 +4,11 @@ part of 'habit_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$HabitDaoMixin on DatabaseAccessor<AppDatabase> {
-  $HabitCategoryTableTable get habitCategoryTable =>
-      attachedDatabase.habitCategoryTable;
-  $HabitTableTable get habitTable => attachedDatabase.habitTable;
+  $HabitCategoriesTableTable get habitCategoriesTable =>
+      attachedDatabase.habitCategoriesTable;
+  $HabitsTableTable get habitsTable => attachedDatabase.habitsTable;
+  $HabitSeriesTableTable get habitSeriesTable =>
+      attachedDatabase.habitSeriesTable;
+  $HabitExceptionsTableTable get habitExceptionsTable =>
+      attachedDatabase.habitExceptionsTable;
 }

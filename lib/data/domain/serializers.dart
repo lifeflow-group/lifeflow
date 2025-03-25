@@ -4,6 +4,8 @@ import 'package:built_value/standard_json_plugin.dart';
 import 'datetime_milliseconds_serializer.dart';
 import 'models/habit.dart';
 import 'models/habit_category.dart';
+import 'models/habit_exception.dart';
+import 'models/habit_series.dart';
 import 'models/performance_metric.dart';
 import 'models/suggestion.dart';
 
@@ -16,6 +18,8 @@ part 'serializers.g.dart';
   RepeatFrequency,
   Suggestion,
   PerformanceMetric,
+  HabitSeries,
+  HabitException,
 ])
 final Serializers serializers = (_$serializers.toBuilder()
       ..add(MillisecondsSinceEpochDateTimeSerializer())

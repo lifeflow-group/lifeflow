@@ -27,12 +27,12 @@ class HabitsRepository {
       double? totalProgress;
 
       if (habit.trackingType == TrackingType.complete) {
-        completionRate = (habit.completed == true) ? 100.0 : 0.0;
+        completionRate = (habit.isCompleted == true) ? 100.0 : 0.0;
         score = completionRate; // Score based on completion rate
       } else if (habit.trackingType == TrackingType.progress) {
-        totalProgress = habit.progress?.toDouble() ?? 0.0;
-        averageProgress = (habit.quantity != null && habit.quantity! > 0)
-            ? (totalProgress / habit.quantity!) * 100
+        totalProgress = habit.currentValue?.toDouble() ?? 0.0;
+        averageProgress = (habit.targetValue != null && habit.targetValue! > 0)
+            ? (totalProgress / habit.targetValue!) * 100
             : totalProgress;
 
         score = averageProgress; // Score based on average progress

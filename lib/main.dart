@@ -9,10 +9,10 @@ import 'features/create_habit/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationService.init();
   final database = AppDatabase();
-  // Seed database before app runs
   await seedDatabase(database);
+  await NotificationService.init();
+  NotificationService.scheduleUpcomingNotifications(database);
 
   runApp(ProviderScope(
     overrides: [appDatabaseProvider.overrideWithValue(database)],

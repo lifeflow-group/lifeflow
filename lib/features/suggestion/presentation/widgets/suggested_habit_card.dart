@@ -45,7 +45,7 @@ class SuggestedHabitCard extends StatelessWidget {
                         habit.trackingType == TrackingType.complete
                             ? DateFormat('HH:mm')
                                 .format(habit.startDate.toLocal())
-                            : '${habit.progress ?? 0}/${habit.quantity} ${habit.unit}',
+                            : '${habit.currentValue ?? 0}/${habit.targetValue} ${habit.unit}',
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
@@ -92,7 +92,7 @@ class SuggestedHabitCard extends StatelessWidget {
 
   // Function to build subtitle text dynamically
   String _buildSubtitle(Habit habit) {
-    String repeatText = "Repeats every ${habit.repeatFrequency}.";
+    String repeatText = "Repeats every ${habit.habitSeriesId}.";
     String reminderText =
         habit.reminderEnabled ? "Has Reminder." : "No Reminder.";
     return "$repeatText $reminderText";

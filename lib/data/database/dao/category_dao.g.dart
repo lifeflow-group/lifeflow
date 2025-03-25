@@ -4,6 +4,6 @@ part of 'category_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$CategoryDaoMixin on DatabaseAccessor<AppDatabase> {
-  $HabitCategoryTableTable get habitCategoryTable =>
-      attachedDatabase.habitCategoryTable;
+  $HabitCategoriesTableTable get habitCategoriesTable =>
+      attachedDatabase.habitCategoriesTable;
 }

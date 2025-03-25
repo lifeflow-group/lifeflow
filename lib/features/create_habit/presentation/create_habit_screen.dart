@@ -8,11 +8,24 @@ import '../../../data/domain/models/habit_category.dart';
 import '../controllers/create_habit_controller.dart';
 import 'widgets/category_bottom_sheet.dart';
 
-class CreateHabitScreen extends ConsumerWidget {
+class CreateHabitScreen extends ConsumerStatefulWidget {
   const CreateHabitScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CreateHabitScreen> createState() => _CreateHabitScreenState();
+}
+
+class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
+  final focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final habitName = ref.watch(habitNameProvider);
     final habitCategory = ref.watch(habitCategoryProvider);
     final selectedDate = ref.watch(habitDateProvider);
@@ -33,6 +46,8 @@ class CreateHabitScreen extends ConsumerWidget {
             children: [
               /// Habit Name
               TextField(
+                focusNode: focusNode,
+                onTapOutside: (event) => focusNode.unfocus(),
                 decoration: InputDecoration(
                   labelText: "Habit Name",
                   border: OutlineInputBorder(
@@ -187,6 +202,48 @@ class CreateHabitScreen extends ConsumerWidget {
                                 color: Theme.of(context).colorScheme.onSurface),
                       ),
                       Icon(Icons.access_time,
+                          color: Theme.of(context).colorScheme.onSurface),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+
+              /// Select Repeat Frequency
+              InkWell(
+                onTap: () async {
+                  final selectedFrequency =
+                      await _showRepeatFrequencyBottomSheet(context);
+                  controller.updateHabitRepeatFrequency(selectedFrequency);
+                },
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: "Repeat",
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          width: 0.5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          width: 0.5),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _getRepeatFrequencyLabel(
+                            ref.watch(habitRepeatFrequencyProvider), context),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                      ),
+                      Icon(Icons.chevron_right_rounded,
                           color: Theme.of(context).colorScheme.onSurface),
                     ],
                   ),
@@ -384,6 +441,68 @@ class CreateHabitScreen extends ConsumerWidget {
               child: const Text("Save"),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  String _getRepeatFrequencyLabel(
+      RepeatFrequency? frequency, BuildContext context) {
+    if (frequency == null) {
+      return "No Repeat";
+    }
+    final label = frequency.toString().split('.').last;
+    return label[0].toUpperCase() + label.substring(1);
+  }
+
+  Future<RepeatFrequency?> _showRepeatFrequencyBottomSheet(
+      BuildContext context) async {
+    return await showModalBottomSheet<RepeatFrequency>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(width: 54),
+                  Text("Select Repeat",
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  Container(
+                    width: 54,
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                        icon: Icon(Icons.close, color: Colors.grey),
+                        onPressed: () => Navigator.pop(context)),
+                  ),
+                ],
+              ),
+              ListTile(
+                title: Text("No Repeat",
+                    style: Theme.of(context).textTheme.titleMedium),
+                onTap: () => Navigator.pop(context, null),
+                contentPadding: EdgeInsets.only(left: 22.0),
+              ),
+              ...RepeatFrequency.values.map((frequency) {
+                final label = frequency.toString().split('.').last;
+                return ListTile(
+                  title: Text(label[0].toUpperCase() + label.substring(1),
+                      style: Theme.of(context).textTheme.titleMedium),
+                  onTap: () => Navigator.pop(context, frequency),
+                  contentPadding: EdgeInsets.only(left: 22.0),
+                );
+              }),
+            ],
+          ),
         );
       },
     );

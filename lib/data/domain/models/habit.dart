@@ -66,19 +66,19 @@ abstract class Habit implements Built<Habit, HabitBuilder> {
 
   DateTime get startDate; // use time in startDate
 
-  RepeatFrequency? get repeatFrequency;
+  String? get habitSeriesId;
 
   bool get reminderEnabled;
 
   TrackingType get trackingType;
 
-  int? get quantity;
+  int? get targetValue;
+
+  int? get currentValue;
 
   String? get unit;
 
-  int? get progress;
-
-  bool? get completed;
+  bool? get isCompleted;
 
   Habit._();
   factory Habit([void Function(HabitBuilder) updates]) = _$Habit;

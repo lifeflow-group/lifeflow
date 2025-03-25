@@ -1,16 +1,18 @@
+import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/domain/models/habit.dart';
 import '../../data/domain/models/habit_category.dart';
+import '../../data/domain/models/habit_series.dart';
 
 Habit newHabit({
   required String name,
   required HabitCategory category,
   DateTime? startDate,
-  RepeatFrequency? repeatFrequency,
+  String? habitSeriesId,
   bool reminderEnabled = false,
   TrackingType trackingType = TrackingType.complete,
-  int? quantity,
+  int? targetValue,
   String? unit,
 }) {
   return Habit((b) => b
@@ -18,13 +20,27 @@ Habit newHabit({
     ..name = name
     ..category = category.toBuilder()
     ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()
-    ..repeatFrequency = repeatFrequency
+    ..habitSeriesId = habitSeriesId
     ..reminderEnabled = reminderEnabled
     ..trackingType = trackingType
-    ..quantity = quantity
+    ..targetValue = targetValue
     ..unit = unit
-    ..progress = 0
-    ..completed = false);
+    ..currentValue = 0
+    ..isCompleted = false);
+}
+
+HabitSeries newHabitSeries({
+  required String habitId,
+  DateTime? startDate,
+  DateTime? untilDate,
+  RepeatFrequency? repeatFrequency = RepeatFrequency.daily,
+}) {
+  return HabitSeries((b) => b
+    ..id = 'series-${Uuid().v4()}'
+    ..habitId = habitId
+    ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()
+    ..untilDate = untilDate?.toUtc()
+    ..repeatFrequency = repeatFrequency);
 }
 
 HabitCategory? getHabitCategoryById(String id) {
@@ -73,3 +89,39 @@ final List<HabitCategory> defaultCategories = [
     ..label = "Spiritual"
     ..iconPath = "assets/icons/spiritual.png"),
 ];
+
+// Generates recurring dates for a habit
+List<DateTime> generateRecurringDates(HabitSeries series,
+    {DateTime? startDate, int daysAhead = 30}) {
+  final now = DateTime.now();
+  final untilDate = series.untilDate ?? now.add(Duration(days: daysAhead));
+  List<DateTime> dates = [];
+
+  DateTime current = startDate ?? series.startDate;
+  while (current.isBefore(untilDate)) {
+    dates.add(current);
+
+    switch (series.repeatFrequency) {
+      case RepeatFrequency.daily:
+        current = current.add(Duration(days: 1));
+        break;
+      case RepeatFrequency.weekly:
+        current = current.add(Duration(days: 7));
+        break;
+      case RepeatFrequency.monthly:
+        current = DateTime(current.year, current.month + 1, current.day);
+        break;
+      default:
+        break;
+    }
+  }
+
+  return dates.where((date) => date.isAfter(now)).toList();
+}
+
+Expression<bool> isSameDateQuery(
+    GeneratedColumn<DateTime> date1, DateTime date2) {
+  return date1.year.equals(date2.year) &
+      date1.month.equals(date2.month) &
+      date1.day.equals(date2.day);
+}

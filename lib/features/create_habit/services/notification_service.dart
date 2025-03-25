@@ -1,7 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:uuid/uuid.dart';
+
+import '../../../core/utils/helpers.dart';
+import '../../../data/database/app_database.dart';
+import '../../../data/domain/models/habit_series.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
@@ -94,5 +101,80 @@ class NotificationService {
   /// **Cancel all notifications**
   static Future<void> cancelAllNotifications() async {
     await _notificationsPlugin.cancelAll();
+  }
+
+  static Future<void> scheduleUpcomingNotifications(
+      AppDatabase database) async {
+    final now = DateTime.now();
+    final habits = await database.habitDao.getAllRecurringHabits();
+
+    for (final habit in habits) {
+      final series =
+          await database.habitSeriesDao.getHabitSeries(habit.habitSeriesId!);
+      if (series == null) continue;
+
+      final existingNotifications = await getScheduledNotifications();
+
+      // Find the last scheduled notification date
+      DateTime lastScheduled = existingNotifications
+          .where((n) => n.habitId == habit.id)
+          .map((n) => n.scheduledDate)
+          .fold(now, (prev, date) => date.isAfter(prev) ? date : prev);
+
+      final recurringDates = generateRecurringDates(
+          HabitSeries.fromJson(series.toJson()),
+          startDate: lastScheduled,
+          daysAhead: 30);
+
+      for (final date in recurringDates) {
+        await scheduleNotification(
+          Uuid().v4().hashCode,
+          "Habit Reminder: ${habit.name}",
+          "Time to complete your habit!",
+          date,
+        );
+      }
+    }
+  }
+
+  static Future<List<ScheduledNotification>> getScheduledNotifications() async {
+    final List<PendingNotificationRequest> pendingNotifications =
+        await FlutterLocalNotificationsPlugin().pendingNotificationRequests();
+
+    return pendingNotifications.map((n) {
+      return ScheduledNotification(
+        id: n.id,
+        habitId: extractHabitIdFromPayload(n.payload),
+        scheduledDate: DateTime.fromMillisecondsSinceEpoch(n.id),
+      );
+    }).toList();
+  }
+
+  /// Extract habitId from notification payload
+  static String extractHabitIdFromPayload(String? payload) {
+    if (payload == null) return "";
+    try {
+      final data = jsonDecode(payload);
+      return data['habitId'] ?? "";
+    } catch (e) {
+      return "";
+    }
+  }
+}
+
+class ScheduledNotification {
+  final int id;
+  final String habitId;
+  final DateTime scheduledDate;
+
+  ScheduledNotification({
+    required this.id,
+    required this.habitId,
+    required this.scheduledDate,
+  });
+
+  @override
+  String toString() {
+    return 'ScheduledNotification(id: $id, habitId: $habitId, scheduledDate: $scheduledDate)';
   }
 }

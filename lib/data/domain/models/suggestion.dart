@@ -2,18 +2,16 @@ import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
 import '../serializers.dart';
-import 'habit.dart';
+import 'habit_analysis_input.dart';
 
 part 'suggestion.g.dart';
 
 abstract class Suggestion implements Built<Suggestion, SuggestionBuilder> {
-  String get icon;
-
   String get title;
 
   String get description;
 
-  Habit? get habit;
+  HabitData? get habitData;
 
   Suggestion._();
   factory Suggestion([void Function(SuggestionBuilder) updates]) = _$Suggestion;

@@ -108,14 +108,26 @@ class NotificationService {
     final now = DateTime.now();
     final habits = await database.habitDao.getAllRecurringHabits();
 
+    // Get the list of existing notifications
+    final pendingNotifications =
+        await _notificationsPlugin.pendingNotificationRequests();
+    if (pendingNotifications.length >= 500) {
+      debugPrint(
+          "⚠️ Maximum notification limit reached (${pendingNotifications.length}/500)");
+      return;
+    }
+
+    // Use a Set for faster lookup
+    final existingNotifications = await getScheduledNotifications();
+    final existingDates =
+        existingNotifications.map((n) => n.scheduledDate).toSet();
+
     for (final habit in habits) {
       final series =
           await database.habitSeriesDao.getHabitSeries(habit.habitSeriesId!);
       if (series == null) continue;
 
-      final existingNotifications = await getScheduledNotifications();
-
-      // Find the last scheduled notification date
+      // Find the last scheduled date
       DateTime lastScheduled = existingNotifications
           .where((n) => n.habitId == habit.id)
           .map((n) => n.scheduledDate)
@@ -124,9 +136,16 @@ class NotificationService {
       final recurringDates = generateRecurringDates(
           HabitSeries.fromJson(series.toJson()),
           startDate: lastScheduled,
-          daysAhead: 30);
+          daysAhead: 7);
 
       for (final date in recurringDates) {
+        // Skip if the notification already exists
+        if (existingDates.contains(date)) {
+          debugPrint(
+              "⏩ Skipping duplicate notification for ${habit.name} at $date");
+          continue;
+        }
+
         await scheduleNotification(
           Uuid().v4().hashCode,
           "Habit Reminder: ${habit.name}",

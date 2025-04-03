@@ -1,52 +1,54 @@
+import 'package:built_collection/built_collection.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/domain/models/habit.dart';
-import '../../../data/domain/models/performance_metric.dart';
+import '../../../core/utils/helpers.dart';
+import '../../../data/domain/models/habit_analysis_input.dart';
+import '../../../data/domain/models/habit_exception.dart';
+import '../services/drift_habits_service.dart';
 import '../services/habits_service.dart';
 
 final habitsRepositoryProvider = Provider((ref) {
-  final habitsService = ref.read(habitsServiceProvider);
+  final habitsService = ref.read(driftHabitsServiceProvider);
   return HabitsRepository(habitsService);
 });
 
 class HabitsRepository {
-  HabitsRepository(this.habitsService);
+  HabitsRepository(this._service);
 
-  final HabitsService habitsService;
+  final HabitsService _service;
 
-  Future<List<Habit>> getHabitsForCurrentMonth(DateTime time) async {
-    return await habitsService.fetchHabitsForCurrentMonth(time: time);
-  }
+  Future<HabitAnalysisInput> getHabitAnalysisInput(
+      String userId, DateTimeRange range) async {
+    // Fetch data from HabitsService
+    final habits = await _service.getHabitsDateRange(range);
+    final habitSeries = await _service.getHabitSeriesDateRange(range);
+    final habitExceptions = await _service.getHabitExceptionsDateRange(range);
 
-  Future<List<PerformanceMetric>> getPerformanceMetrics(
-      List<Habit> habits) async {
-    return habits.map((habit) {
-      double score = 0;
-      double? completionRate;
-      double? averageProgress;
-      double? totalProgress;
+    // Convert data into HabitData
+    final habitDataList = await Future.wait(habits.map((habit) async {
+      final series = habitSeries.firstWhereOrNull((s) => s.habitId == habit.id);
+      final exceptions = habitExceptions
+          .where((ex) => ex.habitSeriesId == habit.habitSeriesId)
+          .map((ex) => HabitException.fromJson(ex.toJson()))
+          .toBuiltList();
 
-      if (habit.trackingType == TrackingType.complete) {
-        completionRate = (habit.isCompleted == true) ? 100.0 : 0.0;
-        score = completionRate; // Score based on completion rate
-      } else if (habit.trackingType == TrackingType.progress) {
-        totalProgress = habit.currentValue?.toDouble() ?? 0.0;
-        averageProgress = (habit.targetValue != null && habit.targetValue! > 0)
-            ? (totalProgress / habit.targetValue!) * 100
-            : totalProgress;
+      final category = await _service.getCategoryById(habit.categoryId);
 
-        score = averageProgress; // Score based on average progress
-      }
+      return HabitData.fromJson({
+        ...habit.toJson(),
+        'category': category?.toJson() ?? defaultCategories[0].toJson(),
+        'repeatFrequency': series?.repeatFrequency,
+        'untilDate': series?.untilDate,
+        'exceptions': exceptions.map((e) => e.toJson()).toList(),
+      });
+    }).toList());
 
-      return newPerformanceMetric(
-        habitId: habit.id,
-        score: score,
-        completionRate: completionRate,
-        averageProgress: averageProgress,
-        totalProgress: totalProgress,
-        startDate: DateTime.now().toUtc(),
-        endDate: DateTime.now().subtract(Duration(days: 30)).toUtc(),
-      );
-    }).toList();
+    return HabitAnalysisInput((b) => b
+      ..userId = userId
+      ..startDate = range.start
+      ..endDate = range.end
+      ..habits.replace(habitDataList));
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/domain/models/suggestion.dart';
@@ -12,34 +13,29 @@ final suggestionControllerProvider =
 });
 
 class SuggestionController extends AsyncNotifier<List<Suggestion>> {
-  late final HabitsRepository habitsRepository;
-  late final SuggestionRepository suggestionRepository;
+  HabitsRepository get habitsRepository => ref.read(habitsRepositoryProvider);
+  SuggestionRepository get suggestionRepository =>
+      ref.read(suggestionRepositoryProvider);
 
   @override
   FutureOr<List<Suggestion>> build() {
-    habitsRepository = ref.read(habitsRepositoryProvider);
-    suggestionRepository = ref.read(suggestionRepositoryProvider);
-    return loadSuggestions(DateTime.now());
+    return loadSuggestions();
   }
 
-  Future<List<Suggestion>> loadSuggestions(DateTime time) async {
+  Future<List<Suggestion>> loadSuggestions() async {
     state = const AsyncLoading();
-    try {
-      // Get the list of Habits
-      final habits = await habitsRepository.getHabitsForCurrentMonth(time);
 
-      // Get the list of PerformanceMetrics
-      final performanceMetrics =
-          await habitsRepository.getPerformanceMetrics(habits);
+    // Get habit analysis input
+    final time = DateTime.now();
+    final input = await habitsRepository.getHabitAnalysisInput('hoan',
+        DateTimeRange(start: time.subtract(Duration(days: 30)), end: time));
+    debugPrint('Input: ${input.habits.length} habits');
 
-      // Send data for analysis and generate suggestions
-      final suggestions =
-          await suggestionRepository.analyzeHabits(habits, performanceMetrics);
+    // Send data for analysis and generate suggestions
+    final suggestions = await suggestionRepository.analyzeHabits(input);
 
-      return suggestions;
-    } catch (e, stackTrace) {
-      state = AsyncError(e, stackTrace);
-      return [];
-    }
+    return suggestions;
   }
+
+  void refresh() => ref.invalidateSelf();
 }

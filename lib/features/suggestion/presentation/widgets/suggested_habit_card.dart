@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../data/domain/models/habit.dart';
+import '../../../../data/domain/models/habit_analysis_input.dart';
 
 class SuggestedHabitCard extends StatelessWidget {
-  final Habit habit;
+  final HabitData habit;
 
   const SuggestedHabitCard({super.key, required this.habit});
 
@@ -45,7 +46,7 @@ class SuggestedHabitCard extends StatelessWidget {
                         habit.trackingType == TrackingType.complete
                             ? DateFormat('HH:mm')
                                 .format(habit.startDate.toLocal())
-                            : '${habit.currentValue ?? 0}/${habit.targetValue} ${habit.unit}',
+                            : '${habit.targetValue} ${habit.unit}',
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
@@ -91,8 +92,8 @@ class SuggestedHabitCard extends StatelessWidget {
   }
 
   // Function to build subtitle text dynamically
-  String _buildSubtitle(Habit habit) {
-    String repeatText = "Repeats every ${habit.habitSeriesId}.";
+  String _buildSubtitle(HabitData habit) {
+    String repeatText = "Repeats every ${habit.repeatFrequency?.name}.";
     String reminderText =
         habit.reminderEnabled ? "Has Reminder." : "No Reminder.";
     return "$repeatText $reminderText";

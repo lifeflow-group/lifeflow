@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/domain/models/habit.dart';
-import '../../../data/domain/models/performance_metric.dart';
+import '../../../data/domain/models/habit_analysis_input.dart';
 import '../../../data/domain/models/suggestion.dart';
+import '../../home/services/server_suggestion_service.dart';
 import '../services/suggestion_service.dart';
 
 final suggestionRepositoryProvider = Provider((ref) {
-  final suggestionService = ref.read(suggestionServiceProvider);
+  final suggestionService = ref.read(serverSuggestionServiceProvider);
   return SuggestionRepository(suggestionService);
 });
 
@@ -15,10 +15,10 @@ class SuggestionRepository {
 
   final SuggestionService suggestionService;
 
-  Future<List<Suggestion>> analyzeHabits(
-      List<Habit> habits, List<PerformanceMetric> performanceMetrics) async {
-    final suggestions = await suggestionService.generateAISuggestions(
-        habits, performanceMetrics);
+  Future<List<Suggestion>> analyzeHabits(HabitAnalysisInput input) async {
+    final jsonData = await suggestionService.generateAISuggestions(input);
+    final suggestions =
+        jsonData.map((data) => Suggestion.fromJson(data)).toList();
 
     return suggestions;
   }

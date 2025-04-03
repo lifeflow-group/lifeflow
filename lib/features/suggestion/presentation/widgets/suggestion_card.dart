@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lifeflow/features/suggestion/presentation/widgets/suggested_habit_card.dart';
 
+import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/suggestion.dart';
 
 class SuggestionCard extends StatelessWidget {
@@ -22,12 +23,14 @@ class SuggestionCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Theme.of(context).cardTheme.color,
-                    child: Text(
-                      suggestion.icon,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    )),
+                  radius: 12,
+                  backgroundColor: Theme.of(context).cardTheme.color,
+                  child: Image.asset(
+                      suggestion.habitData?.category.iconPath ??
+                          defaultCategories[0].iconPath,
+                      width: 24,
+                      height: 24),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -41,8 +44,8 @@ class SuggestionCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: 4.0),
-            if (suggestion.habit != null)
-              SuggestedHabitCard(habit: suggestion.habit!),
+            if (suggestion.habitData != null)
+              SuggestedHabitCard(habit: suggestion.habitData!),
             SizedBox(height: 4.0),
             Text(
               suggestion.description,

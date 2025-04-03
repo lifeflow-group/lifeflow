@@ -1616,6 +1616,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final CategoryDao categoryDao = CategoryDao(this as AppDatabase);
   late final HabitSeriesDao habitSeriesDao =
       HabitSeriesDao(this as AppDatabase);
+  late final HabitExceptionDao habitExceptionDao =
+      HabitExceptionDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();

@@ -18,8 +18,6 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
   Iterable<Object?> serialize(Serializers serializers, Suggestion object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object?>[
-      'icon',
-      serializers.serialize(object.icon, specifiedType: const FullType(String)),
       'title',
       serializers.serialize(object.title,
           specifiedType: const FullType(String)),
@@ -28,12 +26,12 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
           specifiedType: const FullType(String)),
     ];
     Object? value;
-    value = object.habit;
+    value = object.habitData;
     if (value != null) {
       result
-        ..add('habit')
-        ..add(
-            serializers.serialize(value, specifiedType: const FullType(Habit)));
+        ..add('habitData')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(HabitData)));
     }
     return result;
   }
@@ -49,10 +47,6 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
       iterator.moveNext();
       final Object? value = iterator.current;
       switch (key) {
-        case 'icon':
-          result.icon = serializers.deserialize(value,
-              specifiedType: const FullType(String))! as String;
-          break;
         case 'title':
           result.title = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
@@ -61,9 +55,9 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
           result.description = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
-        case 'habit':
-          result.habit.replace(serializers.deserialize(value,
-              specifiedType: const FullType(Habit))! as Habit);
+        case 'habitData':
+          result.habitData.replace(serializers.deserialize(value,
+              specifiedType: const FullType(HabitData))! as HabitData);
           break;
       }
     }
@@ -74,24 +68,18 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
 
 class _$Suggestion extends Suggestion {
   @override
-  final String icon;
-  @override
   final String title;
   @override
   final String description;
   @override
-  final Habit? habit;
+  final HabitData? habitData;
 
   factory _$Suggestion([void Function(SuggestionBuilder)? updates]) =>
       (new SuggestionBuilder()..update(updates))._build();
 
   _$Suggestion._(
-      {required this.icon,
-      required this.title,
-      required this.description,
-      this.habit})
+      {required this.title, required this.description, this.habitData})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(icon, r'Suggestion', 'icon');
     BuiltValueNullFieldError.checkNotNull(title, r'Suggestion', 'title');
     BuiltValueNullFieldError.checkNotNull(
         description, r'Suggestion', 'description');
@@ -108,19 +96,17 @@ class _$Suggestion extends Suggestion {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is Suggestion &&
-        icon == other.icon &&
         title == other.title &&
         description == other.description &&
-        habit == other.habit;
+        habitData == other.habitData;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, icon.hashCode);
     _$hash = $jc(_$hash, title.hashCode);
     _$hash = $jc(_$hash, description.hashCode);
-    _$hash = $jc(_$hash, habit.hashCode);
+    _$hash = $jc(_$hash, habitData.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -128,20 +114,15 @@ class _$Suggestion extends Suggestion {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'Suggestion')
-          ..add('icon', icon)
           ..add('title', title)
           ..add('description', description)
-          ..add('habit', habit))
+          ..add('habitData', habitData))
         .toString();
   }
 }
 
 class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
   _$Suggestion? _$v;
-
-  String? _icon;
-  String? get icon => _$this._icon;
-  set icon(String? icon) => _$this._icon = icon;
 
   String? _title;
   String? get title => _$this._title;
@@ -151,19 +132,19 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
   String? get description => _$this._description;
   set description(String? description) => _$this._description = description;
 
-  HabitBuilder? _habit;
-  HabitBuilder get habit => _$this._habit ??= new HabitBuilder();
-  set habit(HabitBuilder? habit) => _$this._habit = habit;
+  HabitDataBuilder? _habitData;
+  HabitDataBuilder get habitData =>
+      _$this._habitData ??= new HabitDataBuilder();
+  set habitData(HabitDataBuilder? habitData) => _$this._habitData = habitData;
 
   SuggestionBuilder();
 
   SuggestionBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _icon = $v.icon;
       _title = $v.title;
       _description = $v.description;
-      _habit = $v.habit?.toBuilder();
+      _habitData = $v.habitData?.toBuilder();
       _$v = null;
     }
     return this;
@@ -188,19 +169,17 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
     try {
       _$result = _$v ??
           new _$Suggestion._(
-            icon: BuiltValueNullFieldError.checkNotNull(
-                icon, r'Suggestion', 'icon'),
             title: BuiltValueNullFieldError.checkNotNull(
                 title, r'Suggestion', 'title'),
             description: BuiltValueNullFieldError.checkNotNull(
                 description, r'Suggestion', 'description'),
-            habit: _habit?.build(),
+            habitData: _habitData?.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
-        _$failedField = 'habit';
-        _habit?.build();
+        _$failedField = 'habitData';
+        _habitData?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             r'Suggestion', _$failedField, e.toString());

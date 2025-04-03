@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 
+import '../../../core/utils/helpers.dart';
 import '../app_database.dart';
 import '../tables/habit_series_table.dart';
 
@@ -31,4 +33,16 @@ class HabitSeriesDao extends DatabaseAccessor<AppDatabase>
   /// Optional: Update habit series (if needed)
   Future<bool> updateHabitSeries(HabitSeriesTableData habitSeries) =>
       update(habitSeriesTable).replace(habitSeries);
+
+  Future<List<HabitSeriesTableData>> getHabitSeriesDateRange(
+      DateTimeRange range) async {
+    return await (select(habitSeriesTable)
+          ..where((series) =>
+              (series.startDate.isSmallerOrEqualValue(range.end) |
+                  isSameDateQuery(series.startDate, range.end)) &
+              (series.untilDate.isNull() |
+                  series.untilDate.isBiggerOrEqualValue(range.start) |
+                  isSameDateQuery(series.untilDate, range.start))))
+        .get();
+  }
 }

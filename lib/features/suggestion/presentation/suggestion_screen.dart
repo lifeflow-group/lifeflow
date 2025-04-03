@@ -9,7 +9,7 @@ class SuggestionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final suggestionState = ref.watch(suggestionControllerProvider);
+    final controller = ref.watch(suggestionControllerProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -32,19 +32,32 @@ class SuggestionScreen extends ConsumerWidget {
                 ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
           ),
           backgroundColor: Theme.of(context).cardTheme.color,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                ref.read(suggestionControllerProvider.notifier).refresh();
+              },
+            ),
+          ],
         ),
-        body: suggestionState.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text("Error: $err")),
-          data: (suggestions) => SingleChildScrollView(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
-              child: Column(
-                children: [
-                  ...suggestions.map(
-                      (suggestion) => SuggestionCard(suggestion: suggestion)),
-                ],
+        body: RefreshIndicator(
+          onRefresh: () async =>
+              ref.read(suggestionControllerProvider.notifier).refresh(),
+          child: controller.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(child: Text("Error: $err")),
+            data: (suggestions) => SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+                child: Column(
+                  children: [
+                    ...suggestions.map(
+                        (suggestion) => SuggestionCard(suggestion: suggestion)),
+                  ],
+                ),
               ),
             ),
           ),

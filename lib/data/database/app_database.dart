@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'dao/category_dao.dart';
 import 'dao/habit_dao.dart';
+import 'dao/habit_exception_dao.dart';
 import 'dao/habit_series_dao.dart';
 import 'tables/habit_exceptions_table.dart';
 import 'tables/habit_series_table.dart';
@@ -24,6 +25,7 @@ part 'app_database.g.dart';
   HabitDao,
   CategoryDao,
   HabitSeriesDao,
+  HabitExceptionDao,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());

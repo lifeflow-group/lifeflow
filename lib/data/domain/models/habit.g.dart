@@ -33,7 +33,7 @@ final BuiltSet<RepeatFrequency> _$repeatFrequencyValues =
 const TrackingType _$complete = const TrackingType._('complete');
 const TrackingType _$progress = const TrackingType._('progress');
 
-TrackingType _$valueOf(String name) {
+TrackingType _$trackingTypeValueOf(String name) {
   switch (name) {
     case 'complete':
       return _$complete;
@@ -44,7 +44,7 @@ TrackingType _$valueOf(String name) {
   }
 }
 
-final BuiltSet<TrackingType> _$values =
+final BuiltSet<TrackingType> _$trackingTypeValues =
     new BuiltSet<TrackingType>(const <TrackingType>[
   _$complete,
   _$progress,

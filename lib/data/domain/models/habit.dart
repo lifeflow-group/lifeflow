@@ -37,8 +37,8 @@ class TrackingType extends EnumClass {
 
   const TrackingType._(super.name);
 
-  static BuiltSet<TrackingType> get values => _$values;
-  static TrackingType valueOf(String name) => _$valueOf(name);
+  static BuiltSet<TrackingType> get values => _$trackingTypeValues;
+  static TrackingType valueOf(String name) => _$trackingTypeValueOf(name);
 
   String serialize() {
     return serializers.serializeWith(TrackingType.serializer, this) as String;

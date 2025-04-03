@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import 'package:lifeflow/data/database/tables/habit_exceptions_table.dart';
 
 import '../../../core/utils/helpers.dart';
@@ -179,6 +180,16 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
   Future<List<HabitsTableData>> getAllRecurringHabits() {
     return (select(habitsTable)
           ..where((habit) => habit.habitSeriesId.isNotNull()))
+        .get();
+  }
+
+  Future<List<HabitsTableData>> getHabitsDateRange(DateTimeRange range) async {
+    return await (select(habitsTable)
+          ..where((habit) =>
+              (habit.startDate.isSmallerOrEqualValue(range.end) |
+                  isSameDateQuery(habit.startDate, range.end)) &
+              (habit.startDate.isBiggerOrEqualValue(range.start) |
+                  isSameDateQuery(habit.startDate, range.start))))
         .get();
   }
 }

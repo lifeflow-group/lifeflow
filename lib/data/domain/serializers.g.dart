@@ -8,13 +8,20 @@ part of 'serializers.dart';
 
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Habit.serializer)
+      ..add(HabitAnalysisInput.serializer)
       ..add(HabitCategory.serializer)
+      ..add(HabitData.serializer)
       ..add(HabitException.serializer)
       ..add(HabitSeries.serializer)
-      ..add(PerformanceMetric.serializer)
       ..add(RepeatFrequency.serializer)
       ..add(Suggestion.serializer)
-      ..add(TrackingType.serializer))
+      ..add(TrackingType.serializer)
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(HabitData)]),
+          () => new ListBuilder<HabitData>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(HabitException)]),
+          () => new ListBuilder<HabitException>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

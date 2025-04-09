@@ -51,7 +51,7 @@ class FakeHomeService implements HomeService {
 
   @override
   Future<List<(HabitsTableData, HabitCategoriesTableData)>>
-      getHabitsWithCategoriesByDate(DateTime date) {
+      getHabitsWithCategoriesByDate(DateTime date, String userId) {
     throw UnimplementedError();
   }
 

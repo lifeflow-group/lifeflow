@@ -20,6 +20,9 @@ class _$HabitSeriesSerializer implements StructuredSerializer<HabitSeries> {
     final result = <Object?>[
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(String)),
+      'userId',
+      serializers.serialize(object.userId,
+          specifiedType: const FullType(String)),
       'habitId',
       serializers.serialize(object.habitId,
           specifiedType: const FullType(String)),
@@ -56,6 +59,10 @@ class _$HabitSeriesSerializer implements StructuredSerializer<HabitSeries> {
           result.id = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
         case 'habitId':
           result.habitId = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
@@ -84,6 +91,8 @@ class _$HabitSeries extends HabitSeries {
   @override
   final String id;
   @override
+  final String userId;
+  @override
   final String habitId;
   @override
   final DateTime startDate;
@@ -97,12 +106,14 @@ class _$HabitSeries extends HabitSeries {
 
   _$HabitSeries._(
       {required this.id,
+      required this.userId,
       required this.habitId,
       required this.startDate,
       this.untilDate,
       required this.repeatFrequency})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(id, r'HabitSeries', 'id');
+    BuiltValueNullFieldError.checkNotNull(userId, r'HabitSeries', 'userId');
     BuiltValueNullFieldError.checkNotNull(habitId, r'HabitSeries', 'habitId');
     BuiltValueNullFieldError.checkNotNull(
         startDate, r'HabitSeries', 'startDate');
@@ -122,6 +133,7 @@ class _$HabitSeries extends HabitSeries {
     if (identical(other, this)) return true;
     return other is HabitSeries &&
         id == other.id &&
+        userId == other.userId &&
         habitId == other.habitId &&
         startDate == other.startDate &&
         untilDate == other.untilDate &&
@@ -132,6 +144,7 @@ class _$HabitSeries extends HabitSeries {
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, id.hashCode);
+    _$hash = $jc(_$hash, userId.hashCode);
     _$hash = $jc(_$hash, habitId.hashCode);
     _$hash = $jc(_$hash, startDate.hashCode);
     _$hash = $jc(_$hash, untilDate.hashCode);
@@ -144,6 +157,7 @@ class _$HabitSeries extends HabitSeries {
   String toString() {
     return (newBuiltValueToStringHelper(r'HabitSeries')
           ..add('id', id)
+          ..add('userId', userId)
           ..add('habitId', habitId)
           ..add('startDate', startDate)
           ..add('untilDate', untilDate)
@@ -158,6 +172,10 @@ class HabitSeriesBuilder implements Builder<HabitSeries, HabitSeriesBuilder> {
   String? _id;
   String? get id => _$this._id;
   set id(String? id) => _$this._id = id;
+
+  String? _userId;
+  String? get userId => _$this._userId;
+  set userId(String? userId) => _$this._userId = userId;
 
   String? _habitId;
   String? get habitId => _$this._habitId;
@@ -184,6 +202,7 @@ class HabitSeriesBuilder implements Builder<HabitSeries, HabitSeriesBuilder> {
     final $v = _$v;
     if ($v != null) {
       _id = $v.id;
+      _userId = $v.userId;
       _habitId = $v.habitId;
       _startDate = $v.startDate;
       _untilDate = $v.untilDate;
@@ -211,6 +230,8 @@ class HabitSeriesBuilder implements Builder<HabitSeries, HabitSeriesBuilder> {
     final _$result = _$v ??
         new _$HabitSeries._(
           id: BuiltValueNullFieldError.checkNotNull(id, r'HabitSeries', 'id'),
+          userId: BuiltValueNullFieldError.checkNotNull(
+              userId, r'HabitSeries', 'userId'),
           habitId: BuiltValueNullFieldError.checkNotNull(
               habitId, r'HabitSeries', 'habitId'),
           startDate: BuiltValueNullFieldError.checkNotNull(

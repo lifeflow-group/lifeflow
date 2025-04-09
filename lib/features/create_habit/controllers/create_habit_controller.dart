@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/providers/user_provider.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
@@ -100,10 +101,13 @@ class CreateHabitController {
     final quantity = ref.read(habitQuantityProvider);
     final unit = ref.read(habitUnitProvider);
     final reminder = ref.read(habitReminderProvider);
+    // Read userServiceProvider to get userId
+    final userId = await ref.read(userServiceProvider).getCurrentUserId();
 
-    if (name.isEmpty || category == null) return null;
+    if (name.isEmpty || category == null || userId == null) return null;
 
     Habit habitModel = newHabit(
+      userId: userId,
       name: name,
       category: category,
       startDate: date,
@@ -116,6 +120,7 @@ class CreateHabitController {
     HabitSeries? habitSeries;
     if (repeatFrequency != null) {
       habitSeries = newHabitSeries(
+        userId: habitModel.userId,
         habitId: habitModel.id,
         startDate: habitModel.startDate,
         repeatFrequency: repeatFrequency,

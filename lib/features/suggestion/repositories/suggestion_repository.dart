@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/domain/models/habit_analysis_input.dart';
 import '../../../data/domain/models/suggestion.dart';
-import '../../home/services/server_suggestion_service.dart';
+import '../services/server_suggestion_service.dart';
 import '../services/suggestion_service.dart';
 
 final suggestionRepositoryProvider = Provider((ref) {

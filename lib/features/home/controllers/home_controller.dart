@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/user_provider.dart';
 import '../../../data/domain/models/habit.dart';
 import '../repositories/home_repository.dart';
 
@@ -22,7 +23,7 @@ final homeControllerProvider =
         HomeController.new);
 
 class HomeController extends AutoDisposeAsyncNotifier<List<Habit>> {
-  HomeRepository get _repo => ref.read(homeRepositoryProvider);
+  HomeRepository get _repo => ref.watch(homeRepositoryProvider);
 
   @override
   Future<List<Habit>> build() async {
@@ -35,8 +36,10 @@ class HomeController extends AutoDisposeAsyncNotifier<List<Habit>> {
 
   Future<List<Habit>> _fetchHabits() async {
     final selectedDate = ref.read(selectedDateProvider);
-    final habits = await _repo.getHabitsByDate(selectedDate);
+    final userId = await ref.read(userServiceProvider).getCurrentUserId();
+    if (userId == null) return [];
 
+    final habits = await _repo.getHabitsByDate(selectedDate, userId);
     return habits;
   }
 }

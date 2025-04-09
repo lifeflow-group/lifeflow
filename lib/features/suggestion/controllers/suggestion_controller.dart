@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/user_provider.dart';
 import '../../../data/domain/models/suggestion.dart';
 import '../repositories/habits_repository.dart';
 import '../repositories/suggestion_repository.dart';
@@ -13,7 +14,7 @@ final suggestionControllerProvider =
 });
 
 class SuggestionController extends AsyncNotifier<List<Suggestion>> {
-  HabitsRepository get habitsRepository => ref.read(habitsRepositoryProvider);
+  HabitsRepository get habitsRepository => ref.watch(habitsRepositoryProvider);
   SuggestionRepository get suggestionRepository =>
       ref.read(suggestionRepositoryProvider);
 
@@ -27,8 +28,15 @@ class SuggestionController extends AsyncNotifier<List<Suggestion>> {
 
     // Get habit analysis input
     final time = DateTime.now();
-    final input = await habitsRepository.getHabitAnalysisInput('hoan',
-        DateTimeRange(start: time.subtract(Duration(days: 30)), end: time));
+    final userId = await ref.read(userServiceProvider).getCurrentUserId();
+    if (userId == null) return [];
+
+    final input = await habitsRepository.getHabitAnalysisInput(
+        DateTimeRange(start: time.subtract(Duration(days: 30)), end: time),
+        userId);
+
+    if (input == null) return [];
+
     debugPrint('Input: ${input.habits.length} habits');
 
     // Send data for analysis and generate suggestions

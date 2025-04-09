@@ -35,9 +35,10 @@ class HabitSeriesDao extends DatabaseAccessor<AppDatabase>
       update(habitSeriesTable).replace(habitSeries);
 
   Future<List<HabitSeriesTableData>> getHabitSeriesDateRange(
-      DateTimeRange range) async {
+      DateTimeRange range, String userId) async {
     return await (select(habitSeriesTable)
           ..where((series) =>
+              series.userId.equals(userId) &
               (series.startDate.isSmallerOrEqualValue(range.end) |
                   isSameDateQuery(series.startDate, range.end)) &
               (series.untilDate.isNull() |

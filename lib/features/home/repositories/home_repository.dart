@@ -14,9 +14,10 @@ class HomeRepository {
 
   HomeRepository(this._homeService);
 
-  Future<List<Habit>> getHabitsByDate(DateTime date) async {
+  Future<List<Habit>> getHabitsByDate(DateTime date, String userId) async {
     // Fetch the list of habits and categories
-    final records = await _homeService.getHabitsWithCategoriesByDate(date);
+    final records =
+        await _homeService.getHabitsWithCategoriesByDate(date, userId);
 
     // Map each (habit, category) => HabitModel
     return records.map((record) {

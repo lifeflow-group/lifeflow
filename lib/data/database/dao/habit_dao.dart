@@ -36,9 +36,12 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
       update(habitsTable).replace(habit);
 
   Future<List<(HabitsTableData, HabitCategoriesTableData)>>
-      getHabitsWithCategoriesByDate(DateTime dateLocal) async {
+      getHabitsWithCategoriesByDate(DateTime dateLocal, String? userId) async {
+    if (userId == null) return [];
+
     // 1. Get the list of recurring series for that day
-    final recurringSeries = await _getRecurringHabitSeriesByDate(dateLocal);
+    final recurringSeries =
+        await _getRecurringHabitSeriesByDate(dateLocal, userId);
 
     // 2. Get the list of exceptions (for skip [Step 3] and overrides [Step 5])
     final exceptionsBySeriesId = await _getHabitExceptionsByDate(dateLocal);
@@ -51,7 +54,7 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
 
     // 4. Retrieves habits for a specific date
     final habitRows = await _getHabitRowsForDate(
-        dateLocal, recurringSeries, skippedSeriesIds);
+        dateLocal, recurringSeries, skippedSeriesIds, userId);
 
     // 5. Override habit data from exceptions (if any)
     final result = habitRows.map((row) {
@@ -80,12 +83,16 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
 
   // Get HabitSeries that repeat by day
   Future<List<HabitSeriesTableData>> _getRecurringHabitSeriesByDate(
-      DateTime dateLocal) async {
+      DateTime dateLocal, String userId) async {
     // 1. Get all series that can repeat on that day
     final baseSeries = await (select(habitSeriesTable)
           ..where((series) =>
+              // Filter by userId
+              series.userId.equals(userId) &
+              // StartDate must be <= dateLocal
               (series.startDate.isSmallerThanValue(dateLocal) |
                   isSameDateQuery(series.startDate, dateLocal)) &
+              // UntilDate must be null or >= dateLocal
               (series.untilDate.isNull() |
                   (series.untilDate.isBiggerThanValue(dateLocal) |
                       isSameDateQuery(series.untilDate, dateLocal)))))
@@ -128,7 +135,8 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
   Future<List<TypedResult>> _getHabitRowsForDate(
       DateTime dateLocal,
       List<HabitSeriesTableData> recurringSeries,
-      Set<String> skippedSeriesIds) async {
+      Set<String> skippedSeriesIds,
+      String userId) async {
     final recurringHabitIds = recurringSeries.map((s) => s.habitId).toList();
 
     final from = DateTime(dateLocal.year, dateLocal.month, dateLocal.day);
@@ -154,7 +162,7 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
         habitCategoriesTable.id.equalsExp(habitsTable.categoryId),
       ),
     ])
-      ..where(combinedCondition);
+      ..where(combinedCondition & habitsTable.userId.equals(userId));
 
     return query.get();
   }
@@ -183,9 +191,11 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
         .get();
   }
 
-  Future<List<HabitsTableData>> getHabitsDateRange(DateTimeRange range) async {
+  Future<List<HabitsTableData>> getHabitsDateRange(
+      DateTimeRange range, String userId) async {
     return await (select(habitsTable)
           ..where((habit) =>
+              habit.userId.equals(userId) &
               (habit.startDate.isSmallerOrEqualValue(range.end) |
                   isSameDateQuery(habit.startDate, range.end)) &
               (habit.startDate.isBiggerOrEqualValue(range.start) |

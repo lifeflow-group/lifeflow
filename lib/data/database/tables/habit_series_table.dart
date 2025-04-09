@@ -4,6 +4,9 @@ class HabitSeriesTable extends Table {
   // Unique ID for the series (UUID)
   TextColumn get id => text()();
 
+  // User ID
+  TextColumn get userId => text()();
+
   // Link to the original habit
   TextColumn get habitId => text()();
 

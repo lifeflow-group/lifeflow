@@ -35,9 +35,11 @@ class HabitExceptionDao extends DatabaseAccessor<AppDatabase>
       update(habitExceptionsTable).replace(exception);
 
   Future<List<HabitExceptionsTableData>> getHabitExceptionsDateRange(
-      DateTimeRange range) async {
+      DateTimeRange range, List<String> seriesIds) async {
+    if (seriesIds.isEmpty) return [];
     return await (select(habitExceptionsTable)
           ..where((ex) =>
+              ex.habitSeriesId.isIn(seriesIds) &
               (ex.date.isSmallerOrEqualValue(range.end) |
                   isSameDateQuery(ex.date, range.end)) &
               (ex.date.isBiggerOrEqualValue(range.start) |

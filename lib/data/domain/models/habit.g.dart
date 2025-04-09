@@ -105,6 +105,9 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
       serializers.serialize(object.id, specifiedType: const FullType(String)),
       'name',
       serializers.serialize(object.name, specifiedType: const FullType(String)),
+      'userId',
+      serializers.serialize(object.userId,
+          specifiedType: const FullType(String)),
       'category',
       serializers.serialize(object.category,
           specifiedType: const FullType(HabitCategory)),
@@ -174,6 +177,10 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
           result.name = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
+        case 'userId':
+          result.userId = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
         case 'category':
           result.category.replace(serializers.deserialize(value,
               specifiedType: const FullType(HabitCategory))! as HabitCategory);
@@ -223,6 +230,8 @@ class _$Habit extends Habit {
   @override
   final String name;
   @override
+  final String userId;
+  @override
   final HabitCategory category;
   @override
   final DateTime startDate;
@@ -247,6 +256,7 @@ class _$Habit extends Habit {
   _$Habit._(
       {required this.id,
       required this.name,
+      required this.userId,
       required this.category,
       required this.startDate,
       this.habitSeriesId,
@@ -259,6 +269,7 @@ class _$Habit extends Habit {
       : super._() {
     BuiltValueNullFieldError.checkNotNull(id, r'Habit', 'id');
     BuiltValueNullFieldError.checkNotNull(name, r'Habit', 'name');
+    BuiltValueNullFieldError.checkNotNull(userId, r'Habit', 'userId');
     BuiltValueNullFieldError.checkNotNull(category, r'Habit', 'category');
     BuiltValueNullFieldError.checkNotNull(startDate, r'Habit', 'startDate');
     BuiltValueNullFieldError.checkNotNull(
@@ -280,6 +291,7 @@ class _$Habit extends Habit {
     return other is Habit &&
         id == other.id &&
         name == other.name &&
+        userId == other.userId &&
         category == other.category &&
         startDate == other.startDate &&
         habitSeriesId == other.habitSeriesId &&
@@ -296,6 +308,7 @@ class _$Habit extends Habit {
     var _$hash = 0;
     _$hash = $jc(_$hash, id.hashCode);
     _$hash = $jc(_$hash, name.hashCode);
+    _$hash = $jc(_$hash, userId.hashCode);
     _$hash = $jc(_$hash, category.hashCode);
     _$hash = $jc(_$hash, startDate.hashCode);
     _$hash = $jc(_$hash, habitSeriesId.hashCode);
@@ -314,6 +327,7 @@ class _$Habit extends Habit {
     return (newBuiltValueToStringHelper(r'Habit')
           ..add('id', id)
           ..add('name', name)
+          ..add('userId', userId)
           ..add('category', category)
           ..add('startDate', startDate)
           ..add('habitSeriesId', habitSeriesId)
@@ -337,6 +351,10 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
   String? _name;
   String? get name => _$this._name;
   set name(String? name) => _$this._name = name;
+
+  String? _userId;
+  String? get userId => _$this._userId;
+  set userId(String? userId) => _$this._userId = userId;
 
   HabitCategoryBuilder? _category;
   HabitCategoryBuilder get category =>
@@ -387,6 +405,7 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
     if ($v != null) {
       _id = $v.id;
       _name = $v.name;
+      _userId = $v.userId;
       _category = $v.category.toBuilder();
       _startDate = $v.startDate;
       _habitSeriesId = $v.habitSeriesId;
@@ -422,6 +441,8 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
           new _$Habit._(
             id: BuiltValueNullFieldError.checkNotNull(id, r'Habit', 'id'),
             name: BuiltValueNullFieldError.checkNotNull(name, r'Habit', 'name'),
+            userId: BuiltValueNullFieldError.checkNotNull(
+                userId, r'Habit', 'userId'),
             category: category.build(),
             startDate: BuiltValueNullFieldError.checkNotNull(
                 startDate, r'Habit', 'startDate'),

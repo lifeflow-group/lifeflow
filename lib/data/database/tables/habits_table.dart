@@ -5,6 +5,8 @@ import 'habit_categories_table.dart';
 class HabitsTable extends Table {
   TextColumn get id => text()(); // UUID
 
+  TextColumn get userId => text()();
+
   TextColumn get name => text()();
 
   // Only store categoryId, FK to HabitCategories.id

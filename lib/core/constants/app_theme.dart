@@ -59,6 +59,7 @@ class AppTheme {
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: Colors.black,
       selectionColor: Colors.blueAccent.withAlpha(127),
+      selectionHandleColor: Colors.blueAccent,
     ),
   );
 

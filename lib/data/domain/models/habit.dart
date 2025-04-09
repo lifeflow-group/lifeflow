@@ -62,6 +62,8 @@ abstract class Habit implements Built<Habit, HabitBuilder> {
 
   String get name;
 
+  String get userId;
+
   HabitCategory get category;
 
   DateTime get startDate; // use time in startDate

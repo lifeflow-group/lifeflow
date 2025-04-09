@@ -16,15 +16,16 @@ final habitsRepositoryProvider = Provider((ref) {
 
 class HabitsRepository {
   HabitsRepository(this._service);
-
   final HabitsService _service;
 
-  Future<HabitAnalysisInput> getHabitAnalysisInput(
-      String userId, DateTimeRange range) async {
+  Future<HabitAnalysisInput?> getHabitAnalysisInput(
+      DateTimeRange range, String userId) async {
     // Fetch data from HabitsService
-    final habits = await _service.getHabitsDateRange(range);
-    final habitSeries = await _service.getHabitSeriesDateRange(range);
-    final habitExceptions = await _service.getHabitExceptionsDateRange(range);
+    final habits = await _service.getHabitsDateRange(range, userId);
+    final habitSeries = await _service.getHabitSeriesDateRange(range, userId);
+    final seriesIds = habitSeries.map((s) => s.id).toList();
+    final habitExceptions =
+        await _service.getHabitExceptionsDateRange(range, seriesIds);
 
     // Convert data into HabitData
     final habitDataList = await Future.wait(habits.map((habit) async {

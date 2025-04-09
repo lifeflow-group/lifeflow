@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../data/database/app_database.dart';
 
 abstract class HabitsService {
-  Future<List<HabitsTableData>> getHabitsDateRange(DateTimeRange range);
+  Future<List<HabitsTableData>> getHabitsDateRange(
+      DateTimeRange range, String userId);
 
   Future<List<HabitSeriesTableData>> getHabitSeriesDateRange(
-      DateTimeRange range);
+      DateTimeRange range, String userId);
 
   Future<List<HabitExceptionsTableData>> getHabitExceptionsDateRange(
-      DateTimeRange range);
+      DateTimeRange range, List<String> seriesIds);
 
   Future<HabitCategoriesTableData?> getCategoryById(String id);
 }

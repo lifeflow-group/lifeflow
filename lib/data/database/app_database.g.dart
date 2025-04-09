@@ -248,6 +248,11 @@ class $HabitsTableTable extends HabitsTable
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -319,6 +324,7 @@ class $HabitsTableTable extends HabitsTable
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        userId,
         name,
         categoryId,
         startDate,
@@ -344,6 +350,12 @@ class $HabitsTableTable extends HabitsTable
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -418,6 +430,8 @@ class $HabitsTableTable extends HabitsTable
     return HabitsTableData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       categoryId: attachedDatabase.typeMapping
@@ -449,6 +463,7 @@ class $HabitsTableTable extends HabitsTable
 
 class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
   final String id;
+  final String userId;
   final String name;
   final String categoryId;
   final DateTime startDate;
@@ -461,6 +476,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
   final bool? isCompleted;
   const HabitsTableData(
       {required this.id,
+      required this.userId,
       required this.name,
       required this.categoryId,
       required this.startDate,
@@ -475,6 +491,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
     map['name'] = Variable<String>(name);
     map['category_id'] = Variable<String>(categoryId);
     map['start_date'] = Variable<DateTime>(startDate);
@@ -501,6 +518,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
   HabitsTableCompanion toCompanion(bool nullToAbsent) {
     return HabitsTableCompanion(
       id: Value(id),
+      userId: Value(userId),
       name: Value(name),
       categoryId: Value(categoryId),
       startDate: Value(startDate),
@@ -527,6 +545,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return HabitsTableData(
       id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
       name: serializer.fromJson<String>(json['name']),
       categoryId: serializer.fromJson<String>(json['categoryId']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
@@ -544,6 +563,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String>(userId),
       'name': serializer.toJson<String>(name),
       'categoryId': serializer.toJson<String>(categoryId),
       'startDate': serializer.toJson<DateTime>(startDate),
@@ -559,6 +579,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
 
   HabitsTableData copyWith(
           {String? id,
+          String? userId,
           String? name,
           String? categoryId,
           DateTime? startDate,
@@ -571,6 +592,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
           Value<bool?> isCompleted = const Value.absent()}) =>
       HabitsTableData(
         id: id ?? this.id,
+        userId: userId ?? this.userId,
         name: name ?? this.name,
         categoryId: categoryId ?? this.categoryId,
         startDate: startDate ?? this.startDate,
@@ -587,6 +609,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
   HabitsTableData copyWithCompanion(HabitsTableCompanion data) {
     return HabitsTableData(
       id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
       name: data.name.present ? data.name.value : this.name,
       categoryId:
           data.categoryId.present ? data.categoryId.value : this.categoryId,
@@ -615,6 +638,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
   String toString() {
     return (StringBuffer('HabitsTableData(')
           ..write('id: $id, ')
+          ..write('userId: $userId, ')
           ..write('name: $name, ')
           ..write('categoryId: $categoryId, ')
           ..write('startDate: $startDate, ')
@@ -632,6 +656,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
   @override
   int get hashCode => Object.hash(
       id,
+      userId,
       name,
       categoryId,
       startDate,
@@ -647,6 +672,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
       identical(this, other) ||
       (other is HabitsTableData &&
           other.id == this.id &&
+          other.userId == this.userId &&
           other.name == this.name &&
           other.categoryId == this.categoryId &&
           other.startDate == this.startDate &&
@@ -661,6 +687,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
 
 class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
   final Value<String> id;
+  final Value<String> userId;
   final Value<String> name;
   final Value<String> categoryId;
   final Value<DateTime> startDate;
@@ -674,6 +701,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
   final Value<int> rowid;
   const HabitsTableCompanion({
     this.id = const Value.absent(),
+    this.userId = const Value.absent(),
     this.name = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.startDate = const Value.absent(),
@@ -688,6 +716,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
   });
   HabitsTableCompanion.insert({
     required String id,
+    required String userId,
     required String name,
     required String categoryId,
     required DateTime startDate,
@@ -700,12 +729,14 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
     this.isCompleted = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
+        userId = Value(userId),
         name = Value(name),
         categoryId = Value(categoryId),
         startDate = Value(startDate),
         trackingType = Value(trackingType);
   static Insertable<HabitsTableData> custom({
     Expression<String>? id,
+    Expression<String>? userId,
     Expression<String>? name,
     Expression<String>? categoryId,
     Expression<DateTime>? startDate,
@@ -720,6 +751,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
       if (name != null) 'name': name,
       if (categoryId != null) 'category_id': categoryId,
       if (startDate != null) 'start_date': startDate,
@@ -736,6 +768,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
 
   HabitsTableCompanion copyWith(
       {Value<String>? id,
+      Value<String>? userId,
       Value<String>? name,
       Value<String>? categoryId,
       Value<DateTime>? startDate,
@@ -749,6 +782,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
       Value<int>? rowid}) {
     return HabitsTableCompanion(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       name: name ?? this.name,
       categoryId: categoryId ?? this.categoryId,
       startDate: startDate ?? this.startDate,
@@ -768,6 +802,9 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -809,6 +846,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
   String toString() {
     return (StringBuffer('HabitsTableCompanion(')
           ..write('id: $id, ')
+          ..write('userId: $userId, ')
           ..write('name: $name, ')
           ..write('categoryId: $categoryId, ')
           ..write('startDate: $startDate, ')
@@ -836,6 +874,11 @@ class $HabitSeriesTableTable extends HabitSeriesTable
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _habitIdMeta =
       const VerificationMeta('habitId');
   @override
@@ -862,7 +905,7 @@ class $HabitSeriesTableTable extends HabitSeriesTable
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, habitId, startDate, untilDate, repeatFrequency];
+      [id, userId, habitId, startDate, untilDate, repeatFrequency];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -878,6 +921,12 @@ class $HabitSeriesTableTable extends HabitSeriesTable
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
     }
     if (data.containsKey('habit_id')) {
       context.handle(_habitIdMeta,
@@ -914,6 +963,8 @@ class $HabitSeriesTableTable extends HabitSeriesTable
     return HabitSeriesTableData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       habitId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}habit_id'])!,
       startDate: attachedDatabase.typeMapping
@@ -934,12 +985,14 @@ class $HabitSeriesTableTable extends HabitSeriesTable
 class HabitSeriesTableData extends DataClass
     implements Insertable<HabitSeriesTableData> {
   final String id;
+  final String userId;
   final String habitId;
   final DateTime startDate;
   final DateTime? untilDate;
   final String repeatFrequency;
   const HabitSeriesTableData(
       {required this.id,
+      required this.userId,
       required this.habitId,
       required this.startDate,
       this.untilDate,
@@ -948,6 +1001,7 @@ class HabitSeriesTableData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
     map['habit_id'] = Variable<String>(habitId);
     map['start_date'] = Variable<DateTime>(startDate);
     if (!nullToAbsent || untilDate != null) {
@@ -960,6 +1014,7 @@ class HabitSeriesTableData extends DataClass
   HabitSeriesTableCompanion toCompanion(bool nullToAbsent) {
     return HabitSeriesTableCompanion(
       id: Value(id),
+      userId: Value(userId),
       habitId: Value(habitId),
       startDate: Value(startDate),
       untilDate: untilDate == null && nullToAbsent
@@ -974,6 +1029,7 @@ class HabitSeriesTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return HabitSeriesTableData(
       id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
       habitId: serializer.fromJson<String>(json['habitId']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       untilDate: serializer.fromJson<DateTime?>(json['untilDate']),
@@ -985,6 +1041,7 @@ class HabitSeriesTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String>(userId),
       'habitId': serializer.toJson<String>(habitId),
       'startDate': serializer.toJson<DateTime>(startDate),
       'untilDate': serializer.toJson<DateTime?>(untilDate),
@@ -994,12 +1051,14 @@ class HabitSeriesTableData extends DataClass
 
   HabitSeriesTableData copyWith(
           {String? id,
+          String? userId,
           String? habitId,
           DateTime? startDate,
           Value<DateTime?> untilDate = const Value.absent(),
           String? repeatFrequency}) =>
       HabitSeriesTableData(
         id: id ?? this.id,
+        userId: userId ?? this.userId,
         habitId: habitId ?? this.habitId,
         startDate: startDate ?? this.startDate,
         untilDate: untilDate.present ? untilDate.value : this.untilDate,
@@ -1008,6 +1067,7 @@ class HabitSeriesTableData extends DataClass
   HabitSeriesTableData copyWithCompanion(HabitSeriesTableCompanion data) {
     return HabitSeriesTableData(
       id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
       habitId: data.habitId.present ? data.habitId.value : this.habitId,
       startDate: data.startDate.present ? data.startDate.value : this.startDate,
       untilDate: data.untilDate.present ? data.untilDate.value : this.untilDate,
@@ -1021,6 +1081,7 @@ class HabitSeriesTableData extends DataClass
   String toString() {
     return (StringBuffer('HabitSeriesTableData(')
           ..write('id: $id, ')
+          ..write('userId: $userId, ')
           ..write('habitId: $habitId, ')
           ..write('startDate: $startDate, ')
           ..write('untilDate: $untilDate, ')
@@ -1031,12 +1092,13 @@ class HabitSeriesTableData extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, habitId, startDate, untilDate, repeatFrequency);
+      Object.hash(id, userId, habitId, startDate, untilDate, repeatFrequency);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is HabitSeriesTableData &&
           other.id == this.id &&
+          other.userId == this.userId &&
           other.habitId == this.habitId &&
           other.startDate == this.startDate &&
           other.untilDate == this.untilDate &&
@@ -1045,6 +1107,7 @@ class HabitSeriesTableData extends DataClass
 
 class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
   final Value<String> id;
+  final Value<String> userId;
   final Value<String> habitId;
   final Value<DateTime> startDate;
   final Value<DateTime?> untilDate;
@@ -1052,6 +1115,7 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
   final Value<int> rowid;
   const HabitSeriesTableCompanion({
     this.id = const Value.absent(),
+    this.userId = const Value.absent(),
     this.habitId = const Value.absent(),
     this.startDate = const Value.absent(),
     this.untilDate = const Value.absent(),
@@ -1060,17 +1124,20 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
   });
   HabitSeriesTableCompanion.insert({
     required String id,
+    required String userId,
     required String habitId,
     required DateTime startDate,
     this.untilDate = const Value.absent(),
     required String repeatFrequency,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
+        userId = Value(userId),
         habitId = Value(habitId),
         startDate = Value(startDate),
         repeatFrequency = Value(repeatFrequency);
   static Insertable<HabitSeriesTableData> custom({
     Expression<String>? id,
+    Expression<String>? userId,
     Expression<String>? habitId,
     Expression<DateTime>? startDate,
     Expression<DateTime>? untilDate,
@@ -1079,6 +1146,7 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
       if (habitId != null) 'habit_id': habitId,
       if (startDate != null) 'start_date': startDate,
       if (untilDate != null) 'until_date': untilDate,
@@ -1089,6 +1157,7 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
 
   HabitSeriesTableCompanion copyWith(
       {Value<String>? id,
+      Value<String>? userId,
       Value<String>? habitId,
       Value<DateTime>? startDate,
       Value<DateTime?>? untilDate,
@@ -1096,6 +1165,7 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
       Value<int>? rowid}) {
     return HabitSeriesTableCompanion(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       habitId: habitId ?? this.habitId,
       startDate: startDate ?? this.startDate,
       untilDate: untilDate ?? this.untilDate,
@@ -1109,6 +1179,9 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (habitId.present) {
       map['habit_id'] = Variable<String>(habitId.value);
@@ -1132,6 +1205,7 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
   String toString() {
     return (StringBuffer('HabitSeriesTableCompanion(')
           ..write('id: $id, ')
+          ..write('userId: $userId, ')
           ..write('habitId: $habitId, ')
           ..write('startDate: $startDate, ')
           ..write('untilDate: $untilDate, ')
@@ -1863,6 +1937,7 @@ typedef $$HabitCategoriesTableTableProcessedTableManager
 typedef $$HabitsTableTableCreateCompanionBuilder = HabitsTableCompanion
     Function({
   required String id,
+  required String userId,
   required String name,
   required String categoryId,
   required DateTime startDate,
@@ -1878,6 +1953,7 @@ typedef $$HabitsTableTableCreateCompanionBuilder = HabitsTableCompanion
 typedef $$HabitsTableTableUpdateCompanionBuilder = HabitsTableCompanion
     Function({
   Value<String> id,
+  Value<String> userId,
   Value<String> name,
   Value<String> categoryId,
   Value<DateTime> startDate,
@@ -1923,6 +1999,9 @@ class $$HabitsTableTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
@@ -1984,6 +2063,9 @@ class $$HabitsTableTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
@@ -2049,6 +2131,9 @@ class $$HabitsTableTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -2123,6 +2208,7 @@ class $$HabitsTableTableTableManager extends RootTableManager<
               $$HabitsTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String> categoryId = const Value.absent(),
             Value<DateTime> startDate = const Value.absent(),
@@ -2137,6 +2223,7 @@ class $$HabitsTableTableTableManager extends RootTableManager<
           }) =>
               HabitsTableCompanion(
             id: id,
+            userId: userId,
             name: name,
             categoryId: categoryId,
             startDate: startDate,
@@ -2151,6 +2238,7 @@ class $$HabitsTableTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            required String userId,
             required String name,
             required String categoryId,
             required DateTime startDate,
@@ -2165,6 +2253,7 @@ class $$HabitsTableTableTableManager extends RootTableManager<
           }) =>
               HabitsTableCompanion.insert(
             id: id,
+            userId: userId,
             name: name,
             categoryId: categoryId,
             startDate: startDate,
@@ -2236,6 +2325,7 @@ typedef $$HabitsTableTableProcessedTableManager = ProcessedTableManager<
 typedef $$HabitSeriesTableTableCreateCompanionBuilder
     = HabitSeriesTableCompanion Function({
   required String id,
+  required String userId,
   required String habitId,
   required DateTime startDate,
   Value<DateTime?> untilDate,
@@ -2245,6 +2335,7 @@ typedef $$HabitSeriesTableTableCreateCompanionBuilder
 typedef $$HabitSeriesTableTableUpdateCompanionBuilder
     = HabitSeriesTableCompanion Function({
   Value<String> id,
+  Value<String> userId,
   Value<String> habitId,
   Value<DateTime> startDate,
   Value<DateTime?> untilDate,
@@ -2263,6 +2354,9 @@ class $$HabitSeriesTableTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get habitId => $composableBuilder(
       column: $table.habitId, builder: (column) => ColumnFilters(column));
@@ -2290,6 +2384,9 @@ class $$HabitSeriesTableTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get habitId => $composableBuilder(
       column: $table.habitId, builder: (column) => ColumnOrderings(column));
 
@@ -2315,6 +2412,9 @@ class $$HabitSeriesTableTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get habitId =>
       $composableBuilder(column: $table.habitId, builder: (column) => column);
@@ -2358,6 +2458,7 @@ class $$HabitSeriesTableTableTableManager extends RootTableManager<
               $$HabitSeriesTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
             Value<String> habitId = const Value.absent(),
             Value<DateTime> startDate = const Value.absent(),
             Value<DateTime?> untilDate = const Value.absent(),
@@ -2366,6 +2467,7 @@ class $$HabitSeriesTableTableTableManager extends RootTableManager<
           }) =>
               HabitSeriesTableCompanion(
             id: id,
+            userId: userId,
             habitId: habitId,
             startDate: startDate,
             untilDate: untilDate,
@@ -2374,6 +2476,7 @@ class $$HabitSeriesTableTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            required String userId,
             required String habitId,
             required DateTime startDate,
             Value<DateTime?> untilDate = const Value.absent(),
@@ -2382,6 +2485,7 @@ class $$HabitSeriesTableTableTableManager extends RootTableManager<
           }) =>
               HabitSeriesTableCompanion.insert(
             id: id,
+            userId: userId,
             habitId: habitId,
             startDate: startDate,
             untilDate: untilDate,

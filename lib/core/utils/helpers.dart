@@ -6,6 +6,7 @@ import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/habit_series.dart';
 
 Habit newHabit({
+  required String userId,
   required String name,
   required HabitCategory category,
   DateTime? startDate,
@@ -17,6 +18,7 @@ Habit newHabit({
 }) {
   return Habit((b) => b
     ..id = 'habit-${Uuid().v4()}'
+    ..userId = userId
     ..name = name
     ..category = category.toBuilder()
     ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()
@@ -30,6 +32,7 @@ Habit newHabit({
 }
 
 HabitSeries newHabitSeries({
+  required String userId,
   required String habitId,
   DateTime? startDate,
   DateTime? untilDate,
@@ -37,6 +40,7 @@ HabitSeries newHabitSeries({
 }) {
   return HabitSeries((b) => b
     ..id = 'series-${Uuid().v4()}'
+    ..userId = userId
     ..habitId = habitId
     ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()
     ..untilDate = untilDate?.toUtc()

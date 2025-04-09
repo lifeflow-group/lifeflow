@@ -1,21 +1,35 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SplashScreen extends StatefulWidget {
+import '../../../core/providers/user_provider.dart';
+
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3), () {
-      context.go('/');
+    _initApp();
+  }
+
+  Future<void> _initApp() async {
+    final userService = ref.read(userServiceProvider);
+    final userId = await userService.getCurrentUserId();
+
+    Timer(Duration(seconds: 2), () {
+      if (userId == null) {
+        context.go('/login');
+      } else {
+        context.go('/');
+      }
     });
   }
 

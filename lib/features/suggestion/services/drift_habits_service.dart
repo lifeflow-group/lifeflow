@@ -17,19 +17,22 @@ class DriftHabitsService implements HabitsService {
 
   @override
   Future<List<HabitSeriesTableData>> getHabitSeriesDateRange(
-      DateTimeRange range) async {
-    return await _database.habitSeriesDao.getHabitSeriesDateRange(range);
+      DateTimeRange range, String userId) async {
+    return await _database.habitSeriesDao
+        .getHabitSeriesDateRange(range, userId);
   }
 
   @override
-  Future<List<HabitsTableData>> getHabitsDateRange(DateTimeRange range) async {
-    return await _database.habitDao.getHabitsDateRange(range);
+  Future<List<HabitsTableData>> getHabitsDateRange(
+      DateTimeRange range, String userId) async {
+    return await _database.habitDao.getHabitsDateRange(range, userId);
   }
 
   @override
   Future<List<HabitExceptionsTableData>> getHabitExceptionsDateRange(
-      DateTimeRange range) async {
-    return await _database.habitExceptionDao.getHabitExceptionsDateRange(range);
+      DateTimeRange range, List<String> seriesIds) async {
+    return await _database.habitExceptionDao
+        .getHabitExceptionsDateRange(range, seriesIds);
   }
 
   @override

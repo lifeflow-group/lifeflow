@@ -16,6 +16,9 @@ abstract class HabitSeries implements Built<HabitSeries, HabitSeriesBuilder> {
   // UUID of the series, not the original habit
   String get id;
 
+  // User ID
+  String get userId;
+
   // Link to the original Habit (like a foreign key)
   String get habitId;
 

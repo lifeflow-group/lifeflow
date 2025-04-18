@@ -1,29 +1,67 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifeflow/app.dart';
+import 'package:lifeflow/core/providers/user_provider.dart';
+import 'package:lifeflow/core/routing/app_router.dart';
+import 'package:lifeflow/core/services/user_service.dart';
+import 'package:lifeflow/features/login/presentation/login_screen.dart';
+import 'package:lifeflow/features/main/presentation/main_screen.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockUserService extends Mock implements UserService {}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const LifeFlowApp());
+  late MockUserService mockUserService;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  setUp(() {
+    mockUserService = MockUserService();
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('redirects to /login if user is not logged in', (tester) async {
+    when(() => mockUserService.getCurrentUserId())
+        .thenAnswer((_) async => null);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          userServiceProvider.overrideWithValue(mockUserService),
+        ],
+        child: Consumer(
+          builder: (context, ref, _) {
+            final router = ref.watch(routerProvider);
+            return MaterialApp.router(routerConfig: router);
+          },
+        ),
+      ),
+    );
+
+    // Wait for animation & Timer
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    expect(find.byType(LoginScreen), findsOneWidget);
+  });
+
+  testWidgets('redirects to / if user is logged in', (tester) async {
+    when(() => mockUserService.getCurrentUserId())
+        .thenAnswer((_) async => 'user123');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          userServiceProvider.overrideWithValue(mockUserService),
+        ],
+        child: Consumer(
+          builder: (context, ref, _) {
+            final router = ref.watch(routerProvider);
+            return MaterialApp.router(routerConfig: router);
+          },
+        ),
+      ),
+    );
+
+    // Wait for animation & Timer
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    expect(find.byType(MainScreen), findsOneWidget);
   });
 }

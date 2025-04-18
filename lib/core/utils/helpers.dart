@@ -5,7 +5,10 @@ import '../../data/domain/models/habit.dart';
 import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/habit_series.dart';
 
+String generateNewId(String prefix) => '$prefix-${Uuid().v4()}';
+
 Habit newHabit({
+  String? id,
   required String userId,
   required String name,
   required HabitCategory category,
@@ -17,7 +20,7 @@ Habit newHabit({
   String? unit,
 }) {
   return Habit((b) => b
-    ..id = 'habit-${Uuid().v4()}'
+    ..id = id ?? generateNewId('habit')
     ..userId = userId
     ..name = name
     ..category = category.toBuilder()
@@ -32,14 +35,15 @@ Habit newHabit({
 }
 
 HabitSeries newHabitSeries({
+  String? id,
   required String userId,
   required String habitId,
   DateTime? startDate,
   DateTime? untilDate,
-  RepeatFrequency? repeatFrequency = RepeatFrequency.daily,
+  RepeatFrequency? repeatFrequency,
 }) {
   return HabitSeries((b) => b
-    ..id = 'series-${Uuid().v4()}'
+    ..id = id ?? generateNewId('series')
     ..userId = userId
     ..habitId = habitId
     ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()

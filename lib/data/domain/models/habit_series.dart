@@ -29,7 +29,7 @@ abstract class HabitSeries implements Built<HabitSeries, HabitSeriesBuilder> {
   DateTime? get untilDate;
 
   // daily / weekly / monthly...
-  RepeatFrequency get repeatFrequency;
+  RepeatFrequency? get repeatFrequency;
 
   HabitSeries._();
 

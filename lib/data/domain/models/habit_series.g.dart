@@ -29,9 +29,6 @@ class _$HabitSeriesSerializer implements StructuredSerializer<HabitSeries> {
       'startDate',
       serializers.serialize(object.startDate,
           specifiedType: const FullType(DateTime)),
-      'repeatFrequency',
-      serializers.serialize(object.repeatFrequency,
-          specifiedType: const FullType(RepeatFrequency)),
     ];
     Object? value;
     value = object.untilDate;
@@ -40,6 +37,13 @@ class _$HabitSeriesSerializer implements StructuredSerializer<HabitSeries> {
         ..add('untilDate')
         ..add(serializers.serialize(value,
             specifiedType: const FullType(DateTime)));
+    }
+    value = object.repeatFrequency;
+    if (value != null) {
+      result
+        ..add('repeatFrequency')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(RepeatFrequency)));
     }
     return result;
   }
@@ -77,8 +81,8 @@ class _$HabitSeriesSerializer implements StructuredSerializer<HabitSeries> {
           break;
         case 'repeatFrequency':
           result.repeatFrequency = serializers.deserialize(value,
-                  specifiedType: const FullType(RepeatFrequency))!
-              as RepeatFrequency;
+                  specifiedType: const FullType(RepeatFrequency))
+              as RepeatFrequency?;
           break;
       }
     }
@@ -99,7 +103,7 @@ class _$HabitSeries extends HabitSeries {
   @override
   final DateTime? untilDate;
   @override
-  final RepeatFrequency repeatFrequency;
+  final RepeatFrequency? repeatFrequency;
 
   factory _$HabitSeries([void Function(HabitSeriesBuilder)? updates]) =>
       (new HabitSeriesBuilder()..update(updates))._build();
@@ -110,15 +114,13 @@ class _$HabitSeries extends HabitSeries {
       required this.habitId,
       required this.startDate,
       this.untilDate,
-      required this.repeatFrequency})
+      this.repeatFrequency})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(id, r'HabitSeries', 'id');
     BuiltValueNullFieldError.checkNotNull(userId, r'HabitSeries', 'userId');
     BuiltValueNullFieldError.checkNotNull(habitId, r'HabitSeries', 'habitId');
     BuiltValueNullFieldError.checkNotNull(
         startDate, r'HabitSeries', 'startDate');
-    BuiltValueNullFieldError.checkNotNull(
-        repeatFrequency, r'HabitSeries', 'repeatFrequency');
   }
 
   @override
@@ -237,8 +239,7 @@ class HabitSeriesBuilder implements Builder<HabitSeries, HabitSeriesBuilder> {
           startDate: BuiltValueNullFieldError.checkNotNull(
               startDate, r'HabitSeries', 'startDate'),
           untilDate: untilDate,
-          repeatFrequency: BuiltValueNullFieldError.checkNotNull(
-              repeatFrequency, r'HabitSeries', 'repeatFrequency'),
+          repeatFrequency: repeatFrequency,
         );
     replace(_$result);
     return _$result;

@@ -11,7 +11,8 @@ final selectedDateProvider =
         (ref) => SelectedDateNotifier());
 
 class SelectedDateNotifier extends StateNotifier<DateTime> {
-  SelectedDateNotifier() : super(DateTime.now());
+  SelectedDateNotifier([DateTime? initialDate])
+      : super(initialDate ?? DateTime.now());
 
   void updateSelectedDate(DateTime newDate) {
     state = newDate;
@@ -31,10 +32,10 @@ class HomeController extends AutoDisposeAsyncNotifier<List<Habit>> {
       ref.invalidateSelf(); // Re-fetch when selected date changes
     });
 
-    return await _fetchHabits();
+    return await fetchHabits();
   }
 
-  Future<List<Habit>> _fetchHabits() async {
+  Future<List<Habit>> fetchHabits() async {
     final selectedDate = ref.read(selectedDateProvider);
     final userId = await ref.read(userServiceProvider).getCurrentUserId();
     if (userId == null) return [];

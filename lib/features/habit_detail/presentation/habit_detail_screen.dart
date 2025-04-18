@@ -5,18 +5,39 @@ import 'package:intl/intl.dart';
 
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
-import '../controllers/create_habit_controller.dart';
+import '../controllers/habit_detail_controller.dart';
 import 'widgets/category_bottom_sheet.dart';
+import 'widgets/edit_scope_dialog.dart';
 
-class CreateHabitScreen extends ConsumerStatefulWidget {
-  const CreateHabitScreen({super.key});
+class HabitDetailScreen extends ConsumerStatefulWidget {
+  const HabitDetailScreen({super.key, this.habit});
+  final Habit? habit;
 
   @override
-  ConsumerState<CreateHabitScreen> createState() => _CreateHabitScreenState();
+  ConsumerState<HabitDetailScreen> createState() => _HabitDetailScreenState();
 }
 
-class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
+class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
+  HabitDetailController get controller =>
+      ref.read(habitDetailControllerProvider);
+  TextEditingController nameController = TextEditingController();
   final focusNode = FocusNode();
+  Habit? get habit => widget.habit;
+  bool get isEditing => habit != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() async {
+      if (habit == null) {
+        controller.resetForm();
+      } else {
+        nameController.text = habit!.name;
+        await controller.fromHabit(habit!);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -33,7 +54,6 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
     final habitQuantity = ref.watch(habitQuantityProvider);
     final habitUnit = ref.watch(habitUnitProvider);
     final habitReminder = ref.watch(habitReminderProvider);
-    final controller = ref.read(createHabitControllerProvider);
     final isFormValid = habitName.isNotEmpty && habitCategory != null;
 
     return Scaffold(
@@ -46,6 +66,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             children: [
               /// Habit Name
               TextField(
+                controller: nameController,
                 focusNode: focusNode,
                 onTapOutside: (event) => focusNode.unfocus(),
                 decoration: InputDecoration(
@@ -355,9 +376,15 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
                 child: ElevatedButton(
                     onPressed: isFormValid
                         ? () async {
-                            final habit = await controller.saveHabit();
+                            final Habit? habitResult;
+                            if (isEditing) {
+                              habitResult = await controller.updateHabit(
+                                  habit!, () => showEditScopeDialog(context));
+                            } else {
+                              habitResult = await controller.createHabit();
+                            }
                             if (context.mounted) {
-                              context.pop(habit);
+                              context.pop(habitResult);
                             }
                           }
                         : null,
@@ -393,7 +420,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
   }
 
   void _showProgressDialog(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(createHabitControllerProvider);
+    final controller = ref.read(habitDetailControllerProvider);
     final quantityController =
         TextEditingController(text: ref.read(habitQuantityProvider).toString());
     final unitController =

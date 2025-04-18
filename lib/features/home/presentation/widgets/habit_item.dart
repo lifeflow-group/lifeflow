@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../data/domain/models/habit.dart';
+import '../../controllers/home_controller.dart';
 
-class HabitItem extends StatelessWidget {
+class HabitItem extends ConsumerWidget {
   const HabitItem({super.key, required this.habit});
   final Habit habit;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      padding: const EdgeInsets.all(4.0),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: ListTile(
+        onTap: () async {
+          final result = await context.push('/habit-detail', extra: habit);
+          if (result != null) {
+            // If there are changes → refresh home
+            ref.invalidate(homeControllerProvider);
+          }
+        },
         leading: Padding(
             padding: const EdgeInsets.only(right: 4.0),
             child: Image.asset(habit.category.iconPath, width: 32, height: 32)),
@@ -42,6 +47,8 @@ class HabitItem extends StatelessWidget {
                 },
                 icon: const Icon(Icons.add_circle_outline),
               ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        tileColor: Theme.of(context).cardTheme.color,
       ),
     );
   }

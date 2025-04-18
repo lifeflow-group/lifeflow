@@ -31,7 +31,7 @@ class HabitExceptionDao extends DatabaseAccessor<AppDatabase>
       (delete(habitExceptionsTable)..where((tbl) => tbl.id.equals(id))).go();
 
   /// Optional: Update habit exception (if needed)
-  Future<bool> updateHabitException(HabitExceptionsTableData exception) =>
+  Future<bool> updateHabitException(HabitExceptionsTableCompanion exception) =>
       update(habitExceptionsTable).replace(exception);
 
   Future<List<HabitExceptionsTableData>> getHabitExceptionsDateRange(
@@ -44,6 +44,16 @@ class HabitExceptionDao extends DatabaseAccessor<AppDatabase>
                   isSameDateQuery(ex.date, range.end)) &
               (ex.date.isBiggerOrEqualValue(range.start) |
                   isSameDateQuery(ex.date, range.start))))
+        .get();
+  }
+
+  Future<List<HabitExceptionsTableData>> getExceptionsAfterDate(
+      String seriesId, DateTime date) async {
+    return await (select(habitExceptionsTable)
+          ..where((ex) =>
+              ex.habitSeriesId.equals(seriesId) &
+              (ex.date.isBiggerOrEqualValue(date) |
+                  isSameDateQuery(ex.date, date))))
         .get();
   }
 }

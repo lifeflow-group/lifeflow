@@ -48,7 +48,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final newHabit = await context.push('/create-habit');
+            final newHabit = await context.push('/habit-detail');
             if (newHabit == null) return;
             // Re-fetch the homeControllerProvider (auto triggers build())
             ref.invalidate(homeControllerProvider);

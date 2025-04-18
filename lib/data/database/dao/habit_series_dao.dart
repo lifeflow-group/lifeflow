@@ -31,7 +31,7 @@ class HabitSeriesDao extends DatabaseAccessor<AppDatabase>
       (delete(habitSeriesTable)..where((tbl) => tbl.id.equals(id))).go();
 
   /// Optional: Update habit series (if needed)
-  Future<bool> updateHabitSeries(HabitSeriesTableData habitSeries) =>
+  Future<bool> updateHabitSeries(HabitSeriesTableCompanion habitSeries) =>
       update(habitSeriesTable).replace(habitSeries);
 
   Future<List<HabitSeriesTableData>> getHabitSeriesDateRange(

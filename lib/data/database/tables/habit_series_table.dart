@@ -17,7 +17,7 @@ class HabitSeriesTable extends Table {
   DateTimeColumn get untilDate => dateTime().nullable()();
 
   // Repeat rule: daily / weekly / monthly (Enum value converted to text)
-  TextColumn get repeatFrequency => text()();
+  TextColumn get repeatFrequency => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

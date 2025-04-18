@@ -901,8 +901,8 @@ class $HabitSeriesTableTable extends HabitSeriesTable
       const VerificationMeta('repeatFrequency');
   @override
   late final GeneratedColumn<String> repeatFrequency = GeneratedColumn<String>(
-      'repeat_frequency', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      'repeat_frequency', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
       [id, userId, habitId, startDate, untilDate, repeatFrequency];
@@ -949,8 +949,6 @@ class $HabitSeriesTableTable extends HabitSeriesTable
           _repeatFrequencyMeta,
           repeatFrequency.isAcceptableOrUnknown(
               data['repeat_frequency']!, _repeatFrequencyMeta));
-    } else if (isInserting) {
-      context.missing(_repeatFrequencyMeta);
     }
     return context;
   }
@@ -972,7 +970,7 @@ class $HabitSeriesTableTable extends HabitSeriesTable
       untilDate: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}until_date']),
       repeatFrequency: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}repeat_frequency'])!,
+          DriftSqlType.string, data['${effectivePrefix}repeat_frequency']),
     );
   }
 
@@ -989,14 +987,14 @@ class HabitSeriesTableData extends DataClass
   final String habitId;
   final DateTime startDate;
   final DateTime? untilDate;
-  final String repeatFrequency;
+  final String? repeatFrequency;
   const HabitSeriesTableData(
       {required this.id,
       required this.userId,
       required this.habitId,
       required this.startDate,
       this.untilDate,
-      required this.repeatFrequency});
+      this.repeatFrequency});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1007,7 +1005,9 @@ class HabitSeriesTableData extends DataClass
     if (!nullToAbsent || untilDate != null) {
       map['until_date'] = Variable<DateTime>(untilDate);
     }
-    map['repeat_frequency'] = Variable<String>(repeatFrequency);
+    if (!nullToAbsent || repeatFrequency != null) {
+      map['repeat_frequency'] = Variable<String>(repeatFrequency);
+    }
     return map;
   }
 
@@ -1020,7 +1020,9 @@ class HabitSeriesTableData extends DataClass
       untilDate: untilDate == null && nullToAbsent
           ? const Value.absent()
           : Value(untilDate),
-      repeatFrequency: Value(repeatFrequency),
+      repeatFrequency: repeatFrequency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(repeatFrequency),
     );
   }
 
@@ -1033,7 +1035,7 @@ class HabitSeriesTableData extends DataClass
       habitId: serializer.fromJson<String>(json['habitId']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       untilDate: serializer.fromJson<DateTime?>(json['untilDate']),
-      repeatFrequency: serializer.fromJson<String>(json['repeatFrequency']),
+      repeatFrequency: serializer.fromJson<String?>(json['repeatFrequency']),
     );
   }
   @override
@@ -1045,7 +1047,7 @@ class HabitSeriesTableData extends DataClass
       'habitId': serializer.toJson<String>(habitId),
       'startDate': serializer.toJson<DateTime>(startDate),
       'untilDate': serializer.toJson<DateTime?>(untilDate),
-      'repeatFrequency': serializer.toJson<String>(repeatFrequency),
+      'repeatFrequency': serializer.toJson<String?>(repeatFrequency),
     };
   }
 
@@ -1055,14 +1057,16 @@ class HabitSeriesTableData extends DataClass
           String? habitId,
           DateTime? startDate,
           Value<DateTime?> untilDate = const Value.absent(),
-          String? repeatFrequency}) =>
+          Value<String?> repeatFrequency = const Value.absent()}) =>
       HabitSeriesTableData(
         id: id ?? this.id,
         userId: userId ?? this.userId,
         habitId: habitId ?? this.habitId,
         startDate: startDate ?? this.startDate,
         untilDate: untilDate.present ? untilDate.value : this.untilDate,
-        repeatFrequency: repeatFrequency ?? this.repeatFrequency,
+        repeatFrequency: repeatFrequency.present
+            ? repeatFrequency.value
+            : this.repeatFrequency,
       );
   HabitSeriesTableData copyWithCompanion(HabitSeriesTableCompanion data) {
     return HabitSeriesTableData(
@@ -1111,7 +1115,7 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
   final Value<String> habitId;
   final Value<DateTime> startDate;
   final Value<DateTime?> untilDate;
-  final Value<String> repeatFrequency;
+  final Value<String?> repeatFrequency;
   final Value<int> rowid;
   const HabitSeriesTableCompanion({
     this.id = const Value.absent(),
@@ -1128,13 +1132,12 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
     required String habitId,
     required DateTime startDate,
     this.untilDate = const Value.absent(),
-    required String repeatFrequency,
+    this.repeatFrequency = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         userId = Value(userId),
         habitId = Value(habitId),
-        startDate = Value(startDate),
-        repeatFrequency = Value(repeatFrequency);
+        startDate = Value(startDate);
   static Insertable<HabitSeriesTableData> custom({
     Expression<String>? id,
     Expression<String>? userId,
@@ -1161,7 +1164,7 @@ class HabitSeriesTableCompanion extends UpdateCompanion<HabitSeriesTableData> {
       Value<String>? habitId,
       Value<DateTime>? startDate,
       Value<DateTime?>? untilDate,
-      Value<String>? repeatFrequency,
+      Value<String?>? repeatFrequency,
       Value<int>? rowid}) {
     return HabitSeriesTableCompanion(
       id: id ?? this.id,
@@ -2329,7 +2332,7 @@ typedef $$HabitSeriesTableTableCreateCompanionBuilder
   required String habitId,
   required DateTime startDate,
   Value<DateTime?> untilDate,
-  required String repeatFrequency,
+  Value<String?> repeatFrequency,
   Value<int> rowid,
 });
 typedef $$HabitSeriesTableTableUpdateCompanionBuilder
@@ -2339,7 +2342,7 @@ typedef $$HabitSeriesTableTableUpdateCompanionBuilder
   Value<String> habitId,
   Value<DateTime> startDate,
   Value<DateTime?> untilDate,
-  Value<String> repeatFrequency,
+  Value<String?> repeatFrequency,
   Value<int> rowid,
 });
 
@@ -2462,7 +2465,7 @@ class $$HabitSeriesTableTableTableManager extends RootTableManager<
             Value<String> habitId = const Value.absent(),
             Value<DateTime> startDate = const Value.absent(),
             Value<DateTime?> untilDate = const Value.absent(),
-            Value<String> repeatFrequency = const Value.absent(),
+            Value<String?> repeatFrequency = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               HabitSeriesTableCompanion(
@@ -2480,7 +2483,7 @@ class $$HabitSeriesTableTableTableManager extends RootTableManager<
             required String habitId,
             required DateTime startDate,
             Value<DateTime?> untilDate = const Value.absent(),
-            required String repeatFrequency,
+            Value<String?> repeatFrequency = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               HabitSeriesTableCompanion.insert(

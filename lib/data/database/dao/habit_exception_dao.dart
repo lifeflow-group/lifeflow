@@ -30,6 +30,23 @@ class HabitExceptionDao extends DatabaseAccessor<AppDatabase>
   Future<int> deleteHabitException(String id) =>
       (delete(habitExceptionsTable)..where((tbl) => tbl.id.equals(id))).go();
 
+  /// Delete all habit exceptions in a specific series
+  Future<int> deleteAllExceptionsInSeries(String seriesId) =>
+      (delete(habitExceptionsTable)
+            ..where((tbl) => tbl.habitSeriesId.equals(seriesId)))
+          .go();
+
+  /// Delete all future habit exceptions in a specific series
+  Future<int> deleteFutureExceptionsInSeries(String seriesId, DateTime date) {
+    final utcDate = date.toUtc();
+    return (delete(habitExceptionsTable)
+          ..where((tbl) =>
+              tbl.habitSeriesId.equals(seriesId) &
+              (tbl.date.isBiggerThanValue(utcDate) |
+                  isSameDateQuery(tbl.date, utcDate))))
+        .go();
+  }
+
   /// Optional: Update habit exception (if needed)
   Future<bool> updateHabitException(HabitExceptionsTableCompanion exception) =>
       update(habitExceptionsTable).replace(exception);

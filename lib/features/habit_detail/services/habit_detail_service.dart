@@ -12,6 +12,10 @@ class HabitDetailService {
   final AppDatabase _database;
   HabitDetailService(this._database);
 
+  Future<T> transaction<T>(Future<T> Function() action) {
+    return _database.transaction(action);
+  }
+
   Future<HabitsTableData?> getHabit(String id) async {
     return await _database.habitDao.getHabit(id);
   }
@@ -34,43 +38,60 @@ class HabitDetailService {
     await _database.habitDao.updateHabit(habit);
   }
 
+  Future<int> deleteHabit(String id) async {
+    return await _database.habitDao.deleteHabit(id);
+  }
+
   Future<void> insertHabitSeries(HabitSeriesTableCompanion habitSeries) async {
     await _database.habitSeriesDao.insertHabitSeries(habitSeries);
   }
 
-  Future<void> updateHabitSeries(HabitSeriesTableCompanion habitSeries) async {
-    await _database.habitSeriesDao.updateHabitSeries(habitSeries);
+  Future<bool> updateHabitSeries(HabitSeriesTableCompanion habitSeries) async {
+    return await _database.habitSeriesDao.updateHabitSeries(habitSeries);
   }
 
   Future<HabitSeriesTableData?> getHabitSeries(String id) async {
     return await _database.habitSeriesDao.getHabitSeries(id);
   }
 
-  Future<void> insertHabitException(
+  Future<int> insertHabitException(
       HabitExceptionsTableCompanion habitException) async {
-    await _database.habitExceptionDao.insertHabitException(habitException);
+    return await _database.habitExceptionDao
+        .insertHabitException(habitException);
   }
 
-  Future<void> updateHabitException(
+  Future<bool> updateHabitException(
       HabitExceptionsTableCompanion habitException) async {
-    await _database.habitExceptionDao.updateHabitException(habitException);
+    return await _database.habitExceptionDao
+        .updateHabitException(habitException);
   }
 
-  Future<void> deleteHabitSeries(String id) async {
-    await _database.habitSeriesDao.deleteHabitSeries(id);
+  Future<int> deleteHabitSeries(String id) async {
+    return await _database.habitSeriesDao.deleteHabitSeries(id);
   }
 
   Future<HabitExceptionsTableData?> getHabitException(String id) async {
     return await _database.habitExceptionDao.getHabitException(id);
   }
 
-  Future<void> deleteHabitException(String id) async {
-    await _database.habitExceptionDao.deleteHabitException(id);
-  }
-
   Future<List<HabitExceptionsTableData>> getExceptionsAfterDate(
       String seriesId, DateTime habitDate) async {
     return await _database.habitExceptionDao
         .getExceptionsAfterDate(seriesId, habitDate);
+  }
+
+  Future<void> deleteHabitException(String id) async {
+    await _database.habitExceptionDao.deleteHabitException(id);
+  }
+
+  Future<int> deleteAllExceptionsInSeries(String seriesId) async {
+    return await _database.habitExceptionDao
+        .deleteAllExceptionsInSeries(seriesId);
+  }
+
+  Future<int> deleteFutureExceptionsInSeries(
+      String seriesId, DateTime startDate) async {
+    return await _database.habitExceptionDao
+        .deleteFutureExceptionsInSeries(seriesId, startDate);
   }
 }

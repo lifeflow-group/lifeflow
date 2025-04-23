@@ -16,6 +16,10 @@ class HabitDetailRepository {
 
   HabitDetailRepository(this._service);
 
+  Future<T> transaction<T>(Future<T> Function() action) {
+    return _service.transaction(action);
+  }
+
   Future<Habit?> getHabit(String id) async {
     // Fetch Habit by ID from the service
     final habitData = await _service.getHabit(id);
@@ -54,6 +58,13 @@ class HabitDetailRepository {
     await _service.updateHabit(companion);
   }
 
+  Future<bool> deleteHabit(String id) async {
+    // Call service or repository to delete the Habit by ID
+    final deletedCount = await _service.deleteHabit(id);
+    if (deletedCount == 0) return false;
+    return true;
+  }
+
   Future<void> createHabitSeries(HabitSeries habitSeries) async {
     // Convert Model to Companion
     final companion =
@@ -63,13 +74,13 @@ class HabitDetailRepository {
     await _service.insertHabitSeries(companion);
   }
 
-  Future<void> updateHabitSeries(HabitSeries habitSeries) async {
+  Future<bool> updateHabitSeries(HabitSeries habitSeries) async {
     // Convert Model to Companion
     final companion =
         HabitSeriesTableData.fromJson(habitSeries.toJson()).toCompanion(false);
 
     // Call service or repository to update
-    await _service.updateHabitSeries(companion);
+    return await _service.updateHabitSeries(companion);
   }
 
   Future<HabitSeries?> getHabitSeries(String? id) async {
@@ -84,26 +95,30 @@ class HabitDetailRepository {
     return null;
   }
 
-  Future<void> insertHabitException(HabitException exception) async {
+  Future<bool> insertHabitException(HabitException exception) async {
     // Convert Model to Companion
     final companion = HabitExceptionsTableData.fromJson(exception.toJson())
         .toCompanion(false);
     // Call service or repository to insert the exception
-    await _service.insertHabitException(companion);
+    final count = await _service.insertHabitException(companion);
+    if (count == 0) return false;
+    return true;
   }
 
-  Future<void> updateHabitException(HabitException exception) async {
+  Future<bool> updateHabitException(HabitException exception) async {
     // Convert Model to Companion
     final companion = HabitExceptionsTableData.fromJson(exception.toJson())
         .toCompanion(false);
 
     // Call service or repository to update the exception
-    await _service.updateHabitException(companion);
+    return await _service.updateHabitException(companion);
   }
 
-  Future<void> deleteHabitSeries(String id) async {
+  Future<bool> deleteHabitSeries(String id) async {
     // Call service or repository to delete the HabitSeries by ID
-    await _service.deleteHabitSeries(id);
+    final count = await _service.deleteHabitSeries(id);
+    if (count == 0) return false;
+    return true;
   }
 
   Future<HabitException?> getHabitException(String id) async {
@@ -117,11 +132,6 @@ class HabitDetailRepository {
     return null;
   }
 
-  Future<void> deleteHabitException(String id) async {
-    // Call service or repository to delete the HabitException by ID
-    await _service.deleteHabitException(id);
-  }
-
   Future<List<HabitException>> getExceptionsAfterDate(
       String seriesId, DateTime habitDate) async {
     // Fetch exceptions after the given date for the specified series
@@ -132,5 +142,21 @@ class HabitDetailRepository {
     return exceptionsData
         .map((exception) => HabitException.fromJson(exception.toJson()))
         .toList();
+  }
+
+  Future<void> deleteHabitException(String id) async {
+    // Call service or repository to delete the HabitException by ID
+    await _service.deleteHabitException(id);
+  }
+
+  Future<int> deleteAllExceptionsInSeries(String seriesId) async {
+    // Call service or repository to delete all exceptions in the specified series
+    return await _service.deleteAllExceptionsInSeries(seriesId);
+  }
+
+  Future<int> deleteFutureExceptionsInSeries(
+      String seriesId, DateTime startDate) async {
+    // Call service or repository to delete exceptions in the series after the given date
+    return await _service.deleteFutureExceptionsInSeries(seriesId, startDate);
   }
 }

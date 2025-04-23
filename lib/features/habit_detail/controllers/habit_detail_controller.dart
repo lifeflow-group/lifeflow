@@ -113,31 +113,37 @@ class HabitDetailController {
   }
 
   Future<Habit?> createHabit() async {
-    // 1. Build habit from form
-    Habit? habitModel = await _buildHabitFromForm();
-    if (habitModel == null) return null;
+    return await _repo.transaction(() async {
+      // 1. Build habit from form
+      Habit? habitModel = await _buildHabitFromForm();
+      if (habitModel == null) return null;
 
-    // 2. Build optional series
-    final habitSeries = _buildHabitSeries(habitModel);
+      // 2. Build optional series
+      final habitSeries = _buildHabitSeries(habitModel);
 
-    if (habitSeries != null) {
-      await _repo.createHabitSeries(habitSeries);
-      habitModel = habitModel.rebuild((b) => b..habitSeriesId = habitSeries.id);
-    }
+      if (habitSeries != null) {
+        await _repo.createHabitSeries(habitSeries);
+        habitModel =
+            habitModel.rebuild((b) => b..habitSeriesId = habitSeries.id);
+      }
 
-    // 3. Create habit
-    await _repo.createHabit(habitModel);
+      // 3. Create habit
+      await _repo.createHabit(habitModel);
+      return habitModel;
+    }).then((habitModel) async {
+      // 4. Handle reminder if enabled
+      // Separate reminder handling from the transaction (as it may involve the OS and cannot be rolled back)
+      if (habitModel?.reminderEnabled == true) {
+        await _scheduleRecurringReminders(
+            habitModel!, _buildHabitSeries(habitModel));
+      }
 
-    // 4. Handle reminder if enabled
-    if (habitModel.reminderEnabled) {
-      await _scheduleRecurringReminders(habitModel, habitSeries);
-    }
-
-    return habitModel;
+      return habitModel;
+    });
   }
 
   Future<Habit?> updateHabit(
-      Habit oldHabit, Future<EditScope?> Function() pickScope) async {
+      Habit oldHabit, Future<ActionScope?> Function() pickScope) async {
     final oldSeries = await _repo.getHabitSeries(oldHabit.habitSeriesId);
     Habit? newHabit = await _buildHabitFromForm(habitId: oldHabit.id);
     if (newHabit == null) return null;
@@ -147,24 +153,26 @@ class HabitDetailController {
 
     // If there is no old series → simply update or create a new series
     if (oldSeries == null) {
-      if (newSeries != null) await _repo.createHabitSeries(newSeries);
-      await _repo.updateHabit(newHabit);
-      return newHabit;
+      return await _repo.transaction(() async {
+        if (newSeries != null) await _repo.createHabitSeries(newSeries);
+        await _repo.updateHabit(newHabit!);
+        return newHabit;
+      });
     }
 
     // If there are changes → ask the user for the edit scope
     if (newHabit != oldHabit) {
-      final editScope = await pickScope();
-      if (editScope == null) return null;
+      final actionScope = await pickScope();
+      if (actionScope == null) return null;
 
-      switch (editScope) {
-        case EditScope.onlyThis:
+      switch (actionScope) {
+        case ActionScope.onlyThis:
           newHabit = await _handleOnlyThis(oldHabit, newHabit, newSeries);
           break;
-        case EditScope.all:
+        case ActionScope.all:
           newHabit = await _handleAll(oldSeries, newHabit, newSeries);
           break;
-        case EditScope.thisAndFollowing:
+        case ActionScope.thisAndFollowing:
           newHabit =
               await _handleThisAndFollowing(oldSeries, newHabit, newSeries);
           break;
@@ -181,41 +189,43 @@ class HabitDetailController {
     Habit newHabit,
     HabitSeries? newSeries,
   ) async {
-    final habitDate = ref.read(habitDateProvider).toLocal();
-    HabitException? exception = await _repo.getHabitException(oldHabit.id);
+    return await _repo.transaction(() async {
+      final habitDate = ref.read(habitDateProvider).toLocal();
+      HabitException? exception = await _repo.getHabitException(oldHabit.id);
 
-    // Skip the habit for today
-    if (exception == null) {
-      exception = HabitException((b) => b
-        ..id = oldHabit.id
-        ..habitSeriesId = oldHabit.habitSeriesId
-        ..reminderEnabled = oldHabit.reminderEnabled
-        ..date = habitDate.toUtc()
-        ..isSkipped = true);
+      // Skip the habit for today
+      if (exception == null) {
+        exception = HabitException((b) => b
+          ..id = oldHabit.id
+          ..habitSeriesId = oldHabit.habitSeriesId
+          ..reminderEnabled = oldHabit.reminderEnabled
+          ..date = habitDate.toUtc()
+          ..isSkipped = true);
 
-      await _repo.insertHabitException(exception);
-    } else {
-      exception = exception.rebuild((b) => b
-        ..date = habitDate.toUtc()
-        ..isSkipped = true);
-      await _repo.updateHabitException(exception);
-    }
+        await _repo.insertHabitException(exception);
+      } else {
+        exception = exception.rebuild((b) => b
+          ..date = habitDate.toUtc()
+          ..isSkipped = true);
+        await _repo.updateHabitException(exception);
+      }
 
-    Habit originalHabit =
-        newHabit.rebuild((p0) => p0.id = generateNewId('habit'));
+      Habit originalHabit =
+          newHabit.rebuild((p0) => p0.id = generateNewId('habit'));
 
-    if (newSeries != null) {
-      final newSeriesId = generateNewId('series');
-      await _repo.createHabitSeries(newSeries.rebuild((p0) => p0
-        ..id = newSeriesId
-        ..habitId = originalHabit.id));
-      originalHabit =
-          originalHabit.rebuild((p0) => p0.habitSeriesId = newSeriesId);
-    }
+      if (newSeries != null) {
+        final newSeriesId = generateNewId('series');
+        await _repo.createHabitSeries(newSeries.rebuild((p0) => p0
+          ..id = newSeriesId
+          ..habitId = originalHabit.id));
+        originalHabit =
+            originalHabit.rebuild((p0) => p0.habitSeriesId = newSeriesId);
+      }
 
-    await _repo.createHabit(originalHabit);
-    // Return the new habit with the new series
-    return originalHabit;
+      await _repo.createHabit(originalHabit);
+      // Return the new habit with the new series
+      return originalHabit;
+    });
   }
 
   Future<Habit> _handleAll(
@@ -223,31 +233,33 @@ class HabitDetailController {
     Habit newHabit,
     HabitSeries? newSeries,
   ) async {
-    final newTime = newHabit.startDate.toLocal();
-    final startDate = oldSeries.startDate
-        .toLocal()
-        .copyWith(hour: newTime.hour, minute: newTime.minute);
+    return await _repo.transaction(() async {
+      final newTime = newHabit.startDate.toLocal();
+      final startDate = oldSeries.startDate
+          .toLocal()
+          .copyWith(hour: newTime.hour, minute: newTime.minute);
 
-    String? habitSeriesId = newSeries?.id;
-    if (newSeries == null) {
-      await _repo.deleteHabitSeries(oldSeries.id);
-    } else {
-      habitSeriesId = oldSeries.id;
-      final updateSeries = newSeries.rebuild((b) => b
-        ..id = habitSeriesId
-        ..habitId = oldSeries.habitId
+      String? habitSeriesId = newSeries?.id;
+      if (newSeries == null) {
+        await _repo.deleteHabitSeries(oldSeries.id);
+      } else {
+        habitSeriesId = oldSeries.id;
+        final updateSeries = newSeries.rebuild((b) => b
+          ..id = habitSeriesId
+          ..habitId = oldSeries.habitId
+          ..startDate = startDate.toUtc());
+        await _repo.updateHabitSeries(updateSeries);
+      }
+
+      final updatedOriginalHabit = newHabit.rebuild((b) => b
+        ..id = oldSeries.habitId
+        ..habitSeriesId = habitSeriesId
         ..startDate = startDate.toUtc());
-      await _repo.updateHabitSeries(updateSeries);
-    }
+      await _repo.updateHabit(updatedOriginalHabit);
 
-    final updatedOriginalHabit = newHabit.rebuild((b) => b
-      ..id = oldSeries.habitId
-      ..habitSeriesId = habitSeriesId
-      ..startDate = startDate.toUtc());
-    await _repo.updateHabit(updatedOriginalHabit);
-
-    // Return the updated original habit
-    return updatedOriginalHabit;
+      // Return the updated original habit
+      return updatedOriginalHabit;
+    });
   }
 
   Future<Habit> _handleThisAndFollowing(
@@ -255,67 +267,69 @@ class HabitDetailController {
     Habit newHabit,
     HabitSeries? newSeries,
   ) async {
-    final habitDate = ref.read(habitDateProvider);
+    return await _repo.transaction(() async {
+      final habitDate = ref.read(habitDateProvider);
 
-    // 1. Trim the old series before the current date
-    final updatedOldSeries = oldSeries.rebuild(
-      (b) => b..untilDate = habitDate.subtract(const Duration(days: 1)),
-    );
-    await _repo.updateHabitSeries(updatedOldSeries);
-
-    // 2. Create a new habit
-    Habit newHabitWithId =
-        newHabit.rebuild((b) => b.id = generateNewId('habit'));
-
-    // 3. If it still repeats → create a new series
-    HabitSeries? createdNewSeries;
-    if (newSeries != null) {
-      createdNewSeries = newSeries.rebuild((b) => b
-        ..id = generateNewId('series')
-        ..habitId = newHabitWithId.id);
-      await _repo.createHabitSeries(createdNewSeries);
-      newHabitWithId = newHabitWithId.rebuild(
-        (b) => b.habitSeriesId = createdNewSeries?.id,
+      // 1. Trim the old series before the current date
+      final updatedOldSeries = oldSeries.rebuild(
+        (b) => b..untilDate = habitDate.subtract(const Duration(days: 1)),
       );
-    }
+      await _repo.updateHabitSeries(updatedOldSeries);
 
-    await _repo.createHabit(newHabitWithId);
+      // 2. Create a new habit
+      Habit newHabitWithId =
+          newHabit.rebuild((b) => b.id = generateNewId('habit'));
 
-    // 4. Handle exceptions after trimming
-    final exceptions =
-        await _repo.getExceptionsAfterDate(oldSeries.id, habitDate);
+      // 3. If it still repeats → create a new series
+      HabitSeries? createdNewSeries;
+      if (newSeries != null) {
+        createdNewSeries = newSeries.rebuild((b) => b
+          ..id = generateNewId('series')
+          ..habitId = newHabitWithId.id);
+        await _repo.createHabitSeries(createdNewSeries);
+        newHabitWithId = newHabitWithId.rebuild(
+          (b) => b.habitSeriesId = createdNewSeries?.id,
+        );
+      }
 
-    for (final exception in exceptions) {
-      if (exception.isSkipped) {
-        // If it's a skip → keep it, but update it to the new series (if any)
-        if (createdNewSeries != null) {
-          final updatedException = exception.rebuild(
-            (p0) => p0.habitSeriesId = createdNewSeries?.id,
-          );
-          await _repo.updateHabitException(updatedException);
-        }
-      } else {
-        // If it's an override:
-        if (createdNewSeries != null) {
-          // Assign it to the new series
-          final updatedException = exception.rebuild(
-            (p0) => p0.habitSeriesId = createdNewSeries?.id,
-          );
-          await _repo.updateHabitException(updatedException);
+      await _repo.createHabit(newHabitWithId);
+
+      // 4. Handle exceptions after trimming
+      final exceptions =
+          await _repo.getExceptionsAfterDate(oldSeries.id, habitDate);
+
+      for (final exception in exceptions) {
+        if (exception.isSkipped) {
+          // If it's a skip → keep it, but update it to the new series (if any)
+          if (createdNewSeries != null) {
+            final updatedException = exception.rebuild(
+              (p0) => p0.habitSeriesId = createdNewSeries?.id,
+            );
+            await _repo.updateHabitException(updatedException);
+          }
         } else {
-          // If there is no new series → create a habit from the exception
-          final habitFromException = _buildHabitFromException(
-            newHabitWithId,
-            exception,
-          );
-          await _repo.createHabit(habitFromException);
-          await _repo.deleteHabitException(exception.id);
+          // If it's an override:
+          if (createdNewSeries != null) {
+            // Assign it to the new series
+            final updatedException = exception.rebuild(
+              (p0) => p0.habitSeriesId = createdNewSeries?.id,
+            );
+            await _repo.updateHabitException(updatedException);
+          } else {
+            // If there is no new series → create a habit from the exception
+            final habitFromException = _buildHabitFromException(
+              newHabitWithId,
+              exception,
+            );
+            await _repo.createHabit(habitFromException);
+            await _repo.deleteHabitException(exception.id);
+          }
         }
       }
-    }
 
-    // Return the new habit with the new series
-    return newHabitWithId;
+      // Return the new habit with the new series
+      return newHabitWithId;
+    });
   }
 
   Habit _buildHabitFromException(Habit baseHabit, HabitException exception) {

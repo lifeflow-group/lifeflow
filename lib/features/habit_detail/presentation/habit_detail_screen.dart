@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
 import '../controllers/habit_detail_controller.dart';
@@ -255,8 +256,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _getRepeatFrequencyLabel(
-                            ref.watch(habitRepeatFrequencyProvider), context),
+                        getRepeatFrequencyLabel(
+                            ref.watch(habitRepeatFrequencyProvider)),
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
@@ -471,15 +472,6 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
         );
       },
     );
-  }
-
-  String _getRepeatFrequencyLabel(
-      RepeatFrequency? frequency, BuildContext context) {
-    if (frequency == null) {
-      return "No Repeat";
-    }
-    final label = frequency.toString().split('.').last;
-    return label[0].toUpperCase() + label.substring(1);
   }
 
   Future<RepeatFrequency?> _showRepeatFrequencyBottomSheet(

@@ -13,10 +13,12 @@ class HabitItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         onTap: () async {
-          final result = await context.push('/habit-detail', extra: habit);
+          final result = await context.push('/habit-view', extra: habit);
           if (result != null) {
             // If there are changes → refresh home
             ref.invalidate(homeControllerProvider);
@@ -32,12 +34,15 @@ class HabitItem extends ConsumerWidget {
               : '${habit.currentValue ?? 0}/${habit.targetValue} ${habit.unit}',
         ),
         trailing: habit.trackingType == TrackingType.complete
-            ? Radio<bool>(
-                value: true,
-                groupValue: habit.isCompleted ?? false,
-                onChanged: (value) {
-                  // TODO: Implement the onChanged logic for habit completion
-                },
+            ? SizedBox(
+                width: 20,
+                child: Radio<bool>(
+                  value: true,
+                  groupValue: habit.isCompleted ?? false,
+                  onChanged: (value) {
+                    // TODO: Implement the onChanged logic for habit completion
+                  },
+                ),
               )
             : IconButton(
                 padding: EdgeInsets.all(4.0),
@@ -48,7 +53,6 @@ class HabitItem extends ConsumerWidget {
                 icon: const Icon(Icons.add_circle_outline),
               ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        tileColor: Theme.of(context).cardTheme.color,
       ),
     );
   }

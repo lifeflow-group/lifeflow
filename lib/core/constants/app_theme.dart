@@ -25,6 +25,7 @@ class AppTheme {
       outlineVariant: Color(0xFFE0E0E0),
       shadow: Color(0x40000000),
       scrim: Color(0x80000000),
+      error: Colors.red,
     ),
     scaffoldBackgroundColor: lightBackground,
     appBarTheme: AppBarTheme(

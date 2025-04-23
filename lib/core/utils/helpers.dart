@@ -133,3 +133,11 @@ Expression<bool> isSameDateQuery(
       date1.month.equals(date2.month) &
       date1.day.equals(date2.day);
 }
+
+String getRepeatFrequencyLabel(RepeatFrequency? frequency) {
+  if (frequency == null) {
+    return "No Repeat";
+  }
+  final label = frequency.toString().split('.').last;
+  return label[0].toUpperCase() + label.substring(1);
+}

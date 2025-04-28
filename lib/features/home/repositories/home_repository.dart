@@ -1,33 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/domain/models/habit.dart';
-import '../services/drift_home_service.dart';
-import '../services/home_service.dart';
+import '../../../data/repositories/habit_exception_repository.dart';
+import '../../../data/repositories/habit_repository.dart';
 
 final homeRepositoryProvider = Provider<HomeRepository>((ref) {
-  final homeService = ref.watch(driftHomeServiceProvider);
-  return HomeRepository(homeService);
+  final habitRepo = ref.watch(habitRepositoryProvider);
+  final exceptionRepo = ref.watch(habitExceptionRepositoryProvider);
+  return HomeRepository(habitRepo, exceptionRepo);
 });
 
 class HomeRepository {
-  final HomeService _homeService;
+  final HabitRepository _habitRepo;
+  final HabitExceptionRepository _exceptionRepo;
 
-  HomeRepository(this._homeService);
+  HomeRepository(this._habitRepo, this._exceptionRepo);
 
-  Future<List<Habit>> getHabitsByDate(DateTime date, String userId) async {
-    // Fetch the list of habits and categories
-    final records =
-        await _homeService.getHabitsWithCategoriesByDate(date, userId);
-
-    // Map each (habit, category) => HabitModel
-    return records.map((record) {
-      final habitDb = record.$1; // Habit (Drift)
-      final categoryDb = record.$2; // HabitCategory (Drift)
-
-      return Habit.fromJson({
-        ...habitDb.toJson(),
-        'category': categoryDb.toJson(),
-      });
-    }).toList();
-  }
+  HabitExceptionRepository get habitException => _exceptionRepo;
+  HabitRepository get habit => _habitRepo;
 }

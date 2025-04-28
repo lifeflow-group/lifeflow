@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/utils/helpers.dart';
+import '../../../../core/utils/helpers.dart';
 import '../app_database.dart';
 import '../tables/habit_exceptions_table.dart';
 
@@ -23,6 +23,17 @@ class HabitExceptionDao extends DatabaseAccessor<AppDatabase>
   /// Get a single habit exception by ID
   Future<HabitExceptionsTableData?> getHabitException(String id) {
     return (select(habitExceptionsTable)..where((tbl) => tbl.id.equals(id)))
+        .getSingleOrNull();
+  }
+
+  /// Get a habit exception by series ID and date
+  Future<HabitExceptionsTableData?> getHabitExceptionByIdAndDate(
+      String seriesId, DateTime date) {
+    final utcDate = date.toUtc();
+    return (select(habitExceptionsTable)
+          ..where((tbl) =>
+              tbl.habitSeriesId.equals(seriesId) &
+              isSameDateQuery(tbl.date, utcDate)))
         .getSingleOrNull();
   }
 

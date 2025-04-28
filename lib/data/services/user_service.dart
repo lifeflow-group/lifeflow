@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+// This provider is used to access the UserService instance throughout the app.
+final userServiceProvider = Provider((ref) {
+  return UserService();
+});
 
 class UserService {
   static const _userIdKey = 'user_id';

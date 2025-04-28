@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 
 class ViewRow extends StatelessWidget {
   const ViewRow(
-      {super.key,
-      required this.label,
-      required this.valueText,
-      this.valueIcon});
+      {super.key, required this.label, this.valueText, this.valueIcon});
 
   final String label;
-  final String valueText;
+  final String? valueText;
   final Widget? valueIcon;
 
   @override
@@ -33,15 +30,16 @@ class ViewRow extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (valueIcon != null) ...[
-                      valueIcon!,
-                      const SizedBox(width: 8)
-                    ],
-                    Flexible(
-                        child: Text(valueText,
-                            style: Theme.of(context).textTheme.titleMedium,
-                            textAlign: TextAlign.right,
-                            overflow: TextOverflow.ellipsis)),
+                    if (valueIcon != null) valueIcon!,
+                    if (valueIcon != null && valueText != null)
+                      const SizedBox(width: 8),
+                    valueText != null
+                        ? Flexible(
+                            child: Text(valueText ?? '',
+                                style: Theme.of(context).textTheme.titleMedium,
+                                textAlign: TextAlign.right,
+                                overflow: TextOverflow.ellipsis))
+                        : SizedBox(),
                   ],
                 ),
               ),

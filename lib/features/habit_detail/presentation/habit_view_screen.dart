@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/utils/helpers.dart';
+import '../../../data/controllers/habit_controller.dart';
 import '../../../data/domain/models/habit.dart';
-import '../../home/presentation/widgets/delete_scope_dialog.dart';
+import '../../../shared/actions/habit_actions.dart';
+import '../../../shared/widgets/enter_number_dialog.dart';
+import '../../home/controllers/home_controller.dart';
 import '../controllers/habit_detail_controller.dart';
 import 'widgets/view_row.dart';
 
@@ -41,16 +44,78 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
         getRepeatFrequencyLabel(ref.watch(habitRepeatFrequencyProvider));
     final date = DateFormat('dd/MM/yyyy').format(ref.watch(habitDateProvider));
     final time = ref.watch(habitTimeProvider).format(context);
+    final isCompleted = ref.watch(habitIsCompletedProvider);
+    final currentValue = ref.watch(habitCurrentValueProvider);
 
     return Scaffold(
-      // Habit name as the title
       appBar: AppBar(
-          title: Text(habit?.name ?? ''), centerTitle: true, elevation: 0),
+        leading: BackButton(
+            onPressed: () => context.pop(),
+            color: Theme.of(context).colorScheme.onSurface),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: habit?.trackingType == TrackingType.progress
+            ? TextButton(
+                onPressed: () => _handelUpdateCurrentValue(
+                    context: context,
+                    habit: habit,
+                    currentValue: currentValue,
+                    ref: ref),
+                child: Text(
+                  habit?.trackingType == TrackingType.progress
+                      ? '$currentValue/${habit?.targetValue} ${habit?.unit}'
+                      : '',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ))
+            : null,
+        centerTitle: true,
+        actionsPadding: const EdgeInsets.only(right: 5.0),
+        actions: [
+          habit?.trackingType == TrackingType.complete
+              ? Transform.scale(
+                  scale: 1.1,
+                  child: Checkbox(
+                      value: isCompleted,
+                      shape: CircleBorder(),
+                      side: WidgetStateBorderSide.resolveWith(
+                        (states) => BorderSide(
+                          width: isCompleted ? 4.0 : 2.0,
+                          color: isCompleted
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurface,
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                        ),
+                      ),
+                      onChanged: (value) async {
+                        final result = await recordHabitCompletion(ref, habit!);
+                        if (result == false) return;
+                        controller.updateHabitIsCompleted(!isCompleted);
+                      }),
+                )
+              : IconButton(
+                  padding: EdgeInsets.all(4.0),
+                  constraints: BoxConstraints(),
+                  onPressed: () async {
+                    final currentValue =
+                        await recordHabitProgress(context, ref, habit!);
+                    if (currentValue == null) return;
+                    controller.updateHabitCurrentValue(currentValue);
+                  },
+                  icon: Icon(Icons.add_circle_outline,
+                      color: Theme.of(context).colorScheme.onSurface),
+                ),
+        ],
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 12.0),
+                child: Text(habit?.name ?? '',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w500))),
             ViewRow(
                 label: "Category",
                 valueText: habit?.category.label ?? '',
@@ -117,5 +182,32 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handelUpdateCurrentValue({
+    required BuildContext context,
+    required WidgetRef ref,
+    required Habit? habit,
+    required int currentValue,
+  }) async {
+    if (habit == null) return;
+    final newValue = await showDialog<int?>(
+        context: context,
+        builder: (context) => EnterNumberDialog(
+            currentValue: currentValue, title: 'Update Progress'));
+    if (newValue == null) return;
+    print('New value: $newValue');
+
+    final controllerProvider = ref.read(habitControllerProvider);
+    final startDate = habit.startDate.toLocal();
+    final date = DateTime(startDate.year, startDate.month, startDate.day);
+    await controllerProvider.recordHabit(
+        habit: habit,
+        selectedDate: date,
+        isCompleted: newValue >= (habit.targetValue ?? 1),
+        currentValue: newValue);
+
+    controller.updateHabitCurrentValue(newValue);
+    ref.invalidate(homeControllerProvider);
   }
 }

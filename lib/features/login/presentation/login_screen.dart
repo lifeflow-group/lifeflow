@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/providers/user_provider.dart';
+import '../../../data/services/user_service.dart';
 import '../controllers/login_controller.dart';
 import 'widgets/social_button.dart';
 

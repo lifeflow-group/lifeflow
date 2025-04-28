@@ -6,9 +6,9 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
-import '../../../core/utils/helpers.dart';
-import '../../../data/database/app_database.dart';
-import '../../../data/domain/models/habit_series.dart';
+import '../../core/utils/helpers.dart';
+import '../datasources/local/app_database.dart';
+import '../domain/models/habit_series.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =

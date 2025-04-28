@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../core/providers/user_provider.dart';
+import '../../../data/services/user_service.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
 import '../../../data/domain/models/habit_exception.dart';
 import '../../../data/domain/models/habit_series.dart';
-import '../presentation/widgets/edit_scope_dialog.dart';
+import '../../../shared/widgets/scope_dialog.dart';
 import '../repositories/habit_detail_repository.dart';
-import '../services/notification_service.dart';
+import '../../../data/services/notification_service.dart';
 
 // Provider for managing the habit name.
 final habitNameProvider = StateProvider<String>((ref) => '');
@@ -32,9 +32,16 @@ final habitRepeatFrequencyProvider =
 final habitTrackingTypeProvider =
     StateProvider<TrackingType>((ref) => TrackingType.complete);
 
-// Providers for progress tracking
-final habitQuantityProvider = StateProvider<int>((ref) => 0);
+// Provider for managing the habit completion status.
+final habitIsCompletedProvider = StateProvider<bool>((ref) => false);
 
+// Providers for progress tracking
+final habitCurrentValueProvider = StateProvider<int>((ref) => 0);
+
+// Provider for managing the habit target value.
+final habitTargetValueProvider = StateProvider<int>((ref) => 0);
+
+// Provider for managing the habit unit.
 final habitUnitProvider = StateProvider<String>((ref) => '');
 
 // Provider for managing the habit notification.
@@ -58,16 +65,19 @@ class HabitDetailController {
     updateHabitDate(habit.startDate.toLocal());
     updateHabitTime(TimeOfDay.fromDateTime(habit.startDate.toLocal()));
     updateTrackingType(habit.trackingType);
-    updateHabitQuantity(habit.targetValue ?? 0);
     updateHabitUnit(habit.unit ?? '');
-    final habitSeries = await _repo.getHabitSeries(habit.habitSeriesId);
+    final habitSeries =
+        await _repo.habitSeries.getHabitSeries(habit.habitSeriesId);
     if (habitSeries != null) {
       updateHabitRepeatFrequency(habitSeries.repeatFrequency);
     }
 
     if (habit.trackingType == TrackingType.progress) {
-      updateHabitQuantity(habit.targetValue ?? 0);
+      updateHabitCurrentValue(habit.currentValue ?? 0);
+      updateHabitTargetValue(habit.targetValue ?? 0);
       updateHabitUnit(habit.unit ?? '');
+    } else {
+      updateHabitIsCompleted(habit.isCompleted ?? false);
     }
 
     updateHabitReminder(habit.reminderEnabled);
@@ -97,8 +107,16 @@ class HabitDetailController {
     ref.read(habitTrackingTypeProvider.notifier).state = type;
   }
 
-  void updateHabitQuantity(int quantity) {
-    ref.read(habitQuantityProvider.notifier).state = quantity;
+  void updateHabitIsCompleted(bool value) {
+    ref.read(habitIsCompletedProvider.notifier).state = value;
+  }
+
+  void updateHabitCurrentValue(int value) {
+    ref.read(habitCurrentValueProvider.notifier).state = value;
+  }
+
+  void updateHabitTargetValue(int value) {
+    ref.read(habitTargetValueProvider.notifier).state = value;
   }
 
   void updateHabitUnit(String unit) {
@@ -122,13 +140,13 @@ class HabitDetailController {
       final habitSeries = _buildHabitSeries(habitModel);
 
       if (habitSeries != null) {
-        await _repo.createHabitSeries(habitSeries);
+        await _repo.habitSeries.createHabitSeries(habitSeries);
         habitModel =
             habitModel.rebuild((b) => b..habitSeriesId = habitSeries.id);
       }
 
       // 3. Create habit
-      await _repo.createHabit(habitModel);
+      await _repo.habit.createHabit(habitModel);
       return habitModel;
     }).then((habitModel) async {
       // 4. Handle reminder if enabled
@@ -144,7 +162,8 @@ class HabitDetailController {
 
   Future<Habit?> updateHabit(
       Habit oldHabit, Future<ActionScope?> Function() pickScope) async {
-    final oldSeries = await _repo.getHabitSeries(oldHabit.habitSeriesId);
+    final oldSeries =
+        await _repo.habitSeries.getHabitSeries(oldHabit.habitSeriesId);
     Habit? newHabit = await _buildHabitFromForm(habitId: oldHabit.id);
     if (newHabit == null) return null;
 
@@ -154,8 +173,10 @@ class HabitDetailController {
     // If there is no old series → simply update or create a new series
     if (oldSeries == null) {
       return await _repo.transaction(() async {
-        if (newSeries != null) await _repo.createHabitSeries(newSeries);
-        await _repo.updateHabit(newHabit!);
+        if (newSeries != null) {
+          await _repo.habitSeries.createHabitSeries(newSeries);
+        }
+        await _repo.habit.updateHabit(newHabit!);
         return newHabit;
       });
     }
@@ -191,7 +212,8 @@ class HabitDetailController {
   ) async {
     return await _repo.transaction(() async {
       final habitDate = ref.read(habitDateProvider).toLocal();
-      HabitException? exception = await _repo.getHabitException(oldHabit.id);
+      HabitException? exception =
+          await _repo.habitException.getHabitException(oldHabit.id);
 
       // Skip the habit for today
       if (exception == null) {
@@ -202,12 +224,12 @@ class HabitDetailController {
           ..date = habitDate.toUtc()
           ..isSkipped = true);
 
-        await _repo.insertHabitException(exception);
+        await _repo.habitException.insertHabitException(exception);
       } else {
         exception = exception.rebuild((b) => b
           ..date = habitDate.toUtc()
           ..isSkipped = true);
-        await _repo.updateHabitException(exception);
+        await _repo.habitException.updateHabitException(exception);
       }
 
       Habit originalHabit =
@@ -215,14 +237,14 @@ class HabitDetailController {
 
       if (newSeries != null) {
         final newSeriesId = generateNewId('series');
-        await _repo.createHabitSeries(newSeries.rebuild((p0) => p0
+        await _repo.habitSeries.createHabitSeries(newSeries.rebuild((p0) => p0
           ..id = newSeriesId
           ..habitId = originalHabit.id));
         originalHabit =
             originalHabit.rebuild((p0) => p0.habitSeriesId = newSeriesId);
       }
 
-      await _repo.createHabit(originalHabit);
+      await _repo.habit.createHabit(originalHabit);
       // Return the new habit with the new series
       return originalHabit;
     });
@@ -241,21 +263,21 @@ class HabitDetailController {
 
       String? habitSeriesId = newSeries?.id;
       if (newSeries == null) {
-        await _repo.deleteHabitSeries(oldSeries.id);
+        await _repo.habitSeries.deleteHabitSeries(oldSeries.id);
       } else {
         habitSeriesId = oldSeries.id;
         final updateSeries = newSeries.rebuild((b) => b
           ..id = habitSeriesId
           ..habitId = oldSeries.habitId
           ..startDate = startDate.toUtc());
-        await _repo.updateHabitSeries(updateSeries);
+        await _repo.habitSeries.updateHabitSeries(updateSeries);
       }
 
       final updatedOriginalHabit = newHabit.rebuild((b) => b
         ..id = oldSeries.habitId
         ..habitSeriesId = habitSeriesId
         ..startDate = startDate.toUtc());
-      await _repo.updateHabit(updatedOriginalHabit);
+      await _repo.habit.updateHabit(updatedOriginalHabit);
 
       // Return the updated original habit
       return updatedOriginalHabit;
@@ -274,7 +296,7 @@ class HabitDetailController {
       final updatedOldSeries = oldSeries.rebuild(
         (b) => b..untilDate = habitDate.subtract(const Duration(days: 1)),
       );
-      await _repo.updateHabitSeries(updatedOldSeries);
+      await _repo.habitSeries.updateHabitSeries(updatedOldSeries);
 
       // 2. Create a new habit
       Habit newHabitWithId =
@@ -286,17 +308,17 @@ class HabitDetailController {
         createdNewSeries = newSeries.rebuild((b) => b
           ..id = generateNewId('series')
           ..habitId = newHabitWithId.id);
-        await _repo.createHabitSeries(createdNewSeries);
+        await _repo.habitSeries.createHabitSeries(createdNewSeries);
         newHabitWithId = newHabitWithId.rebuild(
           (b) => b.habitSeriesId = createdNewSeries?.id,
         );
       }
 
-      await _repo.createHabit(newHabitWithId);
+      await _repo.habit.createHabit(newHabitWithId);
 
       // 4. Handle exceptions after trimming
-      final exceptions =
-          await _repo.getExceptionsAfterDate(oldSeries.id, habitDate);
+      final exceptions = await _repo.habitException
+          .getExceptionsAfterDate(oldSeries.id, habitDate);
 
       for (final exception in exceptions) {
         if (exception.isSkipped) {
@@ -305,7 +327,7 @@ class HabitDetailController {
             final updatedException = exception.rebuild(
               (p0) => p0.habitSeriesId = createdNewSeries?.id,
             );
-            await _repo.updateHabitException(updatedException);
+            await _repo.habitException.updateHabitException(updatedException);
           }
         } else {
           // If it's an override:
@@ -314,15 +336,15 @@ class HabitDetailController {
             final updatedException = exception.rebuild(
               (p0) => p0.habitSeriesId = createdNewSeries?.id,
             );
-            await _repo.updateHabitException(updatedException);
+            await _repo.habitException.updateHabitException(updatedException);
           } else {
             // If there is no new series → create a habit from the exception
             final habitFromException = _buildHabitFromException(
               newHabitWithId,
               exception,
             );
-            await _repo.createHabit(habitFromException);
-            await _repo.deleteHabitException(exception.id);
+            await _repo.habit.createHabit(habitFromException);
+            await _repo.habitException.deleteHabitException(exception.id);
           }
         }
       }
@@ -381,7 +403,7 @@ class HabitDetailController {
         .toLocal()
         .copyWith(hour: time.hour, minute: time.minute);
     final trackingType = ref.read(habitTrackingTypeProvider);
-    final quantity = ref.read(habitQuantityProvider);
+    final targetValue = ref.read(habitTargetValueProvider);
     final unit = ref.read(habitUnitProvider);
     final reminder = ref.read(habitReminderProvider);
     // Read userServiceProvider to get userId
@@ -396,7 +418,7 @@ class HabitDetailController {
       category: category,
       startDate: date.toUtc(),
       trackingType: trackingType,
-      targetValue: trackingType == TrackingType.progress ? quantity : null,
+      targetValue: trackingType == TrackingType.progress ? targetValue : null,
       unit: trackingType == TrackingType.progress ? unit : null,
       reminderEnabled: reminder,
     );
@@ -424,7 +446,7 @@ class HabitDetailController {
     ref.read(habitTimeProvider.notifier).state = TimeOfDay.now();
     ref.read(habitRepeatFrequencyProvider.notifier).state = null;
     ref.read(habitTrackingTypeProvider.notifier).state = TrackingType.complete;
-    ref.read(habitQuantityProvider.notifier).state = 0;
+    ref.read(habitTargetValueProvider.notifier).state = 0;
     ref.read(habitUnitProvider.notifier).state = '';
     ref.read(habitReminderProvider.notifier).state = false;
   }

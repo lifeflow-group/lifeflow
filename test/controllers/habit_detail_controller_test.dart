@@ -3,13 +3,13 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lifeflow/core/providers/user_provider.dart';
-import 'package:lifeflow/data/database/app_database.dart';
-import 'package:lifeflow/data/database/database_provider.dart';
+import 'package:lifeflow/data/services/user_service.dart';
+import 'package:lifeflow/data/datasources/local/app_database.dart';
+import 'package:lifeflow/data/datasources/local/database_provider.dart';
 import 'package:lifeflow/data/domain/models/habit.dart';
 import 'package:lifeflow/features/habit_detail/controllers/habit_detail_controller.dart';
-import 'package:lifeflow/features/habit_detail/presentation/widgets/edit_scope_dialog.dart';
 import 'package:lifeflow/features/habit_detail/repositories/habit_detail_repository.dart';
+import 'package:lifeflow/shared/widgets/scope_dialog.dart';
 
 import 'home_controller_test.dart';
 
@@ -90,7 +90,7 @@ void main() {
         'updateHabit with ActionScope.onlyThis creates new habit, series and exception',
         () async {
       // Navigate to the habit detail screen
-      final habit = await repository.getHabit(habitId);
+      final habit = await repository.habit.getHabit(habitId);
       await controller.fromHabit(habit!);
 
       // Change the habit name
@@ -125,7 +125,7 @@ void main() {
     test('updateHabit with ActionScope.all updates series and original habit',
         () async {
       // Navigate to the habit detail screen
-      final habit = await repository.getHabit(habitId);
+      final habit = await repository.habit.getHabit(habitId);
       await controller.fromHabit(habit!);
 
       // Change the habit name and repeat frequency
@@ -137,8 +137,9 @@ void main() {
           await controller.updateHabit(habit, () async => ActionScope.all);
 
       // Assert: Fetch updated habit and its series from the database
-      final updated = await repository.getHabit(habitId);
-      final updatedSeries = await repository.getHabitSeries(seriesId);
+      final updated = await repository.habit.getHabit(habitId);
+      final updatedSeries =
+          await repository.habitSeries.getHabitSeries(seriesId);
 
       // Expect: The habit was updated in-place (no new habit created)
       expect(updatedHabit!.id, habitId);
@@ -157,7 +158,7 @@ void main() {
         () async {
       final selectDate = habitDate.add(Duration(days: 5));
       // Navigate to the habit detail screen (Habit in selectDate)
-      Habit? habit = await repository.getHabit(habitId);
+      Habit? habit = await repository.habit.getHabit(habitId);
       habit = habit?.rebuild((p0) => p0..startDate = selectDate);
       await controller.fromHabit(habit!);
 

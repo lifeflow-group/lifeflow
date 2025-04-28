@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../data/domain/models/habit.dart';
+import '../../../../shared/actions/habit_actions.dart';
 import '../../controllers/home_controller.dart';
 
 class HabitItem extends ConsumerWidget {
@@ -36,21 +37,20 @@ class HabitItem extends ConsumerWidget {
         trailing: habit.trackingType == TrackingType.complete
             ? SizedBox(
                 width: 20,
-                child: Radio<bool>(
-                  value: true,
-                  groupValue: habit.isCompleted ?? false,
-                  onChanged: (value) {
-                    // TODO: Implement the onChanged logic for habit completion
-                  },
+                child: Checkbox(
+                  value: habit.isCompleted ?? false,
+                  shape: CircleBorder(),
+                  onChanged: (value) => recordHabitCompletion(ref, habit),
                 ),
               )
-            : IconButton(
-                padding: EdgeInsets.all(4.0),
-                constraints: BoxConstraints(),
-                onPressed: () {
-                  // TODO: Implement the logic for incrementing the habit progress
-                },
-                icon: const Icon(Icons.add_circle_outline),
+            : SizedBox(
+                width: 27,
+                child: IconButton(
+                  padding: EdgeInsets.all(4.0),
+                  constraints: BoxConstraints(),
+                  onPressed: () => recordHabitProgress(context, ref, habit),
+                  icon: const Icon(Icons.add_circle_outline),
+                ),
               ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),

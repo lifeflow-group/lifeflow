@@ -4,8 +4,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../shared/actions/habit_actions.dart';
 import '../controllers/home_controller.dart';
-import 'widgets/delete_scope_dialog.dart';
 import 'widgets/habit_item.dart';
 
 class HomeScreen extends ConsumerWidget {

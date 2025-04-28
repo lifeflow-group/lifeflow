@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/providers/user_provider.dart';
+import '../../../data/services/user_service.dart';
 import '../../../data/domain/models/suggestion.dart';
 import '../repositories/habits_repository.dart';
 import '../repositories/suggestion_repository.dart';
@@ -31,6 +31,7 @@ class SuggestionController extends AsyncNotifier<List<Suggestion>> {
     final userId = await ref.read(userServiceProvider).getCurrentUserId();
     if (userId == null) return [];
 
+    print('User ID: $userId');
     final input = await habitsRepository.getHabitAnalysisInput(
         DateTimeRange(start: time.subtract(Duration(days: 30)), end: time),
         userId);

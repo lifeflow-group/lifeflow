@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/database/app_database.dart';
+import '../../../data/datasources/local/app_database.dart';
 
 abstract class HabitsService {
   Future<List<HabitsTableData>> getHabitsDateRange(

@@ -36,7 +36,7 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Retrieves a single category by its ID.
-  Future<HabitCategoriesTableData?> getCategoryById(String id) {
+  Future<HabitCategoriesTableData?> getCategory(String id) {
     return (select(habitCategoriesTable)..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull();
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/database/app_database.dart';
-import '../../../data/database/database_provider.dart';
+import '../../../data/datasources/local/app_database.dart';
+import '../../../data/datasources/local/database_provider.dart';
 import 'habits_service.dart';
 
 final driftHabitsServiceProvider = Provider((ref) {
@@ -37,6 +37,6 @@ class DriftHabitsService implements HabitsService {
 
   @override
   Future<HabitCategoriesTableData?> getCategoryById(String id) async {
-    return await _database.categoryDao.getCategoryById(id);
+    return await _database.categoryDao.getCategory(id);
   }
 }

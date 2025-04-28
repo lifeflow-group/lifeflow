@@ -2,10 +2,9 @@ import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifeflow/core/providers/user_provider.dart';
-import 'package:lifeflow/core/services/user_service.dart';
-import 'package:lifeflow/data/database/app_database.dart';
-import 'package:lifeflow/data/database/database_provider.dart';
+import 'package:lifeflow/data/services/user_service.dart';
+import 'package:lifeflow/data/datasources/local/app_database.dart';
+import 'package:lifeflow/data/datasources/local/database_provider.dart';
 import 'package:lifeflow/features/home/controllers/home_controller.dart';
 import 'package:drift/native.dart';
 

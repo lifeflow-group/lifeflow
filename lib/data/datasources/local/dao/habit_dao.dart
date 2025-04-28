@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
-import 'package:lifeflow/data/database/tables/habit_exceptions_table.dart';
+import 'package:lifeflow/data/datasources/local/tables/habit_exceptions_table.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../core/utils/helpers.dart';
+import '../../../../core/utils/helpers.dart';
 import '../app_database.dart';
 import '../tables/habit_categories_table.dart';
 import '../tables/habit_series_table.dart';
@@ -80,7 +80,8 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
             startDate: dateLocal
                 .copyWith(
                     hour: date.hour, minute: date.minute, second: date.second)
-                .toUtc());
+                .toUtc(),
+            habitSeriesId: Value(habitSeries.id));
 
         final exception = exceptionsBySeriesId[habitSeries.id];
         if (exception != null) {
@@ -189,16 +190,11 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
   HabitsTableData _applyExceptionOverride(
       HabitsTableData habit, HabitExceptionsTableData exception) {
     return habit.copyWith(
+      id: exception.id,
       reminderEnabled: exception.reminderEnabled,
-      targetValue: exception.targetValue != null
-          ? Value(exception.targetValue!)
-          : Value(habit.targetValue),
-      currentValue: exception.currentValue != null
-          ? Value(exception.currentValue!)
-          : Value(habit.currentValue),
-      isCompleted: exception.isCompleted != null
-          ? Value(exception.isCompleted!)
-          : Value(habit.isCompleted),
+      targetValue: Value(exception.targetValue ?? habit.targetValue),
+      currentValue: Value(exception.currentValue ?? habit.currentValue),
+      isCompleted: Value(exception.isCompleted ?? habit.isCompleted),
     );
   }
 

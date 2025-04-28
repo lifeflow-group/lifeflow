@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifeflow/core/providers/user_provider.dart';
 import 'package:lifeflow/core/routing/app_router.dart';
-import 'package:lifeflow/core/services/user_service.dart';
+import 'package:lifeflow/data/services/user_service.dart';
 import 'package:lifeflow/features/login/presentation/login_screen.dart';
 import 'package:lifeflow/features/main/presentation/main_screen.dart';
 import 'package:mocktail/mocktail.dart';

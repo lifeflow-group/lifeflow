@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/providers/user_provider.dart';
+import '../../../data/services/user_service.dart';
 import '../../../data/domain/models/habit.dart';
 import '../repositories/home_repository.dart';
 
@@ -40,7 +40,7 @@ class HomeController extends AutoDisposeAsyncNotifier<List<Habit>> {
     final userId = await ref.read(userServiceProvider).getCurrentUserId();
     if (userId == null) return [];
 
-    final habits = await _repo.getHabitsByDate(selectedDate, userId);
+    final habits = await _repo.habit.getHabitsByDate(selectedDate, userId);
     return habits;
   }
 }

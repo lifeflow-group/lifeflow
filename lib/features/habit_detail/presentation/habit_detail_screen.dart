@@ -6,9 +6,9 @@ import 'package:intl/intl.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
+import '../../../shared/widgets/scope_dialog.dart';
 import '../controllers/habit_detail_controller.dart';
 import 'widgets/category_bottom_sheet.dart';
-import 'widgets/edit_scope_dialog.dart';
 
 class HabitDetailScreen extends ConsumerStatefulWidget {
   const HabitDetailScreen({super.key, this.habit});
@@ -52,7 +52,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
     final habitCategory = ref.watch(habitCategoryProvider);
     final selectedDate = ref.watch(habitDateProvider);
     final habitTrackingType = ref.watch(habitTrackingTypeProvider);
-    final habitQuantity = ref.watch(habitQuantityProvider);
+    final habitTargetValue = ref.watch(habitTargetValueProvider);
     final habitUnit = ref.watch(habitUnitProvider);
     final habitReminder = ref.watch(habitReminderProvider);
     final isFormValid = habitName.isNotEmpty && habitCategory != null;
@@ -319,7 +319,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                               if (value == null) return;
                               controller.updateTrackingType(value);
                               if (value == TrackingType.progress &&
-                                  habitQuantity == 0 &&
+                                  habitTargetValue == 0 &&
                                   habitUnit == '') {
                                 _showProgressDialog(context, ref);
                               }
@@ -341,7 +341,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                                "Goal: $habitQuantity ${habitUnit.isNotEmpty ? habitUnit : 'unit'}"),
+                                "Goal: $habitTargetValue ${habitUnit.isNotEmpty ? habitUnit : 'unit'}"),
                             IconButton(
                               icon: const Icon(Icons.edit, size: 18),
                               onPressed: () =>
@@ -380,7 +380,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                             final Habit? habitResult;
                             if (isEditing) {
                               habitResult = await controller.updateHabit(
-                                  habit!, () => showEditScopeDialog(context));
+                                  habit!, () => showScopeDialog(context));
                             } else {
                               habitResult = await controller.createHabit();
                             }
@@ -422,8 +422,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
 
   void _showProgressDialog(BuildContext context, WidgetRef ref) {
     final controller = ref.read(habitDetailControllerProvider);
-    final quantityController =
-        TextEditingController(text: ref.read(habitQuantityProvider).toString());
+    final targetValueController = TextEditingController(
+        text: ref.read(habitTargetValueProvider).toString());
     final unitController =
         TextEditingController(text: ref.read(habitUnitProvider));
 
@@ -436,12 +436,12 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: quantityController,
+                controller: targetValueController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: "Quantity"),
                 onChanged: (value) {
                   final quantity = int.tryParse(value) ?? 0;
-                  controller.updateHabitQuantity(quantity);
+                  controller.updateHabitTargetValue(quantity);
                 },
               ),
               const SizedBox(height: 12.0),
@@ -461,8 +461,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
             ),
             TextButton(
               onPressed: () {
-                controller.updateHabitQuantity(
-                    int.tryParse(quantityController.text) ?? 0);
+                controller.updateHabitTargetValue(
+                    int.tryParse(targetValueController.text) ?? 0);
                 controller.updateHabitUnit(unitController.text);
                 Navigator.pop(context);
               },

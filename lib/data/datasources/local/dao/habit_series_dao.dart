@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/utils/helpers.dart';
+import '../../../../core/utils/helpers.dart';
 import '../app_database.dart';
 import '../tables/habit_series_table.dart';
 

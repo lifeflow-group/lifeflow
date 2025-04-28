@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
-import 'data/database/app_database.dart';
-import 'data/database/database_provider.dart';
-import 'data/database/seed/database_seed.dart';
-import 'features/habit_detail/services/notification_service.dart';
+import 'data/datasources/local/app_database.dart';
+import 'data/datasources/local/database_provider.dart';
+import 'data/datasources/local/seed/database_seed.dart';
+import 'data/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

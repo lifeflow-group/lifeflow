@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../../core/constants/app_constants.dart';
-import '../domain/models/habit_analysis_input.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../domain/models/habit_analysis_input.dart';
 
 class ApiService {
   static Future<List<dynamic>> generateAISuggestions(

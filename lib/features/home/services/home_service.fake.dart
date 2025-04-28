@@ -1,4 +1,4 @@
-import 'package:lifeflow/data/database/app_database.dart';
+import 'package:lifeflow/data/datasources/local/app_database.dart';
 
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';

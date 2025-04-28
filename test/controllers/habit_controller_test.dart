@@ -1,20 +1,20 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lifeflow/core/providers/user_provider.dart';
-import 'package:lifeflow/data/database/app_database.dart';
-import 'package:lifeflow/data/database/database_provider.dart';
+import 'package:lifeflow/data/services/user_service.dart';
+import 'package:lifeflow/data/datasources/local/app_database.dart';
+import 'package:lifeflow/data/datasources/local/database_provider.dart';
 import 'package:lifeflow/features/habit_detail/repositories/habit_detail_repository.dart';
-import 'package:lifeflow/features/home/controllers/habit_delete_controller.dart';
+import 'package:lifeflow/data/controllers/habit_controller.dart';
 
 import 'home_controller_test.dart';
 
 void main() {
   late AppDatabase db;
   late ProviderContainer container;
-  late HabitDeleteController controller;
+  late HabitController controller;
   late HabitDetailRepository repository;
 
   final habitDate = DateTime(2025, 4, 17);
@@ -32,7 +32,7 @@ void main() {
       appDatabaseProvider.overrideWithValue(db),
     ]);
 
-    controller = container.read(habitDeleteControllerProvider);
+    controller = container.read(habitControllerProvider);
     repository = container.read(habitDetailRepositoryProvider);
 
     await db.habitCategoriesTable.insertOne(
@@ -99,7 +99,7 @@ void main() {
         ),
       );
 
-      final habit = await repository.getHabit('habit-alone');
+      final habit = await repository.habit.getHabit('habit-alone');
       final result = await controller.deleteSingleHabit(habit!.id);
 
       final habits = await db.habitsTable.select().get();
@@ -112,8 +112,9 @@ void main() {
     test(
         'deleteHabit with ActionScope.onlyThis adds or updates skipped exception',
         () async {
-      final habit = await repository.getHabit(habitId);
-      final series = await repository.getHabitSeries(habit!.habitSeriesId);
+      final habit = await repository.habit.getHabit(habitId);
+      final series =
+          await repository.habitSeries.getHabitSeries(habit!.habitSeriesId);
       final result = await controller.handleDeleteOnlyThis(habit, series!);
 
       final exceptions = await db.habitExceptionsTable.select().get();
@@ -129,7 +130,7 @@ void main() {
     test(
         'deleteHabit with ActionScope.all deletes habit, series, and exceptions',
         () async {
-      final series = await repository.getHabitSeries(seriesId);
+      final series = await repository.habitSeries.getHabitSeries(seriesId);
       final result = await controller.handleDeleteAll(series!);
 
       final habits = await db.habitsTable.select().get();
@@ -147,8 +148,9 @@ void main() {
     test(
         'deleteHabit with ActionScope.thisAndFollowing trims series and deletes future exceptions',
         () async {
-      final habit = await repository.getHabit(habitId);
-      final series = await repository.getHabitSeries(habit!.habitSeriesId);
+      final habit = await repository.habit.getHabit(habitId);
+      final series =
+          await repository.habitSeries.getHabitSeries(habit!.habitSeriesId);
       final result =
           await controller.handleDeleteThisAndFollowing(habit, series!);
 
@@ -164,6 +166,79 @@ void main() {
       );
 
       debugPrint('Passed!');
+    });
+  });
+
+  group('Record Habit', () {
+    test('recordHabit updates a non-series habit', () async {
+      const habitId = 'habit-standalone';
+
+      // Insert a non-series habit
+      await db.habitsTable.insertOne(
+        HabitsTableCompanion.insert(
+          id: habitId,
+          name: 'Drink Water',
+          userId: testUserId,
+          startDate: habitDate.toUtc(),
+          categoryId: categoryId,
+          reminderEnabled: Value(true),
+          trackingType: 'complete',
+          habitSeriesId: const Value.absent(),
+        ),
+      );
+
+      final habit = await repository.habit.getHabit(habitId);
+      expect(habit, isNotNull);
+
+      await controller.recordHabit(
+        habit: habit!,
+        selectedDate: habitDate,
+        currentValue: null,
+        isCompleted: true,
+      );
+
+      final updatedHabit = await repository.habit.getHabit(habitId);
+      expect(updatedHabit!.isCompleted, true);
+    });
+    test('recordHabit inserts a new HabitException for series habit', () async {
+      final habit = await repository.habit.getHabit(habitId);
+      expect(habit, isNotNull);
+
+      final recordDate = habitDate.add(const Duration(days: 5));
+
+      await controller.recordHabit(
+        habit: habit!,
+        selectedDate: recordDate,
+        currentValue: 3,
+        isCompleted: true,
+      );
+
+      final exception = await repository.habitException
+          .getHabitExceptionByIdAndDate(seriesId, recordDate);
+
+      expect(exception, isNotNull);
+      expect(exception!.currentValue, 3);
+      expect(exception.isCompleted, true);
+    });
+    test('recordHabit updates existing HabitException', () async {
+      final habit = await repository.habit.getHabit(habitId);
+      expect(habit, isNotNull);
+
+      final exceptionDate =
+          habitDate.add(const Duration(days: 10)); // inserted from setUp
+
+      await controller.recordHabit(
+        habit: habit!.rebuild((p0) => p0.id = exceptionId),
+        selectedDate: exceptionDate,
+        currentValue: null,
+        isCompleted: true,
+      );
+
+      final updatedException = await repository.habitException
+          .getHabitExceptionByIdAndDate(seriesId, exceptionDate);
+
+      expect(updatedException, isNotNull);
+      expect(updatedException!.isCompleted, true);
     });
   });
 }

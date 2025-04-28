@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/api/api_service.dart';
+import '../../../data/datasources/remote/api_service.dart';
 import '../../../data/domain/models/habit_analysis_input.dart';
 import 'suggestion_service.dart';
 

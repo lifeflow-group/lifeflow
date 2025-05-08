@@ -196,7 +196,6 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
         builder: (context) => EnterNumberDialog(
             currentValue: currentValue, title: 'Update Progress'));
     if (newValue == null) return;
-    print('New value: $newValue');
 
     final controllerProvider = ref.read(habitControllerProvider);
     final startDate = habit.startDate.toLocal();

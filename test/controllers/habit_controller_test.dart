@@ -100,7 +100,8 @@ void main() {
       );
 
       final habit = await repository.habit.getHabit('habit-alone');
-      final result = await controller.deleteSingleHabit(habit!.id);
+      final result =
+          await controller.deleteSingleHabit(habit!.id, habit.startDate);
 
       final habits = await db.habitsTable.select().get();
       expect(result, true);

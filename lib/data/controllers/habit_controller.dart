@@ -5,31 +5,37 @@ import '../domain/models/habit.dart';
 import '../domain/models/habit_exception.dart';
 import '../domain/models/habit_series.dart';
 import '../repositories/repositories.dart';
+import '../services/notification_service.dart';
 
 final habitControllerProvider = Provider<HabitController>((ref) {
   final repo = ref.read(repositoriesProvider);
-  return HabitController(ref, repo);
+  return HabitController(ref, repo, NotificationService());
 });
 
 class HabitController {
   final Ref ref;
   final Repositories _repo;
+  final NotificationService _notification;
 
-  HabitController(this.ref, this._repo);
+  HabitController(this.ref, this._repo, this._notification);
 
   Future<HabitSeries?> getHabitSeries(String? habitSeriesId) async {
     if (habitSeriesId == null) return null;
     return await _repo.habitSeries.getHabitSeries(habitSeriesId);
   }
 
-  Future<bool> deleteSingleHabit(String id) async {
-    return await _repo.habit.deleteHabit(id);
-
-    // TODO: Handle notification after deleting the habit
+  Future<bool> deleteSingleHabit(String habitId, DateTime date) async {
+    final success = await _repo.habit.deleteHabit(habitId);
+    if (success) {
+      // Also cancel scheduled notifications related to this habit
+      await _notification
+          .cancelNotification(generateNotificationId(date, habitId: habitId));
+    }
+    return success;
   }
 
   Future<bool> handleDeleteOnlyThis(Habit habit, HabitSeries series) async {
-    return await _repo.transaction(() async {
+    final success = await _repo.transaction(() async {
       // Check if there is already an exception for this date
       final existing = await _repo.habitException.getHabitException(habit.id);
 
@@ -50,23 +56,33 @@ class HabitController {
         return _repo.habitException.insertHabitException(skipped);
       }
     });
-    // TODO: Handle notification after deleting the habit
+
+    if (success) {
+      await _notification.cancelNotification(
+          generateNotificationId(habit.startDate, seriesId: series.id));
+    }
+
+    return success;
   }
 
   Future<bool> handleDeleteAll(HabitSeries series) async {
-    return await _repo.transaction(() async {
+    final success = await _repo.transaction(() async {
       final isSeriesDeleted =
           await _repo.habitSeries.deleteHabitSeries(series.id);
       final isHabitDeleted = await _repo.habit.deleteHabit(series.habitId);
       await _repo.habitException.deleteAllExceptionsInSeries(series.id);
       return isSeriesDeleted && isHabitDeleted;
     });
-    // TODO: Handle notification after deleting the habit
+
+    if (success) {
+      await _notification.cancelNotificationsByHabitSeriesId(series.id);
+    }
+    return success;
   }
 
   Future<bool> handleDeleteThisAndFollowing(
       Habit habit, HabitSeries series) async {
-    return await _repo.transaction(() async {
+    final success = await _repo.transaction(() async {
       final startDate = habit.startDate.toLocal();
       final startDateOnly =
           DateTime(startDate.year, startDate.month, startDate.day);
@@ -80,7 +96,12 @@ class HabitController {
       return await _repo.habitSeries.updateHabitSeries(
           series.rebuild((b) => b..untilDate = untilDate.toUtc()));
     });
-    // TODO: Handle notification after deleting the habit
+
+    if (success) {
+      await _notification.cancelFutureNotificationsByHabitSeriesId(
+          series.id, habit.startDate);
+    }
+    return success;
   }
 
   Future<void> recordHabit({
@@ -124,6 +145,19 @@ class HabitController {
       await _repo.habit.updateHabit(updated);
     }
 
-    // TODO: Handle notification
+    // Handle notification
+    final now = DateTime.now();
+    final isToday = selectedDate.year == now.year &&
+        selectedDate.month == now.month &&
+        selectedDate.day == now.day;
+    final completed = isCompleted == true || currentValue == habit.targetValue;
+
+    if (isToday && habit.reminderEnabled && completed) {
+      final notificationId = habit.habitSeriesId != null
+          ? generateNotificationId(selectedDate, seriesId: habit.habitSeriesId)
+          : generateNotificationId(selectedDate, habitId: habit.id);
+
+      await _notification.cancelNotification(notificationId);
+    }
   }
 }

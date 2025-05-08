@@ -31,7 +31,6 @@ class SuggestionController extends AsyncNotifier<List<Suggestion>> {
     final userId = await ref.read(userServiceProvider).getCurrentUserId();
     if (userId == null) return [];
 
-    print('User ID: $userId');
     final input = await habitsRepository.getHabitAnalysisInput(
         DateTimeRange(start: time.subtract(Duration(days: 30)), end: time),
         userId);

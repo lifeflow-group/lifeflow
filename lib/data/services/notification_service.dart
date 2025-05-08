@@ -8,14 +8,17 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/utils/helpers.dart';
 import '../datasources/local/app_database.dart';
+import '../domain/models/habit.dart';
 import '../domain/models/habit_series.dart';
 
 class NotificationService {
-  static final FlutterLocalNotificationsPlugin _notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notificationsPlugin;
+
+  NotificationService({FlutterLocalNotificationsPlugin? plugin})
+      : _notificationsPlugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   /// **Initialize the notification system**
-  static Future<void> init() async {
+  Future<void> init() async {
     tz.initializeTimeZones();
 
     const AndroidInitializationSettings androidSettings =
@@ -35,7 +38,7 @@ class NotificationService {
   }
 
   /// **Request notification permissions**
-  static Future<void> requestPermission() async {
+  Future<void> requestPermission() async {
     try {
       // Request Android permissions
       final androidImplementation =
@@ -65,8 +68,9 @@ class NotificationService {
   }
 
   /// **Schedule a notification**
-  static Future<void> scheduleNotification(
-      int id, String title, String body, DateTime dateTime) async {
+  Future<void> scheduleNotification(
+      int id, String title, String body, DateTime dateTime,
+      {String? payload}) async {
     if (dateTime.isBefore(DateTime.now())) {
       debugPrint("⚠️ Error: Cannot schedule notification in the past.");
       return;
@@ -87,24 +91,103 @@ class NotificationService {
         ),
         iOS: DarwinNotificationDetails(),
       ),
+      payload: payload,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exact,
     );
   }
 
+  // Schedules reminders for recurring habits
+  Future<void> scheduleRecurringReminders(Habit habit, HabitSeries? habitSeries,
+      {Set<DateTime>? excludedDatesUtc}) async {
+    if (habitSeries == null) {
+      // One-time habit
+      await scheduleNotification(
+        generateNotificationId(habit.startDate, habitId: habit.id),
+        "Habit: ${habit.name}",
+        "Time to complete your habit!",
+        habit.startDate.toLocal(),
+        payload: jsonEncode({
+          'habitId': habit.id,
+          'scheduledDate': habit.startDate.toUtc().toIso8601String()
+        }),
+      );
+      return;
+    }
+
+    // Get recurring dates for next 30 days
+    final recurringDates = generateRecurringDates(habitSeries,
+        daysAhead: 30, excludedDatesUtc: excludedDatesUtc);
+
+    for (final date in recurringDates) {
+      final notificationId =
+          generateNotificationId(date, seriesId: habitSeries.id);
+
+      await scheduleNotification(
+        notificationId,
+        "Habit: ${habit.name}",
+        "Time to complete your habit!",
+        date.toLocal(),
+        payload: jsonEncode({
+          'seriesId': habitSeries.id,
+          'scheduledDate': date.toUtc().toIso8601String()
+        }),
+      );
+    }
+
+    debugPrint(
+        '✅ Scheduled ${recurringDates.length} recurring reminders for "${habit.name}", seriesId: ${habitSeries.id}.');
+  }
+
   /// **Cancel a notification by ID**
-  static Future<void> cancelNotification(int id) async {
+  Future<void> cancelNotification(int id) async {
     await _notificationsPlugin.cancel(id);
+    debugPrint('Cancelled notification $id');
   }
 
   /// **Cancel all notifications**
-  static Future<void> cancelAllNotifications() async {
+  Future<void> cancelAllNotifications() async {
     await _notificationsPlugin.cancelAll();
   }
 
-  static Future<void> scheduleUpcomingNotifications(
-      AppDatabase database) async {
+  /// Cancel all notifications linked to a specific habitSeriesId
+  Future<void> cancelNotificationsByHabitSeriesId(String seriesId) async {
+    final scheduledNotifications = await getScheduledNotifications();
+
+    for (final notification in scheduledNotifications) {
+      if (notification.seriesId == seriesId) {
+        await cancelNotification(notification.id);
+        debugPrint(
+            'Cancelled notification ${notification.id} for habitSeries $seriesId');
+      }
+    }
+  }
+
+  Future<void> cancelFutureNotificationsByHabitSeriesId(
+      String seriesId, DateTime startDate) async {
+    // Retrieve all scheduled notifications
+    final scheduledNotifications = await getScheduledNotifications();
+    final dateLocal = startDate.toLocal();
+
+    // Filter notifications based on seriesId and compare dates
+    for (final notification in scheduledNotifications) {
+      // Check if the notification belongs to the habitSeries and has a time after startDate
+      final notificationDate = notification.scheduledDate.toLocal();
+      if (notification.seriesId == seriesId &&
+          (notificationDate.isAfter(dateLocal) ||
+              (notificationDate.year == dateLocal.year &&
+                  notificationDate.month == dateLocal.month &&
+                  notificationDate.day == dateLocal.day))) {
+        // Cancel the notification if it meets the conditions
+        await cancelNotification(notification.id);
+        debugPrint(
+            'Cancelled notification ${notification.id} for habitSeries $seriesId');
+      }
+    }
+  }
+
+  Future<void> scheduleUpcomingNotifications(AppDatabase database) async {
     final now = DateTime.now();
     final habits = await database.habitDao.getAllRecurringHabits();
 
@@ -156,21 +239,45 @@ class NotificationService {
     }
   }
 
-  static Future<List<ScheduledNotification>> getScheduledNotifications() async {
+  Future<List<ScheduledNotification>> getScheduledNotifications() async {
     final List<PendingNotificationRequest> pendingNotifications =
-        await FlutterLocalNotificationsPlugin().pendingNotificationRequests();
+        await _notificationsPlugin.pendingNotificationRequests();
 
     return pendingNotifications.map((n) {
+      final payloadData = _parseNotificationPayload(n.payload);
+
       return ScheduledNotification(
         id: n.id,
-        habitId: extractHabitIdFromPayload(n.payload),
-        scheduledDate: DateTime.fromMillisecondsSinceEpoch(n.id),
+        habitId: payloadData['habitId'],
+        seriesId: payloadData['seriesId'],
+        scheduledDate: (DateTime.tryParse(payloadData['scheduledDate'] ?? '') ??
+                DateTime.now())
+            .toUtc(),
       );
     }).toList();
   }
 
+  Map<String, String?> _parseNotificationPayload(String? payload) {
+    if (payload == null || payload.trim().isEmpty) {
+      debugPrint('Empty or null payload received.');
+      return {};
+    }
+
+    try {
+      final data = jsonDecode(payload);
+      return {
+        'habitId': data['habitId'],
+        'seriesId': data['seriesId'],
+        'scheduledDate': data['scheduledDate']
+      };
+    } catch (e) {
+      debugPrint('Failed to parse payload: $e\nPayload: $payload');
+      return {};
+    }
+  }
+
   /// Extract habitId from notification payload
-  static String extractHabitIdFromPayload(String? payload) {
+  String extractHabitIdFromPayload(String? payload) {
     if (payload == null) return "";
     try {
       final data = jsonDecode(payload);
@@ -183,17 +290,19 @@ class NotificationService {
 
 class ScheduledNotification {
   final int id;
-  final String habitId;
+  final String? habitId;
+  final String? seriesId;
   final DateTime scheduledDate;
 
   ScheduledNotification({
     required this.id,
-    required this.habitId,
+    this.habitId,
+    this.seriesId,
     required this.scheduledDate,
   });
 
   @override
   String toString() {
-    return 'ScheduledNotification(id: $id, habitId: $habitId, scheduledDate: $scheduledDate)';
+    return 'ScheduledNotification(id: $id, habitId: $habitId, seriesId: $seriesId, scheduledDate: $scheduledDate)';
   }
 }

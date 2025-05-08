@@ -22,7 +22,8 @@ Future<bool> handleDeleteHabit(
     final confirmed = await confirmDeleteHabitDialog(context);
     if (confirmed == null || confirmed == false) return false;
 
-    isDeleted = await deleteController.deleteSingleHabit(habit.id);
+    isDeleted =
+        await deleteController.deleteSingleHabit(habit.id, habit.startDate);
   } else {
     final actionScope = await showScopeDialog(context, title: 'Delete habit?');
     if (actionScope == null) return false;

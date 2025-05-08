@@ -11,8 +11,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final database = AppDatabase();
   await seedDatabase(database);
-  await NotificationService.init();
-  NotificationService.scheduleUpcomingNotifications(database);
+  final notificationService = NotificationService();
+  await notificationService.init();
+  notificationService.scheduleUpcomingNotifications(database);
 
   runApp(ProviderScope(
     overrides: [appDatabaseProvider.overrideWithValue(database)],

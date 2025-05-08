@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../data/services/user_service.dart';
 import '../../../core/utils/helpers.dart';
@@ -50,14 +49,15 @@ final habitReminderProvider = StateProvider<bool>((ref) => false);
 // Provider containing functions to update data
 final habitDetailControllerProvider = Provider<HabitDetailController>((ref) {
   final repo = ref.read(habitDetailRepositoryProvider);
-  return HabitDetailController(ref, repo);
+  return HabitDetailController(ref, repo, NotificationService());
 });
 
 class HabitDetailController {
   final Ref ref;
   final HabitDetailRepository _repo;
+  final NotificationService _notification;
 
-  HabitDetailController(this.ref, this._repo);
+  HabitDetailController(this.ref, this._repo, this._notification);
 
   Future<void> fromHabit(Habit habit) async {
     updateHabitName(habit.name);
@@ -125,24 +125,25 @@ class HabitDetailController {
 
   Future<void> updateHabitReminder(bool reminder) async {
     if (reminder) {
-      await NotificationService.requestPermission();
+      await _notification.requestPermission();
     }
     ref.read(habitReminderProvider.notifier).state = reminder;
   }
 
   Future<Habit?> createHabit() async {
+    HabitSeries? habitSeries;
     return await _repo.transaction(() async {
       // 1. Build habit from form
       Habit? habitModel = await _buildHabitFromForm();
       if (habitModel == null) return null;
 
       // 2. Build optional series
-      final habitSeries = _buildHabitSeries(habitModel);
+      habitSeries = _buildHabitSeries(habitModel);
 
       if (habitSeries != null) {
-        await _repo.habitSeries.createHabitSeries(habitSeries);
+        await _repo.habitSeries.createHabitSeries(habitSeries!);
         habitModel =
-            habitModel.rebuild((b) => b..habitSeriesId = habitSeries.id);
+            habitModel.rebuild((b) => b..habitSeriesId = habitSeries!.id);
       }
 
       // 3. Create habit
@@ -152,8 +153,8 @@ class HabitDetailController {
       // 4. Handle reminder if enabled
       // Separate reminder handling from the transaction (as it may involve the OS and cannot be rolled back)
       if (habitModel?.reminderEnabled == true) {
-        await _scheduleRecurringReminders(
-            habitModel!, _buildHabitSeries(habitModel));
+        await _notification.scheduleRecurringReminders(habitModel!, habitSeries,
+            excludedDatesUtc: await getExcludedDatesForSeries(habitSeries?.id));
       }
 
       return habitModel;
@@ -172,13 +173,28 @@ class HabitDetailController {
 
     // If there is no old series → simply update or create a new series
     if (oldSeries == null) {
-      return await _repo.transaction(() async {
+      final success = await _repo.transaction(() async {
         if (newSeries != null) {
           await _repo.habitSeries.createHabitSeries(newSeries);
         }
         await _repo.habit.updateHabit(newHabit!);
-        return newHabit;
+        return true;
       });
+
+      if (success) {
+        await _notification.cancelNotification(
+            generateNotificationId(oldHabit.startDate, habitId: oldHabit.id));
+
+        final needReschedule = newHabit.reminderEnabled == true &&
+            (newHabit != oldHabit || newSeries != null);
+
+        if (needReschedule) {
+          await _notification.scheduleRecurringReminders(newHabit, newSeries,
+              excludedDatesUtc: await getExcludedDatesForSeries(newSeries?.id));
+        }
+      }
+
+      return newHabit;
     }
 
     // If there are changes → ask the user for the edit scope
@@ -200,21 +216,21 @@ class HabitDetailController {
       }
     }
 
-    /// TODO: Re-schedule habit reminders if time, frequency, or reminderEnabled has changed.
-
     return newHabit;
   }
 
-  Future<Habit> _handleOnlyThis(
+  Future<Habit?> _handleOnlyThis(
     Habit oldHabit,
     Habit newHabit,
     HabitSeries? newSeries,
   ) async {
-    return await _repo.transaction(() async {
-      final habitDate = ref.read(habitDateProvider).toLocal();
-      HabitException? exception =
-          await _repo.habitException.getHabitException(oldHabit.id);
+    Habit? originalHabit;
+    final habitDate = ref.read(habitDateProvider).toLocal();
+    HabitException? exception =
+        await _repo.habitException.getHabitException(oldHabit.id);
+    HabitSeries? newSeriesWithId;
 
+    final success = await _repo.transaction(() async {
       // Skip the habit for today
       if (exception == null) {
         exception = HabitException((b) => b
@@ -224,38 +240,58 @@ class HabitDetailController {
           ..date = habitDate.toUtc()
           ..isSkipped = true);
 
-        await _repo.habitException.insertHabitException(exception);
+        await _repo.habitException.insertHabitException(exception!);
       } else {
-        exception = exception.rebuild((b) => b
+        exception = exception!.rebuild((b) => b
           ..date = habitDate.toUtc()
           ..isSkipped = true);
-        await _repo.habitException.updateHabitException(exception);
+        await _repo.habitException.updateHabitException(exception!);
       }
 
-      Habit originalHabit =
-          newHabit.rebuild((p0) => p0.id = generateNewId('habit'));
+      originalHabit = newHabit.rebuild((p0) => p0.id = generateNewId('habit'));
 
       if (newSeries != null) {
         final newSeriesId = generateNewId('series');
-        await _repo.habitSeries.createHabitSeries(newSeries.rebuild((p0) => p0
+        newSeriesWithId = newSeries.rebuild((p0) => p0
           ..id = newSeriesId
-          ..habitId = originalHabit.id));
+          ..habitId = originalHabit!.id);
+        await _repo.habitSeries.createHabitSeries(newSeriesWithId!);
         originalHabit =
-            originalHabit.rebuild((p0) => p0.habitSeriesId = newSeriesId);
+            originalHabit!.rebuild((p0) => p0.habitSeriesId = newSeriesId);
       }
 
-      await _repo.habit.createHabit(originalHabit);
+      await _repo.habit.createHabit(originalHabit!);
       // Return the new habit with the new series
-      return originalHabit;
+
+      return true;
     });
+
+    if (success) {
+      await _notification.cancelNotification(generateNotificationId(
+          oldHabit.startDate,
+          seriesId: oldHabit.habitSeriesId));
+
+      if (originalHabit!.reminderEnabled) {
+        await _notification.scheduleRecurringReminders(
+            originalHabit!, newSeriesWithId,
+            excludedDatesUtc:
+                await getExcludedDatesForSeries(newSeriesWithId?.id));
+      }
+
+      return originalHabit;
+    }
+
+    return null;
   }
 
-  Future<Habit> _handleAll(
+  Future<Habit?> _handleAll(
     HabitSeries oldSeries,
     Habit newHabit,
     HabitSeries? newSeries,
   ) async {
-    return await _repo.transaction(() async {
+    late final Habit updatedOriginalHabit;
+    HabitSeries? updateSeries;
+    final success = await _repo.transaction(() async {
       final newTime = newHabit.startDate.toLocal();
       final startDate = oldSeries.startDate
           .toLocal()
@@ -266,32 +302,49 @@ class HabitDetailController {
         await _repo.habitSeries.deleteHabitSeries(oldSeries.id);
       } else {
         habitSeriesId = oldSeries.id;
-        final updateSeries = newSeries.rebuild((b) => b
+        updateSeries = newSeries.rebuild((b) => b
           ..id = habitSeriesId
           ..habitId = oldSeries.habitId
           ..startDate = startDate.toUtc());
-        await _repo.habitSeries.updateHabitSeries(updateSeries);
+        await _repo.habitSeries.updateHabitSeries(updateSeries!);
       }
 
-      final updatedOriginalHabit = newHabit.rebuild((b) => b
+      updatedOriginalHabit = newHabit.rebuild((b) => b
         ..id = oldSeries.habitId
         ..habitSeriesId = habitSeriesId
         ..startDate = startDate.toUtc());
       await _repo.habit.updateHabit(updatedOriginalHabit);
 
       // Return the updated original habit
-      return updatedOriginalHabit;
+      return true;
     });
+
+    if (success) {
+      await _notification.cancelNotificationsByHabitSeriesId(oldSeries.id);
+
+      if (updatedOriginalHabit.reminderEnabled) {
+        await _notification.scheduleRecurringReminders(
+            updatedOriginalHabit, updateSeries,
+            excludedDatesUtc:
+                await getExcludedDatesForSeries(updateSeries?.id));
+      }
+
+      return updatedOriginalHabit;
+    }
+
+    return null;
   }
 
-  Future<Habit> _handleThisAndFollowing(
+  Future<Habit?> _handleThisAndFollowing(
     HabitSeries oldSeries,
     Habit newHabit,
     HabitSeries? newSeries,
   ) async {
-    return await _repo.transaction(() async {
-      final habitDate = ref.read(habitDateProvider);
+    final habitDate = ref.read(habitDateProvider);
+    late Habit newHabitWithId;
+    HabitSeries? createdNewSeries;
 
+    final success = await _repo.transaction(() async {
       // 1. Trim the old series before the current date
       final updatedOldSeries = oldSeries.rebuild(
         (b) => b..untilDate = habitDate.subtract(const Duration(days: 1)),
@@ -299,16 +352,15 @@ class HabitDetailController {
       await _repo.habitSeries.updateHabitSeries(updatedOldSeries);
 
       // 2. Create a new habit
-      Habit newHabitWithId =
-          newHabit.rebuild((b) => b.id = generateNewId('habit'));
+      newHabitWithId = newHabit.rebuild((b) => b.id = generateNewId('habit'));
 
       // 3. If it still repeats → create a new series
-      HabitSeries? createdNewSeries;
+
       if (newSeries != null) {
         createdNewSeries = newSeries.rebuild((b) => b
           ..id = generateNewId('series')
           ..habitId = newHabitWithId.id);
-        await _repo.habitSeries.createHabitSeries(createdNewSeries);
+        await _repo.habitSeries.createHabitSeries(createdNewSeries!);
         newHabitWithId = newHabitWithId.rebuild(
           (b) => b.habitSeriesId = createdNewSeries?.id,
         );
@@ -339,19 +391,32 @@ class HabitDetailController {
             await _repo.habitException.updateHabitException(updatedException);
           } else {
             // If there is no new series → create a habit from the exception
-            final habitFromException = _buildHabitFromException(
-              newHabitWithId,
-              exception,
-            );
+            final habitFromException =
+                _buildHabitFromException(newHabitWithId, exception);
             await _repo.habit.createHabit(habitFromException);
             await _repo.habitException.deleteHabitException(exception.id);
           }
         }
       }
 
-      // Return the new habit with the new series
-      return newHabitWithId;
+      return true;
     });
+
+    if (success) {
+      await _notification.cancelFutureNotificationsByHabitSeriesId(
+          oldSeries.id, habitDate);
+
+      if (newHabitWithId.reminderEnabled) {
+        await _notification.scheduleRecurringReminders(
+            newHabitWithId, createdNewSeries,
+            excludedDatesUtc:
+                await getExcludedDatesForSeries(createdNewSeries?.id));
+      }
+
+      return newHabitWithId;
+    }
+
+    return null;
   }
 
   Habit _buildHabitFromException(Habit baseHabit, HabitException exception) {
@@ -365,33 +430,19 @@ class HabitDetailController {
         );
   }
 
-  // Schedules reminders for recurring habits
-  Future<void> _scheduleRecurringReminders(
-      Habit habit, HabitSeries? habitSeries) async {
-    if (habitSeries == null) {
-      // One-time habit
-      await NotificationService.scheduleNotification(
-        Uuid().v4().hashCode,
-        "Habit: ${habit.name}",
-        "Time to complete your habit!",
-        habit.startDate,
-      );
-      return;
-    }
+  Future<Set<DateTime>> getExcludedDatesForSeries(String? habitSeriesId) async {
+    if (habitSeriesId == null) return <DateTime>{};
 
-    // Get recurring dates for next 30 days
-    final recurringDates = generateRecurringDates(habitSeries, daysAhead: 30);
+    final habitExceptions =
+        await _repo.habitException.getHabitExceptionsForSeries(habitSeriesId);
 
-    for (final date in recurringDates) {
-      await NotificationService.scheduleNotification(
-        Uuid().v4().hashCode,
-        "Habit: ${habit.name}",
-        "Time to complete your habit!",
-        date,
-      );
-    }
+    // Convert to Set<DateTime> UTC in yyyy-MM-dd format
+    final excludedDatesUtc = habitExceptions
+        .where((e) => e.isSkipped)
+        .map((e) => DateTime.utc(e.date.year, e.date.month, e.date.day))
+        .toSet();
 
-    debugPrint('Scheduled reminders for ${recurringDates.length} instances');
+    return excludedDatesUtc;
   }
 
   Future<Habit?> _buildHabitFromForm({String? habitId}) async {
@@ -431,7 +482,9 @@ class HabitDetailController {
     if (repeatFrequency == null) return null;
 
     return newHabitSeries(
-      id: oldSeries?.repeatFrequency == repeatFrequency ? oldSeries?.id : null,
+      id: oldSeries?.repeatFrequency == repeatFrequency
+          ? oldSeries?.id ?? habitModel.id
+          : null,
       userId: habitModel.userId,
       habitId: habitModel.id,
       startDate: habitModel.startDate,

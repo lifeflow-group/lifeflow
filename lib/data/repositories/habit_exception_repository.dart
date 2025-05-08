@@ -55,6 +55,17 @@ class HabitExceptionRepository {
     return await _dao.deleteFutureExceptionsInSeries(seriesId, startDate);
   }
 
+  Future<List<HabitException>> getHabitExceptionsForSeries(
+      String seriesId) async {
+    // Fetch exceptions for the specified series
+    final exceptionsData = await _dao.getHabitExceptionsForSeries(seriesId);
+
+    // Convert Companion list to Model list
+    return exceptionsData
+        .map((exception) => HabitException.fromJson(exception.toJson()))
+        .toList();
+  }
+
   Future<HabitException?> getHabitException(String id) async {
     // Fetch HabitException by ID from the service
     final exceptionData = await _dao.getHabitException(id);

@@ -98,16 +98,25 @@ final List<HabitCategory> defaultCategories = [
     ..iconPath = "assets/icons/spiritual.png"),
 ];
 
-// Generates recurring dates for a habit
-List<DateTime> generateRecurringDates(HabitSeries series,
-    {DateTime? startDate, int daysAhead = 30}) {
-  final now = DateTime.now();
+// Generates recurring UTC dates for a habit
+List<DateTime> generateRecurringDates(
+  HabitSeries series, {
+  DateTime? startDate,
+  int daysAhead = 30,
+  Set<DateTime>? excludedDatesUtc,
+}) {
+  final now = DateTime.now().toUtc();
   final untilDate = series.untilDate ?? now.add(Duration(days: daysAhead));
   List<DateTime> dates = [];
 
-  DateTime current = startDate ?? series.startDate;
+  DateTime current = startDate?.toUtc() ?? series.startDate;
   while (current.isBefore(untilDate)) {
-    dates.add(current);
+    final normalized = DateTime.utc(current.year, current.month, current.day);
+    final isSkipped = excludedDatesUtc?.contains(normalized) ?? false;
+
+    if (!isSkipped) {
+      dates.add(current);
+    }
 
     switch (series.repeatFrequency) {
       case RepeatFrequency.daily:
@@ -140,4 +149,20 @@ String getRepeatFrequencyLabel(RepeatFrequency? frequency) {
   }
   final label = frequency.toString().split('.').last;
   return label[0].toUpperCase() + label.substring(1);
+}
+
+// dt is utc
+DateTime normalizeToUtcMinute(DateTime dt) =>
+    DateTime.utc(dt.year, dt.month, dt.day, dt.hour, dt.minute);
+
+int generateNotificationId(DateTime dateTime,
+    {String? habitId, String? seriesId}) {
+  final cleanDigits =
+      (seriesId ?? habitId)?.replaceAll(RegExp(r'\D'), '') ?? '';
+  final habitPart = int.tryParse(cleanDigits.substring(0, 6)) ?? 999999;
+  final timePart =
+      normalizeToUtcMinute(dateTime.toUtc()).millisecondsSinceEpoch % 1000000;
+
+  final rawId = habitPart * 1000000 + timePart;
+  return rawId % 2147483647; // Ensure 32-bit signed int
 }

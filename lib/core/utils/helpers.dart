@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../data/datasources/local/app_database.dart';
 import '../../data/domain/models/habit.dart';
 import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/habit_series.dart';
@@ -165,4 +166,16 @@ int generateNotificationId(DateTime dateTime,
 
   final rawId = habitPart * 1000000 + timePart;
   return rawId % 2147483647; // Ensure 32-bit signed int
+}
+
+// Override habit from exception (if there is an override)
+HabitsTableData applyExceptionOverride(
+    HabitsTableData habit, HabitExceptionsTableData exception) {
+  return habit.copyWith(
+    id: exception.id,
+    reminderEnabled: exception.reminderEnabled,
+    targetValue: Value(exception.targetValue ?? habit.targetValue),
+    currentValue: Value(exception.currentValue ?? habit.currentValue),
+    isCompleted: Value(exception.isCompleted ?? habit.isCompleted),
+  );
 }

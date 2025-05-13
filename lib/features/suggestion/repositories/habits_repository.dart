@@ -41,7 +41,7 @@ class HabitsRepository {
         ...habit.toJson(),
         'category': category?.toJson() ?? defaultCategories[0].toJson(),
         'repeatFrequency': series?.repeatFrequency,
-        'untilDate': series?.untilDate,
+        'untilDate': series?.untilDate?.toUtc().toIso8601String(),
         'exceptions': exceptions.map((e) => e.toJson()).toList(),
       });
     }).toList());

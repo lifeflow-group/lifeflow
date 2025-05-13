@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:uuid/uuid.dart';
 
 import '../../core/utils/helpers.dart';
 import '../datasources/local/app_database.dart';
 import '../domain/models/habit.dart';
 import '../domain/models/habit_series.dart';
+import '../domain/models/scheduled_notification.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin;
@@ -18,7 +18,8 @@ class NotificationService {
       : _notificationsPlugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   /// **Initialize the notification system**
-  Future<void> init() async {
+  Future<void> initialize(
+      Function(String? payload) onNotificationSelected) async {
     tz.initializeTimeZones();
 
     const AndroidInitializationSettings androidSettings =
@@ -34,7 +35,12 @@ class NotificationService {
     const InitializationSettings settings =
         InitializationSettings(android: androidSettings, iOS: iosSettings);
 
-    await _notificationsPlugin.initialize(settings);
+    await _notificationsPlugin.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        onNotificationSelected(response.payload);
+      },
+    );
   }
 
   /// **Request notification permissions**
@@ -191,19 +197,11 @@ class NotificationService {
     final now = DateTime.now();
     final habits = await database.habitDao.getAllRecurringHabits();
 
-    // Get the list of existing notifications
-    final pendingNotifications =
-        await _notificationsPlugin.pendingNotificationRequests();
-    if (pendingNotifications.length >= 500) {
-      debugPrint(
-          "⚠️ Maximum notification limit reached (${pendingNotifications.length}/500)");
-      return;
-    }
-
     // Use a Set for faster lookup
     final existingNotifications = await getScheduledNotifications();
     final existingDates =
         existingNotifications.map((n) => n.scheduledDate).toSet();
+    int existingLength = existingNotifications.length;
 
     for (final habit in habits) {
       final series =
@@ -218,23 +216,27 @@ class NotificationService {
 
       final recurringDates = generateRecurringDates(
           HabitSeries.fromJson(series.toJson()),
-          startDate: lastScheduled,
-          daysAhead: 7);
+          startDate: lastScheduled);
 
       for (final date in recurringDates) {
         // Skip if the notification already exists
-        if (existingDates.contains(date)) {
+        if (existingDates.contains(date)) continue;
+
+        if (existingLength > 500) {
           debugPrint(
-              "⏩ Skipping duplicate notification for ${habit.name} at $date");
-          continue;
+              "⚠️ Maximum notification limit reached ($existingLength/500)");
+          return;
+        } else {
+          existingLength++;
         }
 
+        debugPrint("Scheduling notification for habit ${habit.name} on $date");
         await scheduleNotification(
-          Uuid().v4().hashCode,
-          "Habit Reminder: ${habit.name}",
-          "Time to complete your habit!",
-          date,
-        );
+            generateNotificationId(date,
+                habitId: habit.id, seriesId: series.id),
+            "Habit Reminder: ${habit.name}",
+            "Time to complete your habit!",
+            date);
       }
     }
   }
@@ -285,24 +287,5 @@ class NotificationService {
     } catch (e) {
       return "";
     }
-  }
-}
-
-class ScheduledNotification {
-  final int id;
-  final String? habitId;
-  final String? seriesId;
-  final DateTime scheduledDate;
-
-  ScheduledNotification({
-    required this.id,
-    this.habitId,
-    this.seriesId,
-    required this.scheduledDate,
-  });
-
-  @override
-  String toString() {
-    return 'ScheduledNotification(id: $id, habitId: $habitId, seriesId: $seriesId, scheduledDate: $scheduledDate)';
   }
 }

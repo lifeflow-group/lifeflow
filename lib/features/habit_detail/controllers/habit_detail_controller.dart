@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/domain/models/scheduled_notification.dart';
 import '../../../data/services/user_service.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
@@ -46,6 +47,8 @@ final habitUnitProvider = StateProvider<String>((ref) => '');
 // Provider for managing the habit notification.
 final habitReminderProvider = StateProvider<bool>((ref) => false);
 
+final habitProvider = StateProvider<Habit?>((ref) => null);
+
 // Provider containing functions to update data
 final habitDetailControllerProvider = Provider<HabitDetailController>((ref) {
   final repo = ref.read(habitDetailRepositoryProvider);
@@ -59,7 +62,25 @@ class HabitDetailController {
 
   HabitDetailController(this.ref, this._repo, this._notification);
 
+  Future<Habit?> loadHabitFromNotification(
+      ScheduledNotification? payload) async {
+    if (payload == null) return null;
+
+    Habit? habit;
+    if (payload.habitId != null) {
+      habit = await _repo.habit.getHabit(payload.habitId!);
+    } else if (payload.seriesId != null) {
+      habit = await _repo.habit.getHabitWithCategoryBySeriesAndDate(
+          payload.seriesId!, payload.scheduledDate);
+    }
+    if (habit == null) return null;
+
+    fromHabit(habit);
+    return habit;
+  }
+
   Future<void> fromHabit(Habit habit) async {
+    updateHabitProvider(habit);
     updateHabitName(habit.name);
     updateHabitCategory(habit.category);
     updateHabitDate(habit.startDate.toLocal());
@@ -128,6 +149,10 @@ class HabitDetailController {
       await _notification.requestPermission();
     }
     ref.read(habitReminderProvider.notifier).state = reminder;
+  }
+
+  void updateHabitProvider(Habit habit) {
+    ref.read(habitProvider.notifier).state = habit;
   }
 
   Future<Habit?> createHabit() async {

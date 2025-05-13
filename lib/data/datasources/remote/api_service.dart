@@ -9,6 +9,8 @@ class ApiService {
       HabitAnalysisInput input) async {
     final url = Uri.parse('${AppConstants.baseUrl}/suggestions/analyze');
 
+    debugPrint('Sending request to url...');
+
     final response = await http.post(
       url,
       headers: {

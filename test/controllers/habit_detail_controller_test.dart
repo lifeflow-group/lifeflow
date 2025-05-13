@@ -3,6 +3,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lifeflow/core/utils/helpers.dart';
 import 'package:lifeflow/data/services/user_service.dart';
 import 'package:lifeflow/data/datasources/local/app_database.dart';
 import 'package:lifeflow/data/datasources/local/database_provider.dart';
@@ -10,21 +11,30 @@ import 'package:lifeflow/data/domain/models/habit.dart';
 import 'package:lifeflow/features/habit_detail/controllers/habit_detail_controller.dart';
 import 'package:lifeflow/features/habit_detail/repositories/habit_detail_repository.dart';
 import 'package:lifeflow/shared/widgets/scope_dialog.dart';
+import 'package:mocktail/mocktail.dart';
 
+import '../services/notification_service_test.dart';
 import 'home_controller_test.dart';
+
+class FakeHabit extends Fake implements Habit {}
 
 void main() {
   late AppDatabase db;
   late ProviderContainer container;
   late HabitDetailController controller;
   late HabitDetailRepository repository;
+  final mockNotification = MockNotificationService();
 
   final habitDate = DateTime(2025, 4, 17);
   const testUserId = 'user-123';
   const categoryId = 'cat-1';
-  const seriesId = 'series-1';
-  const habitId = 'habit-1';
-  const exceptionId = 'habit-2';
+  final seriesId = generateNewId('series');
+  final habitId = generateNewId('habit');
+  final exceptionId = generateNewId('habit');
+
+  setUpAll(() {
+    registerFallbackValue(FakeHabit());
+  });
 
   setUp(() async {
     db = AppDatabase.forTesting(NativeDatabase.memory());
@@ -32,6 +42,10 @@ void main() {
     container = ProviderContainer(overrides: [
       userServiceProvider.overrideWithValue(FakeUserService()),
       appDatabaseProvider.overrideWithValue(db),
+      habitDetailControllerProvider.overrideWith((ref) {
+        final repo = ref.read(habitDetailRepositoryProvider);
+        return HabitDetailController(ref, repo, mockNotification);
+      }),
     ]);
 
     controller = container.read(habitDetailControllerProvider);
@@ -70,7 +84,7 @@ void main() {
 
     await db.habitExceptionsTable.insertOne(
       HabitExceptionsTableCompanion.insert(
-        id: 'habit-2',
+        id: exceptionId,
         habitSeriesId: seriesId,
         date: habitDate.add(Duration(days: 10)).toUtc(),
         isSkipped: Value(true),
@@ -78,6 +92,9 @@ void main() {
         isCompleted: Value(true),
       ),
     );
+
+    when(() => mockNotification.scheduleRecurringReminders(any(), any()))
+        .thenAnswer((_) async {});
   });
 
   tearDown(() async {
@@ -95,6 +112,9 @@ void main() {
 
       // Change the habit name
       controller.updateHabitName('Read Manga');
+
+      when(() => mockNotification.cancelNotification(any()))
+          .thenAnswer((_) async {});
 
       // Save the habit with ActionScope.onlyThis
       final updatedHabit =
@@ -132,6 +152,9 @@ void main() {
       controller.updateHabitName('Read Manga');
       controller.updateHabitRepeatFrequency(RepeatFrequency.weekly);
 
+      when(() => mockNotification.cancelNotificationsByHabitSeriesId(any()))
+          .thenAnswer((_) async {});
+
       // Act: Call updateHabit with ActionScope.all
       final updatedHabit =
           await controller.updateHabit(habit, () async => ActionScope.all);
@@ -164,6 +187,9 @@ void main() {
 
       // Change the habit name
       controller.updateHabitName('Read Manga');
+
+      when(() => mockNotification.cancelFutureNotificationsByHabitSeriesId(
+          any(), any())).thenAnswer((_) async {});
 
       // Save the habit with ActionScope.thisAndFollowing
       final updateHabit = await controller.updateHabit(

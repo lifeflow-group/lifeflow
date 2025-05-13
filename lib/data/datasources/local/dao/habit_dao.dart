@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
-import 'package:lifeflow/data/datasources/local/tables/habit_exceptions_table.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../app_database.dart';
 import '../tables/habit_categories_table.dart';
+import '../tables/habit_exceptions_table.dart';
 import '../tables/habit_series_table.dart';
 import '../tables/habits_table.dart';
 
@@ -85,7 +85,7 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
 
         final exception = exceptionsBySeriesId[habitSeries.id];
         if (exception != null) {
-          return (_applyExceptionOverride(adjustedHabit, exception), category);
+          return (applyExceptionOverride(adjustedHabit, exception), category);
         }
         return (adjustedHabit, category);
       }
@@ -186,18 +186,6 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
     return query.get();
   }
 
-  // Override habit from exception (if there is an override)
-  HabitsTableData _applyExceptionOverride(
-      HabitsTableData habit, HabitExceptionsTableData exception) {
-    return habit.copyWith(
-      id: exception.id,
-      reminderEnabled: exception.reminderEnabled,
-      targetValue: Value(exception.targetValue ?? habit.targetValue),
-      currentValue: Value(exception.currentValue ?? habit.currentValue),
-      isCompleted: Value(exception.isCompleted ?? habit.isCompleted),
-    );
-  }
-
   // Get all habits that have a recurring series
   Future<List<HabitsTableData>> getAllRecurringHabits() {
     return (select(habitsTable)
@@ -215,5 +203,63 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
               (habit.startDate.isBiggerOrEqualValue(range.start) |
                   isSameDateQuery(habit.startDate, range.start))))
         .get();
+  }
+
+  Future<(HabitsTableData, HabitCategoriesTableData)?>
+      getHabitWithCategoryBySeriesAndDate(
+          String seriesId, DateTime dateLocal) async {
+    // 1. Get HabitSeries and Habit
+    final habitSeries = await (select(habitSeriesTable)
+          ..where((tbl) => tbl.id.equals(seriesId)))
+        .getSingleOrNull();
+    if (habitSeries == null) return null;
+    final habit = await getHabit(habitSeries.habitId);
+    if (habit == null) return null;
+
+    // 2. Check if there is an Exception
+    final exception = await (select(habitExceptionsTable)
+          ..where((e) =>
+              e.habitSeriesId.equals(seriesId) &
+              isSameDateQuery(e.date, dateLocal)))
+        .getSingleOrNull();
+
+    // 3. If there is an exception and it is not skipped → convert to Habit
+    if (exception != null && !exception.isSkipped) {
+      final adjustedHabit = applyExceptionOverride(
+        _habitFromSeries(habit, habitSeries, dateLocal),
+        exception,
+      );
+      final category = await _getHabitCategory(habit.categoryId);
+      return (adjustedHabit, category);
+    }
+
+    // 4. If there is no exception → create Habit from series
+    final newHabit = _habitFromSeries(habit, habitSeries, dateLocal);
+    final category = await _getHabitCategory(habit.categoryId);
+    return (newHabit, category);
+  }
+
+  HabitsTableData _habitFromSeries(
+      HabitsTableData habit, HabitSeriesTableData series, DateTime dateLocal) {
+    final date = habit.startDate.toLocal();
+    return habit.copyWith(
+        id: generateNewId('habit'),
+        startDate: dateLocal
+            .copyWith(hour: date.hour, minute: date.minute, second: date.second)
+            .toUtc(),
+        habitSeriesId: Value(series.id));
+  }
+
+  Future<HabitCategoriesTableData> _getHabitCategory(String? categoryId) async {
+    if (categoryId == null) {
+      return HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
+    }
+
+    final category = await (select(habitCategoriesTable)
+          ..where((c) => c.id.equals(categoryId)))
+        .getSingleOrNull();
+
+    return category ??
+        HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
   }
 }

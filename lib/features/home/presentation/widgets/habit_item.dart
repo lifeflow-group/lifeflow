@@ -19,7 +19,8 @@ class HabitItem extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         onTap: () async {
-          final result = await context.push('/habit-view', extra: habit);
+          final result =
+              await context.push('/habit-view', extra: {'habit': habit});
           if (result != null) {
             // If there are changes → refresh home
             ref.invalidate(homeControllerProvider);

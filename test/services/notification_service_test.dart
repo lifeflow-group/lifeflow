@@ -3,12 +3,17 @@ import 'dart:convert';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lifeflow/core/utils/helpers.dart';
+import 'package:lifeflow/data/datasources/local/app_database.dart';
+import 'package:lifeflow/data/datasources/local/dao/habit_dao.dart';
+import 'package:lifeflow/data/datasources/local/dao/habit_series_dao.dart';
 import 'package:lifeflow/data/domain/models/habit.dart';
 import 'package:lifeflow/data/domain/models/habit_category.dart';
 import 'package:lifeflow/data/services/notification_service.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+
+class MockNotificationService extends Mock implements NotificationService {}
 
 class MockFlutterLocalNotificationsPlugin extends Mock
     implements FlutterLocalNotificationsPlugin {}
@@ -22,6 +27,12 @@ class MockIOSFlutterLocalNotificationsPlugin extends Mock
 class FakeTZDateTime extends Fake implements tz.TZDateTime {}
 
 class FakeNotificationDetails extends Fake implements NotificationDetails {}
+
+class MockAppDatabase extends Mock implements AppDatabase {}
+
+class MockHabitDao extends Mock implements HabitDao {}
+
+class MockHabitSeriesDao extends Mock implements HabitSeriesDao {}
 
 void main() {
   late NotificationService service;
@@ -280,5 +291,91 @@ void main() {
               any(named: 'uiLocalNotificationDateInterpretation'),
           androidScheduleMode: any(named: 'androidScheduleMode'),
         )).called(8);
+  });
+
+  test(
+      'scheduleUpcomingNotifications schedules notifications up to limit and skips existing ones',
+      () async {
+    final habitId = generateNewId('habit');
+    final seriesId = generateNewId('series');
+    final userId = 'user-1';
+    final now = DateTime.now().toUtc();
+    final startDate = now.subtract(Duration(days: 490));
+
+    final habit = HabitsTableData(
+        id: habitId,
+        userId: userId,
+        habitSeriesId: seriesId,
+        name: 'Morning Run',
+        startDate: startDate,
+        reminderEnabled: true,
+        categoryId: 'category-1',
+        trackingType: 'complete');
+
+    final habitSeries = HabitSeriesTableData(
+        id: seriesId,
+        userId: userId,
+        habitId: habitId,
+        startDate: startDate,
+        repeatFrequency: 'daily');
+
+    // Mock DB and DAO
+    final mockDatabase = MockAppDatabase();
+    final mockHabitDao = MockHabitDao();
+    final mockHabitSeriesDao = MockHabitSeriesDao();
+
+    when(() => mockDatabase.habitDao).thenReturn(mockHabitDao);
+    when(() => mockDatabase.habitSeriesDao).thenReturn(mockHabitSeriesDao);
+
+    when(() => mockHabitDao.getAllRecurringHabits())
+        .thenAnswer((_) async => [habit]);
+    when(() => mockHabitSeriesDao.getHabitSeries(seriesId))
+        .thenAnswer((_) async => habitSeries);
+
+    // Mock existing notifications
+    when(() => mockPlugin.pendingNotificationRequests())
+        .thenAnswer((_) async => List.generate(
+            490,
+            (i) => PendingNotificationRequest(
+                i + 1,
+                "Habit Reminder: ${habit.name}",
+                "Time to complete your habit!",
+                jsonEncode(
+                  {
+                    'habitId': habitId,
+                    'seriesId': seriesId,
+                    'scheduledDate':
+                        startDate.add(Duration(days: i)).toIso8601String()
+                  },
+                ))));
+
+    // Mock zonedSchedule call
+    when(() => mockPlugin.zonedSchedule(
+          any(),
+          any(),
+          any(),
+          any(),
+          any(),
+          payload: any(named: 'payload'),
+          uiLocalNotificationDateInterpretation:
+              any(named: 'uiLocalNotificationDateInterpretation'),
+          androidScheduleMode: any(named: 'androidScheduleMode'),
+        )).thenAnswer((_) async => {});
+
+    // Call the method
+    await service.scheduleUpcomingNotifications(mockDatabase);
+
+    // Should schedule up to 11 notifications, because 490 exist and limit is 500
+    verify(() => mockPlugin.zonedSchedule(
+          any(),
+          any(),
+          any(),
+          any(),
+          any(),
+          payload: any(named: 'payload'),
+          uiLocalNotificationDateInterpretation:
+              any(named: 'uiLocalNotificationDateInterpretation'),
+          androidScheduleMode: any(named: 'androidScheduleMode'),
+        )).called(11);
   });
 }

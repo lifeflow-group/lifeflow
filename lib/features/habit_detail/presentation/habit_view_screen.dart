@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/controllers/habit_controller.dart';
 import '../../../data/domain/models/habit.dart';
+import '../../../data/domain/models/scheduled_notification.dart';
 import '../../../shared/actions/habit_actions.dart';
 import '../../../shared/widgets/enter_number_dialog.dart';
 import '../../home/controllers/home_controller.dart';
@@ -13,8 +14,9 @@ import '../controllers/habit_detail_controller.dart';
 import 'widgets/view_row.dart';
 
 class HabitViewScreen extends ConsumerStatefulWidget {
-  const HabitViewScreen({super.key, this.habit});
+  const HabitViewScreen({super.key, this.habit, this.scheduledNotification});
   final Habit? habit;
+  final ScheduledNotification? scheduledNotification;
 
   @override
   ConsumerState<HabitViewScreen> createState() => _HabitViewScreenState();
@@ -23,29 +25,38 @@ class HabitViewScreen extends ConsumerStatefulWidget {
 class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
   HabitDetailController get controller =>
       ref.read(habitDetailControllerProvider);
-  Habit? get habit => widget.habit;
 
   @override
   void initState() {
     super.initState();
 
     Future.microtask(() async {
-      if (habit == null) {
+      if (widget.habit == null && widget.scheduledNotification == null) {
         controller.resetForm();
-      } else {
-        await controller.fromHabit(habit!);
+      } else if (widget.habit != null) {
+        await controller.fromHabit(widget.habit!);
+      } else if (widget.scheduledNotification != null) {
+        await controller
+            .loadHabitFromNotification(widget.scheduledNotification!);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final habit = ref.watch(habitProvider);
     final repeat =
         getRepeatFrequencyLabel(ref.watch(habitRepeatFrequencyProvider));
     final date = DateFormat('dd/MM/yyyy').format(ref.watch(habitDateProvider));
     final time = ref.watch(habitTimeProvider).format(context);
     final isCompleted = ref.watch(habitIsCompletedProvider);
     final currentValue = ref.watch(habitCurrentValueProvider);
+    final habitName = ref.watch(habitNameProvider);
+    final habitCategory = ref.watch(habitCategoryProvider);
+    final trackingType = ref.watch(habitTrackingTypeProvider);
+    final targetValue = ref.watch(habitTargetValueProvider);
+    final unit = ref.watch(habitUnitProvider);
+    final habitReminder = ref.watch(habitReminderProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +64,7 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
             onPressed: () => context.pop(),
             color: Theme.of(context).colorScheme.onSurface),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: habit?.trackingType == TrackingType.progress
+        title: trackingType == TrackingType.progress
             ? TextButton(
                 onPressed: () => _handelUpdateCurrentValue(
                     context: context,
@@ -61,8 +72,8 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                     currentValue: currentValue,
                     ref: ref),
                 child: Text(
-                  habit?.trackingType == TrackingType.progress
-                      ? '$currentValue/${habit?.targetValue} ${habit?.unit}'
+                  trackingType == TrackingType.progress
+                      ? '$currentValue/$targetValue $unit'
                       : '',
                   style: Theme.of(context).textTheme.titleMedium,
                 ))
@@ -70,7 +81,7 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
         centerTitle: true,
         actionsPadding: const EdgeInsets.only(right: 5.0),
         actions: [
-          habit?.trackingType == TrackingType.complete
+          trackingType == TrackingType.complete
               ? Transform.scale(
                   scale: 1.1,
                   child: Checkbox(
@@ -111,28 +122,23 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
           children: [
             Padding(
                 padding: const EdgeInsets.only(top: 10, bottom: 12.0),
-                child: Text(habit?.name ?? '',
+                child: Text(habitName,
                     style: Theme.of(context)
                         .textTheme
                         .titleLarge
                         ?.copyWith(fontWeight: FontWeight.w500))),
             ViewRow(
                 label: "Category",
-                valueText: habit?.category.label ?? '',
-                valueIcon: habit != null
-                    ? Image.asset(habit!.category.iconPath,
-                        width: 24, height: 24)
+                valueText: habitCategory?.label ?? '',
+                valueIcon: habitCategory != null
+                    ? Image.asset(habitCategory.iconPath, width: 24, height: 24)
                     : null),
             ViewRow(label: "Date", valueText: date),
             ViewRow(label: "Time", valueText: time),
             ViewRow(label: "Repeat", valueText: repeat),
             ViewRow(
                 label: "Reminder",
-                valueText: habit == null
-                    ? ''
-                    : habit!.reminderEnabled
-                        ? "Enabled"
-                        : "Disabled"),
+                valueText: habitReminder ? "Enabled" : "Disabled"),
             const SizedBox(height: 16),
             Container(
               color:
@@ -148,7 +154,7 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                       onPressed: () async {
                         if (habit == null) return;
                         final isDeleted =
-                            await handleDeleteHabit(context, ref, habit!);
+                            await handleDeleteHabit(context, ref, habit);
                         if (isDeleted && context.mounted) context.pop();
                       },
                       child: Text("Delete",

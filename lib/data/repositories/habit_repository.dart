@@ -57,15 +57,27 @@ class HabitRepository {
     final records = await _dao.getHabitsWithCategoriesByDate(date, userId);
 
     // Map each (habit, category) => HabitModel
-    return records.map((record) {
-      final habitDb = record.$1; // Habit (Drift)
-      final categoryDb = record.$2; // HabitCategory (Drift)
+    return records.map((record) => _recordToHabit(record)).toList();
+  }
 
-      return Habit.fromJson({
-        ...habitDb.toJson(),
-        'category': categoryDb.toJson(),
-      });
-    }).toList();
+  Future<Habit?> getHabitWithCategoryBySeriesAndDate(
+      String seriesId, DateTime dateLocal) async {
+    // Fetch the list of habits and categories
+    final record = await _dao.getHabitWithCategoryBySeriesAndDate(
+        seriesId, dateLocal.toLocal());
+    if (record == null) return null;
+
+    return _recordToHabit(record);
+  }
+
+  Habit _recordToHabit((HabitsTableData, HabitCategoriesTableData) record) {
+    final habitDb = record.$1; // Habit (Drift)
+    final categoryDb = record.$2; // HabitCategory (Drift)
+
+    return Habit.fromJson({
+      ...habitDb.toJson(),
+      'category': categoryDb.toJson(),
+    });
   }
 
   Future<Habit?> getHabit(String id) async {

@@ -3,12 +3,16 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lifeflow/core/utils/helpers.dart';
+import 'package:lifeflow/data/repositories/repositories.dart';
 import 'package:lifeflow/data/services/user_service.dart';
 import 'package:lifeflow/data/datasources/local/app_database.dart';
 import 'package:lifeflow/data/datasources/local/database_provider.dart';
 import 'package:lifeflow/features/habit_detail/repositories/habit_detail_repository.dart';
 import 'package:lifeflow/data/controllers/habit_controller.dart';
+import 'package:mocktail/mocktail.dart';
 
+import '../services/notification_service_test.dart';
 import 'home_controller_test.dart';
 
 void main() {
@@ -16,13 +20,14 @@ void main() {
   late ProviderContainer container;
   late HabitController controller;
   late HabitDetailRepository repository;
+  final mockNotification = MockNotificationService();
 
   final habitDate = DateTime(2025, 4, 17);
   const testUserId = 'user-123';
   const categoryId = 'cat-1';
-  const seriesId = 'series-1';
-  const habitId = 'habit-1';
-  const exceptionId = 'habit-2';
+  final seriesId = generateNewId('series');
+  final habitId = generateNewId('habit');
+  final exceptionId = generateNewId('habit');
 
   setUp(() async {
     db = AppDatabase.forTesting(NativeDatabase.memory());
@@ -30,6 +35,10 @@ void main() {
     container = ProviderContainer(overrides: [
       userServiceProvider.overrideWithValue(FakeUserService()),
       appDatabaseProvider.overrideWithValue(db),
+      habitControllerProvider.overrideWith((ref) {
+        final repo = ref.read(repositoriesProvider);
+        return HabitController(ref, repo, mockNotification);
+      }),
     ]);
 
     controller = container.read(habitControllerProvider);
@@ -85,10 +94,11 @@ void main() {
 
   group('Delete Habit', () {
     test('deleteHabit (not in series) deletes habit directly', () async {
+      final habitIdAlone = generateNewId('habit');
       // Insert habit not in a series
       await db.habitsTable.insertOne(
         HabitsTableCompanion.insert(
-          id: 'habit-alone',
+          id: habitIdAlone,
           name: 'Walk',
           userId: testUserId,
           startDate: habitDate.toUtc(),
@@ -99,13 +109,15 @@ void main() {
         ),
       );
 
-      final habit = await repository.habit.getHabit('habit-alone');
+      final habit = await repository.habit.getHabit(habitIdAlone);
+      when(() => mockNotification.cancelNotification(any()))
+          .thenAnswer((_) async {});
       final result =
           await controller.deleteSingleHabit(habit!.id, habit.startDate);
 
       final habits = await db.habitsTable.select().get();
       expect(result, true);
-      expect(habits.any((h) => h.id == 'habit-alone'), false);
+      expect(habits.any((h) => h.id == habitIdAlone), false);
 
       debugPrint('Passed!');
     });
@@ -132,6 +144,8 @@ void main() {
         'deleteHabit with ActionScope.all deletes habit, series, and exceptions',
         () async {
       final series = await repository.habitSeries.getHabitSeries(seriesId);
+      when(() => mockNotification.cancelNotificationsByHabitSeriesId(any()))
+          .thenAnswer((_) async {});
       final result = await controller.handleDeleteAll(series!);
 
       final habits = await db.habitsTable.select().get();
@@ -152,6 +166,8 @@ void main() {
       final habit = await repository.habit.getHabit(habitId);
       final series =
           await repository.habitSeries.getHabitSeries(habit!.habitSeriesId);
+      when(() => mockNotification.cancelFutureNotificationsByHabitSeriesId(
+          any(), any())).thenAnswer((_) async {});
       final result =
           await controller.handleDeleteThisAndFollowing(habit, series!);
 
@@ -172,7 +188,7 @@ void main() {
 
   group('Record Habit', () {
     test('recordHabit updates a non-series habit', () async {
-      const habitId = 'habit-standalone';
+      final habitId = generateNewId('habit');
 
       // Insert a non-series habit
       await db.habitsTable.insertOne(
@@ -191,12 +207,14 @@ void main() {
       final habit = await repository.habit.getHabit(habitId);
       expect(habit, isNotNull);
 
+      when(() => mockNotification.cancelNotification(any()))
+          .thenAnswer((_) async {});
+
       await controller.recordHabit(
-        habit: habit!,
-        selectedDate: habitDate,
-        currentValue: null,
-        isCompleted: true,
-      );
+          habit: habit!,
+          selectedDate: habitDate,
+          currentValue: null,
+          isCompleted: true);
 
       final updatedHabit = await repository.habit.getHabit(habitId);
       expect(updatedHabit!.isCompleted, true);

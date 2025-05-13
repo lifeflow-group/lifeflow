@@ -6,3 +6,5 @@ class AppConstants {
 }
 
 final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

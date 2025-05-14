@@ -262,4 +262,131 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
     return category ??
         HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
   }
+
+  /// Alternative implementation using date range for better performance
+  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
+      getHabitsWithCategoriesForMonth(DateTime month, String? userId) async {
+    if (userId == null) return [];
+
+    final from = DateTime(month.year, month.month, 1);
+    final to = DateTime(month.year, month.month + 1, 0);
+
+    // 1. Get non-recurring habits
+    final nonRecurringQuery = select(habitsTable).join([
+      leftOuterJoin(
+        habitCategoriesTable,
+        habitCategoriesTable.id.equalsExp(habitsTable.categoryId),
+      ),
+    ])
+      ..where(habitsTable.habitSeriesId.isNull() &
+          habitsTable.userId.equals(userId) &
+          habitsTable.startDate.isBetween(Variable(from), Variable(to)));
+
+    final nonRecurringHabits = await nonRecurringQuery.get();
+
+    // 2. Get recurring series in the month
+    final recurringSeries = await (select(habitSeriesTable)
+          ..where((series) =>
+              series.userId.equals(userId) &
+              series.startDate.isSmallerThanValue(to) &
+              (series.untilDate.isNull() |
+                  series.untilDate.isBiggerThanValue(from))))
+        .get();
+
+    // 3. Get all exceptions in this month
+    final allExceptions = await (select(habitExceptionsTable)
+          ..where((ex) => ex.date.isBetween(Variable(from), Variable(to))))
+        .get();
+    final exceptionsBySeries = <String, List<HabitExceptionsTableData>>{};
+    for (final ex in allExceptions) {
+      exceptionsBySeries.putIfAbsent(ex.habitSeriesId, () => []).add(ex);
+    }
+
+    // 4. Generate virtual instances from recurring series
+    final List<(HabitsTableData, HabitCategoriesTableData)> recurringHabits =
+        [];
+
+    for (final series in recurringSeries) {
+      final habit = await getHabit(series.habitId);
+      if (habit == null) continue;
+
+      final category = await _getHabitCategory(habit.categoryId);
+      // ?? HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
+
+      final repeatDates = getRepeatDatesForMonth(
+          series.repeatFrequency, from, to, series.startDate);
+
+      final exceptions = exceptionsBySeries[series.id] ?? [];
+
+      for (final date in repeatDates) {
+        final exception =
+            exceptions.firstWhereOrNull((e) => isSameDate(e.date, date));
+
+        // Skip if this date is marked as skipped
+        if (exception?.isSkipped == true) continue;
+
+        final virtualHabit = habit.copyWith(
+          id: 'habit-${Uuid().v4()}',
+          startDate: date.toUtc(),
+          habitSeriesId: Value(series.id),
+        );
+
+        final finalHabit = exception != null
+            ? applyExceptionOverride(virtualHabit, exception)
+            : virtualHabit;
+
+        recurringHabits.add((finalHabit, category));
+      }
+    }
+
+    // 5. Combine with non-recurring
+    final directHabits = nonRecurringHabits.map((row) {
+      final habit = row.readTable(habitsTable);
+      final category = row.readTableOrNull(habitCategoriesTable) ??
+          HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
+      return (habit, category);
+    }).toList();
+
+    return [...directHabits, ...recurringHabits];
+  }
+
+  List<DateTime> getRepeatDatesForMonth(
+    String? frequency,
+    DateTime from,
+    DateTime to,
+    DateTime seriesStartDate,
+  ) {
+    final List<DateTime> dates = [];
+    DateTime current = seriesStartDate.isAfter(from) ? seriesStartDate : from;
+
+    while (!current.isAfter(to)) {
+      switch (frequency) {
+        case 'daily':
+          dates.add(current);
+          current = current.add(const Duration(days: 1));
+          break;
+        case 'weekly':
+          if (current.weekday == seriesStartDate.weekday) {
+            dates.add(current);
+          }
+          current = current.add(const Duration(days: 1));
+          break;
+        case 'monthly':
+          if (current.day == seriesStartDate.day) {
+            dates.add(current);
+          }
+          current = current.add(const Duration(days: 1));
+          break;
+        // Add more cases if needed
+        default:
+          current = current.add(const Duration(days: 1));
+      }
+    }
+
+    return dates;
+  }
+
+  bool isSameDate(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 }

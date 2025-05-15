@@ -41,7 +41,10 @@ void main() {
 
     await db.habitCategoriesTable.insertOne(
       HabitCategoriesTableCompanion.insert(
-          id: 'health', label: 'Health', iconPath: 'assets/icons/health.png'),
+          id: 'health',
+          name: 'Health',
+          iconPath: 'assets/icons/health.png',
+          colorHex: '#FF5733'),
     );
 
     await db.habitsTable.insertOne(
@@ -94,7 +97,10 @@ void main() {
   test('Returns base habit without recurring', () async {
     await db.habitCategoriesTable.insertOne(
       HabitCategoriesTableCompanion.insert(
-          id: 'work', label: 'Work', iconPath: 'assets/icons/work.png'),
+          id: 'work',
+          name: 'Work',
+          iconPath: 'assets/icons/work.png',
+          colorHex: '#FF5733'),
     );
 
     await db.habitsTable.insertAll([
@@ -143,7 +149,10 @@ void main() {
 
     await db.habitCategoriesTable.insertOne(
       HabitCategoriesTableCompanion.insert(
-          id: 'cat-3', label: 'Fitness', iconPath: 'assets/icons/fitness.png'),
+          id: 'cat-3',
+          name: 'Fitness',
+          iconPath: 'assets/icons/fitness.png',
+          colorHex: '#FF5733'),
     );
 
     await db.habitsTable.insertOne(

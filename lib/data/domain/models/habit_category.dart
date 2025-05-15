@@ -9,9 +9,11 @@ abstract class HabitCategory
     implements Built<HabitCategory, HabitCategoryBuilder> {
   String get id;
 
-  String get label;
+  String get name;
 
   String get iconPath;
+
+  String get colorHex;
 
   HabitCategory._();
   factory HabitCategory([void Function(HabitCategoryBuilder) updates]) =

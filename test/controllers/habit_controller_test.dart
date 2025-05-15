@@ -47,8 +47,9 @@ void main() {
     await db.habitCategoriesTable.insertOne(
       HabitCategoriesTableCompanion.insert(
         id: categoryId,
-        label: 'Study',
+        name: 'Study',
         iconPath: 'assets/icons/study.png',
+        colorHex: '#FF5733',
       ),
     );
 

@@ -53,7 +53,7 @@ class CategoryBottomSheet extends StatelessWidget {
                         Image.asset(category.iconPath, width: 40, height: 40),
                         const SizedBox(height: 8),
                         Text(
-                          category.label,
+                          category.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,

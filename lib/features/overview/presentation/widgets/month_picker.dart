@@ -1,0 +1,184 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+class MonthPicker extends StatefulWidget {
+  final DateTime initialDate;
+  final DateTime firstDate;
+  final DateTime lastDate;
+
+  const MonthPicker({
+    super.key,
+    required this.initialDate,
+    required this.firstDate,
+    required this.lastDate,
+  });
+
+  @override
+  State<MonthPicker> createState() => _MonthPickerState();
+}
+
+class _MonthPickerState extends State<MonthPicker> {
+  late DateTime selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDate = widget.initialDate;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final currentYear = selectedDate.year;
+    final currentMonth = selectedDate.month;
+
+    return AlertDialog(
+      title: Center(
+          child: Text('Select Month', style: theme.textTheme.titleMedium)),
+      content: SizedBox(
+        width: 300,
+        height: 290,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Year display and navigation buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, size: 18),
+                  onPressed: () {
+                    final newDate = DateTime(currentYear - 1, currentMonth, 1);
+                    if (newDate.isAfter(widget.firstDate) ||
+                        isSameYearMonth(newDate, widget.firstDate)) {
+                      setState(() => selectedDate = newDate);
+                    }
+                  },
+                ),
+                Text(
+                  currentYear.toString(),
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios, size: 18),
+                  onPressed: () {
+                    final newDate = DateTime(currentYear + 1, currentMonth, 1);
+                    if (newDate.isBefore(widget.lastDate) ||
+                        isSameYearMonth(newDate, widget.lastDate)) {
+                      setState(() => selectedDate = newDate);
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Month grid
+            Expanded(
+              child: GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 1.5,
+                ),
+                itemCount: 12,
+                itemBuilder: (context, index) {
+                  final month = index + 1;
+                  final monthDate = DateTime(currentYear, month, 1);
+                  final isSelected = month == currentMonth;
+                  final isDisabled = isMonthDisabled(monthDate);
+
+                  return InkWell(
+                    onTap: isDisabled
+                        ? null
+                        : () {
+                            setState(() =>
+                                selectedDate = DateTime(currentYear, month, 1));
+                          },
+                    child: Container(
+                      margin: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: isSelected ? theme.colorScheme.primary : null,
+                        borderRadius: BorderRadius.circular(8),
+                        border: isSelected
+                            ? null
+                            : Border.all(color: theme.dividerColor),
+                      ),
+                      child: Center(
+                        child: Text(
+                          DateFormat('MMM')
+                              .format(DateTime(currentYear, month)),
+                          style: TextStyle(
+                            color: isSelected
+                                ? theme.colorScheme.onPrimary
+                                : isDisabled
+                                    ? theme.disabledColor
+                                    : theme.colorScheme.onSurface,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(selectedDate),
+          child: const Text('Select'),
+        ),
+      ],
+    );
+  }
+
+  bool isMonthDisabled(DateTime date) {
+    final firstYear = widget.firstDate.year;
+    final firstMonth = widget.firstDate.month;
+    final lastYear = widget.lastDate.year;
+    final lastMonth = widget.lastDate.month;
+
+    // Check if date is before firstDate or after lastDate
+    if (date.year < firstYear ||
+        (date.year == firstYear && date.month < firstMonth)) {
+      return true;
+    }
+    if (date.year > lastYear ||
+        (date.year == lastYear && date.month > lastMonth)) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isSameYearMonth(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && date1.month == date2.month;
+  }
+}
+
+// Helper function to show the month picker dialog
+Future<DateTime?> showMonthPicker({
+  required BuildContext context,
+  required DateTime initialDate,
+  DateTime? firstDate,
+  DateTime? lastDate,
+}) async {
+  firstDate ??= DateTime(initialDate.year - 5, 1);
+  lastDate ??= DateTime(initialDate.year + 5, 12, 31);
+
+  return showDialog<DateTime>(
+      context: context,
+      builder: (context) => MonthPicker(
+            initialDate: initialDate,
+            firstDate: firstDate!,
+            lastDate: lastDate!,
+          ));
+}

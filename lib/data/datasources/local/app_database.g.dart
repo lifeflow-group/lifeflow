@@ -14,10 +14,10 @@ class $HabitCategoriesTableTable extends HabitCategoriesTable
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
-  late final GeneratedColumn<String> label = GeneratedColumn<String>(
-      'label', aliasedName, false,
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _iconPathMeta =
       const VerificationMeta('iconPath');
@@ -25,8 +25,14 @@ class $HabitCategoriesTableTable extends HabitCategoriesTable
   late final GeneratedColumn<String> iconPath = GeneratedColumn<String>(
       'icon_path', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _colorHexMeta =
+      const VerificationMeta('colorHex');
   @override
-  List<GeneratedColumn> get $columns => [id, label, iconPath];
+  late final GeneratedColumn<String> colorHex = GeneratedColumn<String>(
+      'color_hex', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, iconPath, colorHex];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -43,17 +49,23 @@ class $HabitCategoriesTableTable extends HabitCategoriesTable
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('label')) {
+    if (data.containsKey('name')) {
       context.handle(
-          _labelMeta, label.isAcceptableOrUnknown(data['label']!, _labelMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
-      context.missing(_labelMeta);
+      context.missing(_nameMeta);
     }
     if (data.containsKey('icon_path')) {
       context.handle(_iconPathMeta,
           iconPath.isAcceptableOrUnknown(data['icon_path']!, _iconPathMeta));
     } else if (isInserting) {
       context.missing(_iconPathMeta);
+    }
+    if (data.containsKey('color_hex')) {
+      context.handle(_colorHexMeta,
+          colorHex.isAcceptableOrUnknown(data['color_hex']!, _colorHexMeta));
+    } else if (isInserting) {
+      context.missing(_colorHexMeta);
     }
     return context;
   }
@@ -67,10 +79,12 @@ class $HabitCategoriesTableTable extends HabitCategoriesTable
     return HabitCategoriesTableData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      label: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}label'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       iconPath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}icon_path'])!,
+      colorHex: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}color_hex'])!,
     );
   }
 
@@ -83,24 +97,30 @@ class $HabitCategoriesTableTable extends HabitCategoriesTable
 class HabitCategoriesTableData extends DataClass
     implements Insertable<HabitCategoriesTableData> {
   final String id;
-  final String label;
+  final String name;
   final String iconPath;
+  final String colorHex;
   const HabitCategoriesTableData(
-      {required this.id, required this.label, required this.iconPath});
+      {required this.id,
+      required this.name,
+      required this.iconPath,
+      required this.colorHex});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['label'] = Variable<String>(label);
+    map['name'] = Variable<String>(name);
     map['icon_path'] = Variable<String>(iconPath);
+    map['color_hex'] = Variable<String>(colorHex);
     return map;
   }
 
   HabitCategoriesTableCompanion toCompanion(bool nullToAbsent) {
     return HabitCategoriesTableCompanion(
       id: Value(id),
-      label: Value(label),
+      name: Value(name),
       iconPath: Value(iconPath),
+      colorHex: Value(colorHex),
     );
   }
 
@@ -109,8 +129,9 @@ class HabitCategoriesTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return HabitCategoriesTableData(
       id: serializer.fromJson<String>(json['id']),
-      label: serializer.fromJson<String>(json['label']),
+      name: serializer.fromJson<String>(json['name']),
       iconPath: serializer.fromJson<String>(json['iconPath']),
+      colorHex: serializer.fromJson<String>(json['colorHex']),
     );
   }
   @override
@@ -118,24 +139,27 @@ class HabitCategoriesTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'label': serializer.toJson<String>(label),
+      'name': serializer.toJson<String>(name),
       'iconPath': serializer.toJson<String>(iconPath),
+      'colorHex': serializer.toJson<String>(colorHex),
     };
   }
 
   HabitCategoriesTableData copyWith(
-          {String? id, String? label, String? iconPath}) =>
+          {String? id, String? name, String? iconPath, String? colorHex}) =>
       HabitCategoriesTableData(
         id: id ?? this.id,
-        label: label ?? this.label,
+        name: name ?? this.name,
         iconPath: iconPath ?? this.iconPath,
+        colorHex: colorHex ?? this.colorHex,
       );
   HabitCategoriesTableData copyWithCompanion(
       HabitCategoriesTableCompanion data) {
     return HabitCategoriesTableData(
       id: data.id.present ? data.id.value : this.id,
-      label: data.label.present ? data.label.value : this.label,
+      name: data.name.present ? data.name.value : this.name,
       iconPath: data.iconPath.present ? data.iconPath.value : this.iconPath,
+      colorHex: data.colorHex.present ? data.colorHex.value : this.colorHex,
     );
   }
 
@@ -143,66 +167,76 @@ class HabitCategoriesTableData extends DataClass
   String toString() {
     return (StringBuffer('HabitCategoriesTableData(')
           ..write('id: $id, ')
-          ..write('label: $label, ')
-          ..write('iconPath: $iconPath')
+          ..write('name: $name, ')
+          ..write('iconPath: $iconPath, ')
+          ..write('colorHex: $colorHex')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, label, iconPath);
+  int get hashCode => Object.hash(id, name, iconPath, colorHex);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is HabitCategoriesTableData &&
           other.id == this.id &&
-          other.label == this.label &&
-          other.iconPath == this.iconPath);
+          other.name == this.name &&
+          other.iconPath == this.iconPath &&
+          other.colorHex == this.colorHex);
 }
 
 class HabitCategoriesTableCompanion
     extends UpdateCompanion<HabitCategoriesTableData> {
   final Value<String> id;
-  final Value<String> label;
+  final Value<String> name;
   final Value<String> iconPath;
+  final Value<String> colorHex;
   final Value<int> rowid;
   const HabitCategoriesTableCompanion({
     this.id = const Value.absent(),
-    this.label = const Value.absent(),
+    this.name = const Value.absent(),
     this.iconPath = const Value.absent(),
+    this.colorHex = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   HabitCategoriesTableCompanion.insert({
     required String id,
-    required String label,
+    required String name,
     required String iconPath,
+    required String colorHex,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        label = Value(label),
-        iconPath = Value(iconPath);
+        name = Value(name),
+        iconPath = Value(iconPath),
+        colorHex = Value(colorHex);
   static Insertable<HabitCategoriesTableData> custom({
     Expression<String>? id,
-    Expression<String>? label,
+    Expression<String>? name,
     Expression<String>? iconPath,
+    Expression<String>? colorHex,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (label != null) 'label': label,
+      if (name != null) 'name': name,
       if (iconPath != null) 'icon_path': iconPath,
+      if (colorHex != null) 'color_hex': colorHex,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   HabitCategoriesTableCompanion copyWith(
       {Value<String>? id,
-      Value<String>? label,
+      Value<String>? name,
       Value<String>? iconPath,
+      Value<String>? colorHex,
       Value<int>? rowid}) {
     return HabitCategoriesTableCompanion(
       id: id ?? this.id,
-      label: label ?? this.label,
+      name: name ?? this.name,
       iconPath: iconPath ?? this.iconPath,
+      colorHex: colorHex ?? this.colorHex,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -213,11 +247,14 @@ class HabitCategoriesTableCompanion
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (label.present) {
-      map['label'] = Variable<String>(label.value);
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
     if (iconPath.present) {
       map['icon_path'] = Variable<String>(iconPath.value);
+    }
+    if (colorHex.present) {
+      map['color_hex'] = Variable<String>(colorHex.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -229,8 +266,9 @@ class HabitCategoriesTableCompanion
   String toString() {
     return (StringBuffer('HabitCategoriesTableCompanion(')
           ..write('id: $id, ')
-          ..write('label: $label, ')
+          ..write('name: $name, ')
           ..write('iconPath: $iconPath, ')
+          ..write('colorHex: $colorHex, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1710,15 +1748,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$HabitCategoriesTableTableCreateCompanionBuilder
     = HabitCategoriesTableCompanion Function({
   required String id,
-  required String label,
+  required String name,
   required String iconPath,
+  required String colorHex,
   Value<int> rowid,
 });
 typedef $$HabitCategoriesTableTableUpdateCompanionBuilder
     = HabitCategoriesTableCompanion Function({
   Value<String> id,
-  Value<String> label,
+  Value<String> name,
   Value<String> iconPath,
+  Value<String> colorHex,
   Value<int> rowid,
 });
 
@@ -1755,11 +1795,14 @@ class $$HabitCategoriesTableTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get label => $composableBuilder(
-      column: $table.label, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get iconPath => $composableBuilder(
       column: $table.iconPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get colorHex => $composableBuilder(
+      column: $table.colorHex, builder: (column) => ColumnFilters(column));
 
   Expression<bool> habitsTableRefs(
       Expression<bool> Function($$HabitsTableTableFilterComposer f) f) {
@@ -1795,11 +1838,14 @@ class $$HabitCategoriesTableTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get label => $composableBuilder(
-      column: $table.label, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get iconPath => $composableBuilder(
       column: $table.iconPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get colorHex => $composableBuilder(
+      column: $table.colorHex, builder: (column) => ColumnOrderings(column));
 }
 
 class $$HabitCategoriesTableTableAnnotationComposer
@@ -1814,11 +1860,14 @@ class $$HabitCategoriesTableTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get label =>
-      $composableBuilder(column: $table.label, builder: (column) => column);
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<String> get iconPath =>
       $composableBuilder(column: $table.iconPath, builder: (column) => column);
+
+  GeneratedColumn<String> get colorHex =>
+      $composableBuilder(column: $table.colorHex, builder: (column) => column);
 
   Expression<T> habitsTableRefs<T extends Object>(
       Expression<T> Function($$HabitsTableTableAnnotationComposer a) f) {
@@ -1869,26 +1918,30 @@ class $$HabitCategoriesTableTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> label = const Value.absent(),
+            Value<String> name = const Value.absent(),
             Value<String> iconPath = const Value.absent(),
+            Value<String> colorHex = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               HabitCategoriesTableCompanion(
             id: id,
-            label: label,
+            name: name,
             iconPath: iconPath,
+            colorHex: colorHex,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
-            required String label,
+            required String name,
             required String iconPath,
+            required String colorHex,
             Value<int> rowid = const Value.absent(),
           }) =>
               HabitCategoriesTableCompanion.insert(
             id: id,
-            label: label,
+            name: name,
             iconPath: iconPath,
+            colorHex: colorHex,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

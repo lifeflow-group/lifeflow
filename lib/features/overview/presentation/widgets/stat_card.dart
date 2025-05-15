@@ -5,17 +5,17 @@ class StatCard extends StatefulWidget {
   final String title;
   final String amount;
   final bool isHighlighted;
-  final IconData arrowIcon;
-  final Color arrowColor;
+  final IconData? arrowIcon;
+  final Color? arrowColor;
 
   const StatCard({
-    super.key, // It's good practice to include a Key
+    super.key,
     required this.iconWidget,
     required this.title,
     required this.amount,
     required this.isHighlighted,
-    required this.arrowIcon,
-    required this.arrowColor,
+    this.arrowIcon,
+    this.arrowColor,
   });
 
   @override
@@ -23,24 +23,21 @@ class StatCard extends StatefulWidget {
 }
 
 class _StatCardState extends State<StatCard> {
-  // If you needed to manage internal state for this card,
-  // you would declare variables here. For this specific conversion,
-  // there's no internal state managed by the card itself yet,
-  // as all data is passed in.
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.only(top: 16, bottom: 14, left: 14, right: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: widget.isHighlighted // Access properties using 'widget.'
-            ? Border.all(color: Colors.pink.shade300, width: 1.5)
+        border: widget.isHighlighted
+            ? Border.all(color: theme.colorScheme.primary, width: 1.5)
             : null,
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withAlpha(38),
+              color: theme.colorScheme.shadow.withAlpha(38), // 0.15 * 255 = 38
               spreadRadius: 1,
               blurRadius: 8,
               offset: const Offset(0, 2)),
@@ -51,26 +48,24 @@ class _StatCardState extends State<StatCard> {
         children: [
           Row(
             children: [
-              widget.iconWidget, // Access properties using 'widget.'
+              widget.iconWidget,
               const SizedBox(width: 8),
-              Text(widget.title, // Access properties using 'widget.'
-                  style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+              Text(widget.title,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface.withAlpha(179))),
               const Spacer(),
-              Icon(widget.arrowIcon, // Access properties using 'widget.'
-                  color: widget.arrowColor, // Access properties using 'widget.'
-                  size: 18),
+              widget.arrowIcon != null
+                  ? Icon(widget.arrowIcon, color: widget.arrowColor, size: 18)
+                  : SizedBox(),
             ],
           ),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.only(left: 2.0),
-            child: Text(
-              widget.amount, // Access properties using 'widget.'
-              style: const TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87),
-            ),
+            child: Text(widget.amount,
+                style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface)),
           ),
         ],
       ),

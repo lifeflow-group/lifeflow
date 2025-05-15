@@ -16,8 +16,6 @@ import 'package:mocktail/mocktail.dart';
 import '../services/notification_service_test.dart';
 import 'home_controller_test.dart';
 
-class FakeHabit extends Fake implements Habit {}
-
 void main() {
   late AppDatabase db;
   late ProviderContainer container;
@@ -33,7 +31,7 @@ void main() {
   final exceptionId = generateNewId('habit');
 
   setUpAll(() {
-    registerFallbackValue(FakeHabit());
+    registerFallbackValue(Habit());
   });
 
   setUp(() async {
@@ -54,8 +52,9 @@ void main() {
     await db.habitCategoriesTable.insertOne(
       HabitCategoriesTableCompanion.insert(
         id: categoryId,
-        label: 'Study',
+        name: 'Study',
         iconPath: 'assets/icons/study.png',
+        colorHex: '#FF5733',
       ),
     );
 

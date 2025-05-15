@@ -231,8 +231,9 @@ void main() {
       reminderEnabled: true,
       category: HabitCategory((p0) => p0
         ..id = 'category-1'
-        ..label = 'Health'
-        ..iconPath = 'assets/icons/health.png'),
+        ..name = 'Health'
+        ..iconPath = 'assets/icons/health.png'
+        ..colorHex = '#FF5733'),
     );
 
     final habitSeries = newHabitSeries(

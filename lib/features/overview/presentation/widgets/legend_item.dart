@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LegendItem extends StatelessWidget {
-  final IconData icon;
+  final String iconPath;
   final Color iconColor;
   final Color percentageColor;
   final String percentage;
@@ -10,7 +10,7 @@ class LegendItem extends StatelessWidget {
 
   const LegendItem({
     super.key,
-    required this.icon,
+    required this.iconPath,
     required this.iconColor,
     required this.percentageColor,
     required this.percentage,
@@ -20,6 +20,8 @@ class LegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment:
           isRightAligned ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -28,18 +30,17 @@ class LegendItem extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: iconColor, size: 17),
+            Image.asset(iconPath, width: 17, height: 17),
             const SizedBox(width: 8),
             Text(percentage,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: percentageColor)),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold, color: percentageColor))
           ],
         ),
         const SizedBox(height: 2),
         Text(label,
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: theme.colorScheme.onSurface.withAlpha(153)),
             overflow: TextOverflow.ellipsis,
             maxLines: 1),
       ],

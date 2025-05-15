@@ -121,7 +121,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                             const SizedBox(width: 8),
                           ],
                           Text(
-                            habitCategory?.label ?? "Select a category",
+                            habitCategory?.name ?? "Select a category",
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium

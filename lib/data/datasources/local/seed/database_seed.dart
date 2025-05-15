@@ -12,8 +12,9 @@ Future<void> seedDefaultCategories(AppDatabase db) async {
       await db.categoryDao.insertCategory(
         HabitCategoriesTableCompanion.insert(
           id: category.id,
-          label: category.label,
+          name: category.name,
           iconPath: category.iconPath,
+          colorHex: category.colorHex,
         ),
       );
     }

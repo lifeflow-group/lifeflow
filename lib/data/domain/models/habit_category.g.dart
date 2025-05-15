@@ -21,11 +21,13 @@ class _$HabitCategorySerializer implements StructuredSerializer<HabitCategory> {
     final result = <Object?>[
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(String)),
-      'label',
-      serializers.serialize(object.label,
-          specifiedType: const FullType(String)),
+      'name',
+      serializers.serialize(object.name, specifiedType: const FullType(String)),
       'iconPath',
       serializers.serialize(object.iconPath,
+          specifiedType: const FullType(String)),
+      'colorHex',
+      serializers.serialize(object.colorHex,
           specifiedType: const FullType(String)),
     ];
 
@@ -48,12 +50,16 @@ class _$HabitCategorySerializer implements StructuredSerializer<HabitCategory> {
           result.id = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
-        case 'label':
-          result.label = serializers.deserialize(value,
+        case 'name':
+          result.name = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
         case 'iconPath':
           result.iconPath = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
+        case 'colorHex':
+          result.colorHex = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
       }
@@ -67,20 +73,27 @@ class _$HabitCategory extends HabitCategory {
   @override
   final String id;
   @override
-  final String label;
+  final String name;
   @override
   final String iconPath;
+  @override
+  final String colorHex;
 
   factory _$HabitCategory([void Function(HabitCategoryBuilder)? updates]) =>
       (new HabitCategoryBuilder()..update(updates))._build();
 
   _$HabitCategory._(
-      {required this.id, required this.label, required this.iconPath})
+      {required this.id,
+      required this.name,
+      required this.iconPath,
+      required this.colorHex})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(id, r'HabitCategory', 'id');
-    BuiltValueNullFieldError.checkNotNull(label, r'HabitCategory', 'label');
+    BuiltValueNullFieldError.checkNotNull(name, r'HabitCategory', 'name');
     BuiltValueNullFieldError.checkNotNull(
         iconPath, r'HabitCategory', 'iconPath');
+    BuiltValueNullFieldError.checkNotNull(
+        colorHex, r'HabitCategory', 'colorHex');
   }
 
   @override
@@ -95,16 +108,18 @@ class _$HabitCategory extends HabitCategory {
     if (identical(other, this)) return true;
     return other is HabitCategory &&
         id == other.id &&
-        label == other.label &&
-        iconPath == other.iconPath;
+        name == other.name &&
+        iconPath == other.iconPath &&
+        colorHex == other.colorHex;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
     _$hash = $jc(_$hash, id.hashCode);
-    _$hash = $jc(_$hash, label.hashCode);
+    _$hash = $jc(_$hash, name.hashCode);
     _$hash = $jc(_$hash, iconPath.hashCode);
+    _$hash = $jc(_$hash, colorHex.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -113,8 +128,9 @@ class _$HabitCategory extends HabitCategory {
   String toString() {
     return (newBuiltValueToStringHelper(r'HabitCategory')
           ..add('id', id)
-          ..add('label', label)
-          ..add('iconPath', iconPath))
+          ..add('name', name)
+          ..add('iconPath', iconPath)
+          ..add('colorHex', colorHex))
         .toString();
   }
 }
@@ -127,13 +143,17 @@ class HabitCategoryBuilder
   String? get id => _$this._id;
   set id(String? id) => _$this._id = id;
 
-  String? _label;
-  String? get label => _$this._label;
-  set label(String? label) => _$this._label = label;
+  String? _name;
+  String? get name => _$this._name;
+  set name(String? name) => _$this._name = name;
 
   String? _iconPath;
   String? get iconPath => _$this._iconPath;
   set iconPath(String? iconPath) => _$this._iconPath = iconPath;
+
+  String? _colorHex;
+  String? get colorHex => _$this._colorHex;
+  set colorHex(String? colorHex) => _$this._colorHex = colorHex;
 
   HabitCategoryBuilder();
 
@@ -141,8 +161,9 @@ class HabitCategoryBuilder
     final $v = _$v;
     if ($v != null) {
       _id = $v.id;
-      _label = $v.label;
+      _name = $v.name;
       _iconPath = $v.iconPath;
+      _colorHex = $v.colorHex;
       _$v = null;
     }
     return this;
@@ -166,10 +187,12 @@ class HabitCategoryBuilder
     final _$result = _$v ??
         new _$HabitCategory._(
           id: BuiltValueNullFieldError.checkNotNull(id, r'HabitCategory', 'id'),
-          label: BuiltValueNullFieldError.checkNotNull(
-              label, r'HabitCategory', 'label'),
+          name: BuiltValueNullFieldError.checkNotNull(
+              name, r'HabitCategory', 'name'),
           iconPath: BuiltValueNullFieldError.checkNotNull(
               iconPath, r'HabitCategory', 'iconPath'),
+          colorHex: BuiltValueNullFieldError.checkNotNull(
+              colorHex, r'HabitCategory', 'colorHex'),
         );
     replace(_$result);
     return _$result;

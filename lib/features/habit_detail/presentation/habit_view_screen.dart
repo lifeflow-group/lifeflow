@@ -129,7 +129,7 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                         ?.copyWith(fontWeight: FontWeight.w500))),
             ViewRow(
                 label: "Category",
-                valueText: habitCategory?.label ?? '',
+                valueText: habitCategory?.name ?? '',
                 valueIcon: habitCategory != null
                     ? Image.asset(habitCategory.iconPath, width: 24, height: 24)
                     : null),

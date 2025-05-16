@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../data/services/user_service.dart';
+import '../../settings/controllers/settings_controller.dart';
 import '../controllers/login_controller.dart';
 import 'widgets/social_button.dart';
 
@@ -151,7 +152,10 @@ class LoginScreen extends ConsumerWidget {
                         ),
                         onPressed: () async {
                           final userService = ref.read(userServiceProvider);
-                          await userService.loginAsGuest();
+                          final userId = await userService.loginAsGuest();
+                          await ref
+                              .read(settingsControllerProvider.notifier)
+                              .loadUserSettings(userId);
                           if (context.mounted) {
                             context.go('/');
                           }

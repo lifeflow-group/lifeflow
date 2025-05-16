@@ -64,6 +64,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ],
         ),
         child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
           selectedItemColor: Theme.of(context).primaryColor,
           unselectedItemColor: Theme.of(context).colorScheme.onSecondary,
           showUnselectedLabels: true,

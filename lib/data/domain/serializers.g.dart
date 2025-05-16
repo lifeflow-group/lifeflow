@@ -7,6 +7,7 @@ part of 'serializers.dart';
 // **************************************************************************
 
 Serializers _$serializers = (new Serializers().toBuilder()
+      ..add(AppSettings.serializer)
       ..add(Habit.serializer)
       ..add(HabitAnalysisInput.serializer)
       ..add(HabitCategory.serializer)
@@ -16,6 +17,7 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(RepeatFrequency.serializer)
       ..add(Suggestion.serializer)
       ..add(TrackingType.serializer)
+      ..add(WeekStartDay.serializer)
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(HabitData)]),
           () => new ListBuilder<HabitData>())

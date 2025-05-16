@@ -3,6 +3,7 @@ import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
 
 import 'flexible_datetime_serializer.dart';
+import 'models/app_settings.dart';
 import 'models/habit.dart';
 import 'models/habit_analysis_input.dart';
 import 'models/habit_category.dart';
@@ -22,6 +23,8 @@ part 'serializers.g.dart';
   HabitException,
   HabitAnalysisInput,
   HabitData,
+  WeekStartDay,
+  AppSettings,
 ])
 final Serializers serializers = (_$serializers.toBuilder()
       ..add(FlexibleDateTimeSerializer())

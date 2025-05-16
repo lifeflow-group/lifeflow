@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../data/controllers/notification_handler.dart';
 import '../../../data/services/user_service.dart';
+import '../../settings/controllers/settings_controller.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -25,6 +26,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final userService = ref.read(userServiceProvider);
     final userId = await userService.getCurrentUserId();
     final payload = NotificationHandler().consumeInitialPayload();
+
+    // Load user settings after getting userId
+    if (userId != null) {
+      await ref
+          .read(settingsControllerProvider.notifier)
+          .loadUserSettings(userId);
+    }
 
     // Delay 2s to show splash screen
     Timer(Duration(seconds: 2), () {

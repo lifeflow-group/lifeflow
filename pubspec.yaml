@@ -50,6 +50,7 @@ dependencies:
   mocktail: ^1.0.4
   flutter_slidable: ^4.0.0
   fl_chart: ^1.0.0
+  markdown_widget: ^2.3.2+8
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +82,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/logos/
+    - assets/terms/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

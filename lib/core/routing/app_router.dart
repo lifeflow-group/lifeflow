@@ -8,6 +8,7 @@ import '../../features/habit_detail/presentation/habit_detail_screen.dart';
 import '../../features/habit_detail/presentation/habit_view_screen.dart';
 import '../../features/login/presentation/login_screen.dart';
 import '../../features/main/presentation/main_screen.dart';
+import '../../features/settings/presentation/terms_of_use_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../constants/app_constants.dart';
 
@@ -42,6 +43,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           final habit = state.extra as Habit?;
           return HabitDetailScreen(habit: habit);
         },
+      ),
+      GoRoute(
+        path: '/terms-of-use',
+        builder: (context, state) => const TermsOfUseScreen(),
       ),
     ],
   );

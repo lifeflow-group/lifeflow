@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../controllers/settings_controller.dart';
 import 'widgets/settings_divider.dart';
@@ -139,6 +140,12 @@ class SettingsScreen extends ConsumerWidget {
                       onTap: () {
                         // Handle Change app language tap
                       },
+                    ),
+                    const SettingsDivider(),
+                    SettingsItem(
+                      icon: Icons.privacy_tip_outlined,
+                      title: 'Terms of use',
+                      onTap: () => context.push('/terms-of-use'),
                     ),
                   ],
                 ),

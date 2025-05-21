@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../data/services/user_service.dart';
 import '../../settings/controllers/settings_controller.dart';
@@ -12,6 +13,7 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final obscureText = ref.watch(obscureTextProvider);
     final controller = ref.read(loginControllerProvider);
 
@@ -37,7 +39,7 @@ class LoginScreen extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        'Log in with Account',
+                        l10n.loginTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontSize: 20, fontWeight: FontWeight.w600),
                       ),
@@ -48,7 +50,7 @@ class LoginScreen extends ConsumerWidget {
                             .titleMedium
                             ?.copyWith(fontWeight: FontWeight.normal),
                         decoration: InputDecoration(
-                          hintText: 'Username / Email',
+                          hintText: l10n.usernameHint,
                           hintStyle: Theme.of(context)
                               .textTheme
                               .titleMedium
@@ -83,7 +85,7 @@ class LoginScreen extends ConsumerWidget {
                             .titleMedium
                             ?.copyWith(fontWeight: FontWeight.normal),
                         decoration: InputDecoration(
-                          hintText: 'Password',
+                          hintText: l10n.passwordHint,
                           hintStyle: Theme.of(context)
                               .textTheme
                               .titleMedium
@@ -131,14 +133,15 @@ class LoginScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: Text('Log in',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary)),
+                        child: Text(
+                          l10n.loginButton,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
+                        ),
                       ),
                       SizedBox(height: 4),
                       ElevatedButton(
@@ -160,8 +163,10 @@ class LoginScreen extends ConsumerWidget {
                             context.go('/');
                           }
                         },
-                        child: Text('Continue as Guest',
-                            style: Theme.of(context).textTheme.titleMedium),
+                        child: Text(
+                          l10n.continueAsGuest,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                       ),
                       SizedBox(height: 4),
                       // Reset password
@@ -177,14 +182,16 @@ class LoginScreen extends ConsumerWidget {
                           onPressed: () {
                             // TODO: Implement reset password functionality
                           },
-                          child: Text('Forgot your password?',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .textSelectionTheme
-                                          .selectionHandleColor)),
+                          child: Text(
+                            l10n.forgotPassword,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .textSelectionTheme
+                                        .selectionHandleColor),
+                          ),
                         ),
                       ),
 
@@ -195,7 +202,7 @@ class LoginScreen extends ConsumerWidget {
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text('or'),
+                            child: Text(l10n.orSeparator),
                           ),
                           Expanded(child: Divider()),
                         ],
@@ -207,7 +214,7 @@ class LoginScreen extends ConsumerWidget {
                       SocialButton(
                         color: Theme.of(context).colorScheme.surface,
                         textColor: Theme.of(context).colorScheme.onSurface,
-                        text: "Continue with Facebook",
+                        text: l10n.continueWithFacebook,
                         iconWidget: Image.asset(
                           'assets/logos/facebook.png',
                           width: 32,
@@ -223,7 +230,7 @@ class LoginScreen extends ConsumerWidget {
                       SizedBox(height: 16),
                       SocialButton(
                         color: Theme.of(context).colorScheme.surface,
-                        text: "Continue with Google",
+                        text: l10n.continueWithGoogle,
                         iconWidget: Image.asset(
                           'assets/logos/google.png',
                           width: 32,
@@ -242,7 +249,7 @@ class LoginScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Don't have an account?",
+                            l10n.noAccount,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           TextButton(
@@ -255,14 +262,16 @@ class LoginScreen extends ConsumerWidget {
                             onPressed: () {
                               // TODO: Navigate to the Sign Up screen
                             },
-                            child: Text('Sign up',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .textSelectionTheme
-                                            .selectionHandleColor)),
+                            child: Text(
+                              l10n.signUpButton,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .textSelectionTheme
+                                          .selectionHandleColor),
+                            ),
                           ),
                         ],
                       ),

@@ -62,7 +62,7 @@ class _$AppSettingsSerializer implements StructuredSerializer<AppSettings> {
           specifiedType: const FullType(WeekStartDay)),
       'language',
       serializers.serialize(object.language,
-          specifiedType: const FullType(String)),
+          specifiedType: const FullType(Language)),
     ];
 
     return result;
@@ -84,8 +84,8 @@ class _$AppSettingsSerializer implements StructuredSerializer<AppSettings> {
               specifiedType: const FullType(WeekStartDay))! as WeekStartDay;
           break;
         case 'language':
-          result.language = serializers.deserialize(value,
-              specifiedType: const FullType(String))! as String;
+          result.language.replace(serializers.deserialize(value,
+              specifiedType: const FullType(Language))! as Language);
           break;
       }
     }
@@ -98,7 +98,7 @@ class _$AppSettings extends AppSettings {
   @override
   final WeekStartDay weekStartDay;
   @override
-  final String language;
+  final Language language;
 
   factory _$AppSettings([void Function(AppSettingsBuilder)? updates]) =>
       (new AppSettingsBuilder()..update(updates))._build();
@@ -151,9 +151,9 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
   set weekStartDay(WeekStartDay? weekStartDay) =>
       _$this._weekStartDay = weekStartDay;
 
-  String? _language;
-  String? get language => _$this._language;
-  set language(String? language) => _$this._language = language;
+  LanguageBuilder? _language;
+  LanguageBuilder get language => _$this._language ??= new LanguageBuilder();
+  set language(LanguageBuilder? language) => _$this._language = language;
 
   AppSettingsBuilder() {
     AppSettings._setDefaults(this);
@@ -163,7 +163,7 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
     final $v = _$v;
     if ($v != null) {
       _weekStartDay = $v.weekStartDay;
-      _language = $v.language;
+      _language = $v.language.toBuilder();
       _$v = null;
     }
     return this;
@@ -184,13 +184,25 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
   AppSettings build() => _build();
 
   _$AppSettings _build() {
-    final _$result = _$v ??
-        new _$AppSettings._(
-          weekStartDay: BuiltValueNullFieldError.checkNotNull(
-              weekStartDay, r'AppSettings', 'weekStartDay'),
-          language: BuiltValueNullFieldError.checkNotNull(
-              language, r'AppSettings', 'language'),
-        );
+    _$AppSettings _$result;
+    try {
+      _$result = _$v ??
+          new _$AppSettings._(
+            weekStartDay: BuiltValueNullFieldError.checkNotNull(
+                weekStartDay, r'AppSettings', 'weekStartDay'),
+            language: language.build(),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'language';
+        language.build();
+      } catch (e) {
+        throw new BuiltValueNestedFieldError(
+            r'AppSettings', _$failedField, e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

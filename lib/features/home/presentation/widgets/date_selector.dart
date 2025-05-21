@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/app_settings.dart';
 import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/home_controller.dart';
@@ -39,7 +39,7 @@ class DateSelector extends ConsumerWidget {
                 },
               ),
               Text(
-                DateFormat('MMMM yyyy').format(selectedDate),
+                formatDateWithUserLanguage(ref, selectedDate, 'MMMM yyyy'),
                 style: Theme.of(context)
                     .textTheme
                     .bodyLarge
@@ -79,7 +79,7 @@ class DateSelector extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(DateFormat.E().format(date),
+                        Text(formatDateWithUserLanguage(ref, date, 'E'),
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium

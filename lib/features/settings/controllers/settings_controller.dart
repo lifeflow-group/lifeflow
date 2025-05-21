@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/domain/models/app_settings.dart';
+import '../../../data/domain/models/language.dart';
 import '../repositories/settings_repository.dart';
 import '../../../data/services/user_service.dart';
 
@@ -42,6 +43,26 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
       // Optimistic update
       final updatedSettings =
           (state.value ?? AppSettings()).rebuild((b) => b..weekStartDay = day);
+      // Persist changes
+      await _settingsRepo.saveUserSettings(_currentUserId!, updatedSettings);
+      state = AsyncValue.data(updatedSettings);
+    } catch (e) {
+      // Revert on error or show error
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
+
+  Future<void> setLanguage(Language language) async {
+    _currentUserId ??= await _userService.getCurrentUserId();
+    if (_currentUserId == null) {
+      state = AsyncValue.error('User ID is null', StackTrace.current);
+      return;
+    }
+
+    try {
+      // Optimistic update
+      final updatedSettings = (state.value ?? AppSettings())
+          .rebuild((b) => b..language = language.toBuilder());
       // Persist changes
       await _settingsRepo.saveUserSettings(_currentUserId!, updatedSettings);
       state = AsyncValue.data(updatedSettings);

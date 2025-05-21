@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../core/utils/helpers.dart';
 import '../../../data/controllers/habit_controller.dart';
@@ -44,9 +45,11 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     final habit = ref.watch(habitProvider);
-    final repeat =
-        getRepeatFrequencyLabel(ref.watch(habitRepeatFrequencyProvider));
+    final repeat = getRepeatFrequencyLabel(
+        context, ref.watch(habitRepeatFrequencyProvider));
     final date = DateFormat('dd/MM/yyyy').format(ref.watch(habitDateProvider));
     final time = ref.watch(habitTimeProvider).format(context);
     final isCompleted = ref.watch(habitIsCompletedProvider);
@@ -73,7 +76,7 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                     ref: ref),
                 child: Text(
                   trackingType == TrackingType.progress
-                      ? '$currentValue/$targetValue $unit'
+                      ? l10n.progressFormat(currentValue, targetValue, unit)
                       : '',
                   style: Theme.of(context).textTheme.titleMedium,
                 ))
@@ -128,17 +131,18 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                         .titleLarge
                         ?.copyWith(fontWeight: FontWeight.w500))),
             ViewRow(
-                label: "Category",
-                valueText: habitCategory?.name ?? '',
+                label: l10n.categoryLabel,
+                valueText: habitCategory?.getLocalizedName(context) ?? '',
                 valueIcon: habitCategory != null
                     ? Image.asset(habitCategory.iconPath, width: 24, height: 24)
                     : null),
-            ViewRow(label: "Date", valueText: date),
-            ViewRow(label: "Time", valueText: time),
-            ViewRow(label: "Repeat", valueText: repeat),
+            ViewRow(label: l10n.dateLabel, valueText: date),
+            ViewRow(label: l10n.timeViewLabel, valueText: time),
+            ViewRow(label: l10n.repeatViewLabel, valueText: repeat),
             ViewRow(
-                label: "Reminder",
-                valueText: habitReminder ? "Enabled" : "Disabled"),
+                label: l10n.reminderLabel,
+                valueText:
+                    habitReminder ? l10n.enabledLabel : l10n.disabledLabel),
             const SizedBox(height: 16),
             Container(
               color:
@@ -157,7 +161,7 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                             await handleDeleteHabit(context, ref, habit);
                         if (isDeleted && context.mounted) context.pop();
                       },
-                      child: Text("Delete",
+                      child: Text(l10n.deleteButton,
                           style: Theme.of(context).textTheme.titleMedium),
                     ),
                   ),
@@ -177,7 +181,7 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                           context.pop(result);
                         }
                       },
-                      child: Text("Edit",
+                      child: Text(l10n.editButton,
                           style: Theme.of(context).textTheme.titleMedium),
                     ),
                   ),
@@ -196,11 +200,13 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
     required Habit? habit,
     required int currentValue,
   }) async {
+    final l10n = AppLocalizations.of(context)!;
+
     if (habit == null) return;
     final newValue = await showDialog<int?>(
         context: context,
         builder: (context) => EnterNumberDialog(
-            currentValue: currentValue, title: 'Update Progress'));
+            currentValue: currentValue, title: l10n.updateProgressTitle));
     if (newValue == null) return;
 
     final controllerProvider = ref.read(habitControllerProvider);

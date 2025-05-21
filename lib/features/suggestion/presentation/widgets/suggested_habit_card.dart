@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:lifeflow/core/utils/helpers.dart';
 
 import '../../../../data/domain/models/habit.dart';
 import '../../../../data/domain/models/habit_analysis_input.dart';
@@ -81,7 +83,7 @@ class SuggestedHabitCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
             child: Center(
               child: Text(
-                _buildSubtitle(habit),
+                _buildSubtitle(context, habit),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -92,10 +94,14 @@ class SuggestedHabitCard extends StatelessWidget {
   }
 
   // Function to build subtitle text dynamically
-  String _buildSubtitle(HabitData habit) {
-    String repeatText = "Repeats every ${habit.repeatFrequency?.name}.";
+  String _buildSubtitle(BuildContext context, HabitData habit) {
+    final l10n = AppLocalizations.of(context)!;
+
+    String frequency = getRepeatFrequencyLabel(context, habit.repeatFrequency);
+
+    String repeatText = l10n.repeatsEvery(frequency);
     String reminderText =
-        habit.reminderEnabled ? "Has Reminder." : "No Reminder.";
+        habit.reminderEnabled ? l10n.hasReminder : l10n.noReminder;
     return "$repeatText $reminderText";
   }
 }

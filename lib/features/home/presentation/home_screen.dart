@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../shared/actions/habit_actions.dart';
 import '../controllers/home_controller.dart';
@@ -13,6 +14,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final habitsAsync = ref.watch(homeControllerProvider);
 
     return SafeArea(
@@ -23,14 +25,20 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             habitsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text('Error: $error')),
+              error: (error, stack) => Center(
+                child: Text(l10n.errorMessage(error.toString())),
+              ),
               data: (habits) {
                 if (habits.isEmpty) {
-                  return const Expanded(
+                  return Expanded(
                     child: Center(
                       child: Text(
-                        "No habits yet. Tap '+' to add your habit!",
-                        style: TextStyle(fontSize: 16),
+                        l10n.noHabitsMessage,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w400),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   );
@@ -68,7 +76,7 @@ class HomeScreen extends ConsumerWidget {
                                     children: [
                                       Icon(Icons.delete),
                                       const SizedBox(width: 8),
-                                      Text('Delete',
+                                      Text(l10n.deleteButton,
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleMedium

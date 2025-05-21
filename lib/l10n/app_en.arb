@@ -1,0 +1,178 @@
+{
+  "appTitle": "LifeFlow",
+  "loading": "Loading...",
+  "errorMessage": "Error: {error}",
+  "@errorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "cancelButton": "Cancel",
+  "saveButton": "Save",
+  "selectButton": "Select",
+  "refreshButton": "Refresh",
+  "deleteButton": "Delete",
+  "editButton": "Edit",
+  "noData": "No data available",
+  "orSeparator": "or",
+  "enabledLabel": "Enabled",
+  "disabledLabel": "Disabled",
+
+  "navHome": "Home",
+  "navOverview": "Overview",
+  "navSuggestions": "Suggestions", 
+  "navSettings": "Settings",
+
+  "loginTitle": "Log in with Account",
+  "usernameHint": "Username / Email",
+  "passwordHint": "Password",
+  "loginButton": "Log in",
+  "continueAsGuest": "Continue as Guest",
+  "forgotPassword": "Forgot your password?",
+  "continueWithFacebook": "Continue with Facebook",
+  "continueWithGoogle": "Continue with Google",
+  "noAccount": "Don't have an account?",
+  "signUpButton": "Sign up",
+  "signUpOrLogin": "Sign up or log in",
+  "guestMode": "You are currently in guest mode",
+
+  "settings": "Settings",
+  "changeAppLanguage": "Change app language",
+  "languageTitle": "Language",
+  "weekStartsOnTitle": "Week starts on",
+  "mondayLabel": "Monday",
+  "sundayLabel": "Sunday",
+  "notifications": "Notifications",
+  "termsOfUse": "Terms of use",
+  "termsOfUseTitle": "Terms of Use",
+  "errorLoadingTerms": "Error loading terms: {error}",
+  "@errorLoadingTerms": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+
+  "languageSelectorTitle": "Select Language",
+  "englishLanguage": "English",
+  "vietnameseLanguage": "Vietnamese",
+  "spanishLanguage": "Spanish",
+  "frenchLanguage": "French",
+  "chineseLanguage": "Chinese",
+  "germanLanguage": "German",
+  "japaneseLanguage": "Japanese",
+  "russianLanguage": "Russian",
+  "hindiLanguage": "Hindi",
+  "koreanLanguage": "Korean",
+
+  "createHabitTitle": "Create Habit",
+  "editHabitTitle": "Edit Habit",
+  "habitNameLabel": "Habit Name",
+  "noHabitsMessage": "No habits yet. Tap '+' to add your habit!",
+  "saveHabitButton": "Save Habit",
+  "repeatsEvery": "Repeats every {frequency}",
+  "@repeatsEvery": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "hasReminder": "Has Reminder",
+  "noReminder": "No Reminder",
+
+  "selectCategoryLabel": "Select Category",
+  "selectACategoryDefault": "Select a category",
+  "selectDateLabel": "Select Date",
+  "timeLabel": "Time",
+  "repeatLabel": "Repeat",
+  "trackingTypeLabel": "Tracking Type",
+  "trackingTypeComplete": "Complete",
+  "trackingTypeProgress": "Progress",
+  "categoryLabel": "Category",
+  "dateLabel": "Date",
+  "timeViewLabel": "Time",
+  "repeatViewLabel": "Repeat",
+  "reminderLabel": "Reminder",
+  
+  "progressGoalLabel": "Goal: {targetValue} {unit}",
+  "@progressGoalLabel": {
+    "placeholders": {
+      "targetValue": {
+        "type": "Object"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "progressGoalUnitDefault": "unit",
+  "enableNotificationsLabel": "Enable Notifications",
+  "setProgressGoalDialogTitle": "Set Progress Goal",
+  "quantityLabel": "Quantity",
+  "unitLabel": "Unit",
+  "updateProgressTitle": "Update Progress",
+  "progressFormat": "{current}/{target} {unit}",
+  "@progressFormat": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+
+  "selectRepeatSheetTitle": "Select Repeat",
+  "noRepeatLabel": "No Repeat",
+  "repeatDaily": "Daily",
+  "repeatWeekly": "Weekly",
+  "repeatMonthly": "Monthly",
+  "repeatYearly": "Yearly",
+
+  "selectCategoryTitle": "Select a Category",
+  "categoryTitle": "Category",
+  "othersLabel": "Others",
+  "categoryHealth": "Health",
+  "categoryWork": "Work",
+  "categoryPersonalGrowth": "Personal Growth",
+  "categoryHobby": "Hobby",
+  "categoryFitness": "Fitness",
+  "categoryEducation": "Education",
+  "categoryFinance": "Finance",
+  "categorySocial": "Social",
+  "categorySpiritual": "Spiritual",
+
+  "totalHabits": "Total",
+  "completionRate": "Rate",
+  "completeHabits": "Complete",
+  "progressHabits": "Progress",
+  "selectMonth": "Select Month",
+  "selectMonthTitle": "Select Month",
+  "errorLoadingChartData": "Error loading chart data: {error}",
+  "@errorLoadingChartData": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "noHabitDataMonth": "No habit data available for this month",
+
+  "suggestionTitle": "Optimization Suggestions",
+  "suggestionError": "Error: {error}",
+  "@suggestionError": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  }
+}

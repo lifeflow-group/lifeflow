@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../data/domain/models/app_settings.dart';
 import '../../controllers/settings_controller.dart';
@@ -19,6 +20,7 @@ class WeekDaySelector extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final settingsState = ref.watch(settingsControllerProvider);
     final selectedDay =
         settingsState.valueOrNull?.weekStartDay ?? WeekStartDay.monday;
@@ -41,16 +43,16 @@ class WeekDaySelector extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(2)),
               margin: const EdgeInsets.only(bottom: 12),
             ),
-            Text('Week starts on', style: theme.textTheme.titleMedium),
+            Text(l10n.weekStartsOnTitle, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             WeekDayOption(
-              title: 'Monday',
+              title: l10n.mondayLabel,
               day: WeekStartDay.monday,
               isSelected: selectedDay == WeekStartDay.monday,
               onSelect: (day) => Navigator.pop(context, day),
             ),
             WeekDayOption(
-              title: 'Sunday',
+              title: l10n.sundayLabel,
               day: WeekStartDay.sunday,
               isSelected: selectedDay == WeekStartDay.sunday,
               onSelect: (day) => Navigator.pop(context, day),

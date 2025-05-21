@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../controllers/overview_controller.dart';
 import 'legend_item.dart';
@@ -11,13 +12,14 @@ class ChartSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final overviewController = ref.watch(overviewControllerProvider);
 
     return overviewController.when(
       loading: () => Center(
           child: CircularProgressIndicator(color: theme.colorScheme.primary)),
       error: (error, stack) => Center(
-        child: Text('Error loading chart data: $error',
+        child: Text(l10n.errorLoadingChartData(error.toString()),
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.error)),
       ),
@@ -35,7 +37,7 @@ class ChartSection extends ConsumerWidget {
                       color: theme.colorScheme.onSurface
                           .withAlpha((0.4 * 255).round())),
                   const SizedBox(height: 16),
-                  Text('No habit data available for this month',
+                  Text(l10n.noHabitDataMonth,
                       style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface
                               .withAlpha((0.6 * 255).round()))),
@@ -46,7 +48,7 @@ class ChartSection extends ConsumerWidget {
         }
 
         // Prepare chart data from category distribution
-        final pieChartSections = _preparePieChartSections(stats);
+        final pieChartSections = _preparePieChartSections(context, stats);
 
         final List<CategoryStats> sortedCategories =
             List<CategoryStats>.from(stats.categoryDistribution)
@@ -73,7 +75,7 @@ class ChartSection extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Category', style: theme.textTheme.titleMedium),
+              Text(l10n.categoryTitle, style: theme.textTheme.titleMedium),
               SizedBox(height: 12.0),
               Expanded(
                 child: Row(
@@ -151,7 +153,10 @@ class ChartSection extends ConsumerWidget {
     );
   }
 
-  List<PieChartSectionData> _preparePieChartSections(OverviewStats stats) {
+  List<PieChartSectionData> _preparePieChartSections(
+      BuildContext context, OverviewStats stats) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Sort categories by percentage (descending)
     final sortedCategories =
         List<CategoryStats>.from(stats.categoryDistribution)
@@ -193,7 +198,7 @@ class ChartSection extends ConsumerWidget {
           value: othersPercentage,
           radius: 60,
           showTitle: false,
-          title: 'Others'));
+          title: l10n.othersLabel));
     }
 
     return sections;

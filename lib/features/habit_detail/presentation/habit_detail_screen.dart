@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
@@ -43,11 +44,13 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
   @override
   void dispose() {
     focusNode.dispose();
+    nameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final habitName = ref.watch(habitNameProvider);
     final habitCategory = ref.watch(habitCategoryProvider);
     final selectedDate = ref.watch(habitDateProvider);
@@ -58,7 +61,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
     final isFormValid = habitName.isNotEmpty && habitCategory != null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Habit")),
+      appBar: AppBar(
+          title: Text(isEditing ? l10n.editHabitTitle : l10n.createHabitTitle)),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -71,7 +75,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 focusNode: focusNode,
                 onTapOutside: (event) => focusNode.unfocus(),
                 decoration: InputDecoration(
-                  labelText: "Habit Name",
+                  labelText: l10n.habitNameLabel,
                   border: OutlineInputBorder(
                     borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.onSecondary,
@@ -99,7 +103,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 },
                 child: InputDecorator(
                   decoration: InputDecoration(
-                    labelText: "Select Category",
+                    labelText: l10n.selectCategoryLabel,
                     border: OutlineInputBorder(
                       borderSide: BorderSide(
                           color: Theme.of(context).colorScheme.onSecondary,
@@ -121,7 +125,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                             const SizedBox(width: 8),
                           ],
                           Text(
-                            habitCategory?.name ?? "Select a category",
+                            habitCategory?.getLocalizedName(context) ??
+                                l10n.selectACategoryDefault,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -158,7 +163,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 },
                 child: InputDecorator(
                   decoration: InputDecoration(
-                    labelText: "Select Date",
+                    labelText: l10n.selectDateLabel,
                     border: OutlineInputBorder(
                       borderSide: BorderSide(
                           color: Theme.of(context).colorScheme.onSecondary,
@@ -201,7 +206,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 },
                 child: InputDecorator(
                   decoration: InputDecoration(
-                    labelText: "Time",
+                    labelText: l10n.timeLabel,
                     border: OutlineInputBorder(
                       borderSide: BorderSide(
                           color: Theme.of(context).colorScheme.onSecondary,
@@ -240,7 +245,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 },
                 child: InputDecorator(
                   decoration: InputDecoration(
-                    labelText: "Repeat",
+                    labelText: l10n.repeatLabel,
                     border: OutlineInputBorder(
                       borderSide: BorderSide(
                           color: Theme.of(context).colorScheme.onSecondary,
@@ -257,7 +262,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     children: [
                       Text(
                         getRepeatFrequencyLabel(
-                            ref.watch(habitRepeatFrequencyProvider)),
+                            context, ref.watch(habitRepeatFrequencyProvider)),
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
@@ -276,7 +281,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               /// Select Tracking Type
               InputDecorator(
                 decoration: InputDecoration(
-                  labelText: "Tracking Type",
+                  labelText: l10n.trackingTypeLabel,
                   border: OutlineInputBorder(
                     borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.onSecondary,
@@ -293,7 +298,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                       children: [
                         Expanded(
                           child: RadioListTile<TrackingType>(
-                            title: Text("Complete",
+                            title: Text(l10n.trackingTypeComplete,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -308,7 +313,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                         ),
                         Expanded(
                           child: RadioListTile<TrackingType>(
-                            title: Text("Progress",
+                            title: Text(l10n.trackingTypeProgress,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -340,8 +345,11 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                                "Goal: $habitTargetValue ${habitUnit.isNotEmpty ? habitUnit : 'unit'}"),
+                            Text(l10n.progressGoalLabel(
+                                habitTargetValue.toString(),
+                                habitUnit.isNotEmpty
+                                    ? habitUnit
+                                    : l10n.progressGoalUnitDefault)),
                             IconButton(
                               icon: const Icon(Icons.edit, size: 18),
                               onPressed: () =>
@@ -358,7 +366,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               /// Toggle Reminder
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text("Enable Notifications",
+                title: Text(l10n.enableNotificationsLabel,
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
@@ -395,7 +403,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                           : Theme.of(context).cardTheme.shadowColor,
                     ),
                     child: Text(
-                      "Save Habit",
+                      l10n.saveHabitButton,
                       style: TextStyle(
                           color: isFormValid
                               ? Theme.of(context).colorScheme.onPrimary
@@ -421,6 +429,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
   }
 
   void _showProgressDialog(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(habitDetailControllerProvider);
     final targetValueController = TextEditingController(
         text: ref.read(habitTargetValueProvider).toString());
@@ -431,14 +440,14 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Set Progress Goal"),
+          title: Text(l10n.setProgressGoalDialogTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: targetValueController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Quantity"),
+                decoration: InputDecoration(labelText: l10n.quantityLabel),
                 onChanged: (value) {
                   final quantity = int.tryParse(value) ?? 0;
                   controller.updateHabitTargetValue(quantity);
@@ -447,7 +456,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               const SizedBox(height: 12.0),
               TextField(
                 controller: unitController,
-                decoration: const InputDecoration(labelText: "Unit"),
+                decoration: InputDecoration(labelText: l10n.unitLabel),
                 onChanged: (value) {
                   controller.updateHabitUnit(value);
                 },
@@ -457,7 +466,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: Text(l10n.cancelButton),
             ),
             TextButton(
               onPressed: () {
@@ -466,7 +475,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 controller.updateHabitUnit(unitController.text);
                 Navigator.pop(context);
               },
-              child: const Text("Save"),
+              child: Text(l10n.saveButton),
             ),
           ],
         );
@@ -476,6 +485,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
 
   Future<RepeatFrequency?> _showRepeatFrequencyBottomSheet(
       BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+
     return await showModalBottomSheet<RepeatFrequency>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -491,7 +502,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(width: 54),
-                  Text("Select Repeat",
+                  Text(l10n.selectRepeatSheetTitle,
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium
@@ -506,15 +517,14 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 ],
               ),
               ListTile(
-                title: Text("No Repeat",
+                title: Text(l10n.noRepeatLabel,
                     style: Theme.of(context).textTheme.titleMedium),
                 onTap: () => Navigator.pop(context, null),
                 contentPadding: EdgeInsets.only(left: 22.0),
               ),
               ...RepeatFrequency.values.map((frequency) {
-                final label = frequency.toString().split('.').last;
                 return ListTile(
-                  title: Text(label[0].toUpperCase() + label.substring(1),
+                  title: Text(getRepeatFrequencyLabel(context, frequency),
                       style: Theme.of(context).textTheme.titleMedium),
                   onTap: () => Navigator.pop(context, frequency),
                   contentPadding: EdgeInsets.only(left: 22.0),

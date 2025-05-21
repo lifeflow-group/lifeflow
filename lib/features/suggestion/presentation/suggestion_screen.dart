@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../controllers/suggestion_controller.dart';
 import 'widgets/suggestion_card.dart';
@@ -9,6 +10,7 @@ class SuggestionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = ref.watch(suggestionControllerProvider);
 
     return SafeArea(
@@ -25,7 +27,7 @@ class SuggestionScreen extends ConsumerWidget {
           ),
           leadingWidth: 46,
           title: Text(
-            "Optimization Suggestions",
+            l10n.suggestionTitle,
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
@@ -35,6 +37,7 @@ class SuggestionScreen extends ConsumerWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
+              tooltip: l10n.refreshButton,
               onPressed: () {
                 ref.read(suggestionControllerProvider.notifier).refresh();
               },
@@ -46,7 +49,9 @@ class SuggestionScreen extends ConsumerWidget {
               ref.read(suggestionControllerProvider.notifier).refresh(),
           child: controller.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(child: Text("Error: $err")),
+            error: (err, stack) => Center(
+              child: Text(l10n.suggestionError(err.toString())),
+            ),
             data: (suggestions) => SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Padding(

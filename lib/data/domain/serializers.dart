@@ -9,6 +9,7 @@ import 'models/habit_analysis_input.dart';
 import 'models/habit_category.dart';
 import 'models/habit_exception.dart';
 import 'models/habit_series.dart';
+import 'models/language.dart';
 import 'models/suggestion.dart';
 
 part 'serializers.g.dart';
@@ -25,6 +26,7 @@ part 'serializers.g.dart';
   HabitData,
   WeekStartDay,
   AppSettings,
+  Language,
 ])
 final Serializers serializers = (_$serializers.toBuilder()
       ..add(FlexibleDateTimeSerializer())

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../core/constants/app_languages.dart';
+import '../../../data/domain/models/app_settings.dart';
+import '../../../data/domain/models/language.dart';
 import '../controllers/settings_controller.dart';
 import 'widgets/settings_divider.dart';
 import 'widgets/settings_item.dart';
@@ -12,12 +16,16 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final double avatarSize = 65.0;
     final settingsState = ref.watch(settingsControllerProvider);
     final weekStartDay = settingsState.whenOrNull(
-          data: (data) => data.weekStartDay.display,
-        ) ??
-        'Monday';
+            data: (data) => data.weekStartDay.getLocalizedDisplay(context)) ??
+        WeekStartDay.monday.getLocalizedDisplay(context);
+
+    // Get the current language from settings
+    final language = settingsState.whenOrNull(data: (data) => data.language) ??
+        AppLanguages.defaultLanguage;
 
     return SafeArea(
       child: Scaffold(
@@ -28,7 +36,7 @@ class SettingsScreen extends ConsumerWidget {
             children: <Widget>[
               Stack(
                 alignment: Alignment.topCenter,
-                clipBehavior: Clip.none, // Allow avatar to overflow card
+                clipBehavior: Clip.none,
                 children: [
                   // The card starts visually below the center of the avatar
                   Padding(
@@ -58,13 +66,13 @@ class SettingsScreen extends ConsumerWidget {
                                       horizontal: 16, vertical: 2),
                                 ),
                                 child: Text(
-                                  'Sign up or log in',
+                                  l10n.signUpOrLogin,
                                   style:
                                       Theme.of(context).textTheme.titleMedium,
                                 ),
                               ),
                               Text(
-                                'You are currently in guest mode',
+                                l10n.guestMode,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -103,7 +111,8 @@ class SettingsScreen extends ConsumerWidget {
                 ],
               ),
               SizedBox(height: 24),
-              Text('Settings', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.settings,
+                  style: Theme.of(context).textTheme.titleMedium),
               SizedBox(height: 12),
               Card(
                 margin: EdgeInsets.zero,
@@ -112,7 +121,7 @@ class SettingsScreen extends ConsumerWidget {
                   children: [
                     SettingsItem(
                       icon: Icons.notifications_none_outlined,
-                      title: 'Notifications',
+                      title: l10n.notifications,
                       onTap: () {
                         // Handle Notifications tap
                       },
@@ -120,7 +129,7 @@ class SettingsScreen extends ConsumerWidget {
                     const SettingsDivider(),
                     SettingsItem(
                       icon: Icons.settings_outlined,
-                      title: 'Week starts on',
+                      title: l10n.weekStartsOnTitle,
                       value: weekStartDay,
                       onTap: () async {
                         final weekStart =
@@ -135,16 +144,22 @@ class SettingsScreen extends ConsumerWidget {
                     const SettingsDivider(),
                     SettingsItem(
                       icon: Icons.translate_outlined,
-                      title: 'Change app language',
-                      value: 'English',
-                      onTap: () {
-                        // Handle Change app language tap
+                      title: l10n.changeAppLanguage,
+                      value: language.languageName,
+                      onTap: () async {
+                        final selectedLanguage =
+                            await context.push('/language-selection');
+                        if (selectedLanguage != null) {
+                          await ref
+                              .read(settingsControllerProvider.notifier)
+                              .setLanguage(selectedLanguage as Language);
+                        }
                       },
                     ),
                     const SettingsDivider(),
                     SettingsItem(
                       icon: Icons.privacy_tip_outlined,
-                      title: 'Terms of use',
+                      title: l10n.termsOfUse,
                       onTap: () => context.push('/terms-of-use'),
                     ),
                   ],

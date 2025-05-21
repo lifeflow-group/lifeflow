@@ -9,6 +9,7 @@ import '../../features/habit_detail/presentation/habit_view_screen.dart';
 import '../../features/login/presentation/login_screen.dart';
 import '../../features/main/presentation/main_screen.dart';
 import '../../features/settings/presentation/terms_of_use_screen.dart';
+import '../../features/settings/presentation/widgets/language_selection_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../constants/app_constants.dart';
 
@@ -47,6 +48,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/terms-of-use',
         builder: (context, state) => const TermsOfUseScreen(),
+      ),
+      GoRoute(
+        path: '/language-selection',
+        builder: (context, state) => const LanguageSelectionScreen(),
       ),
     ],
   );

@@ -1,10 +1,16 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/datasources/local/app_database.dart';
 import '../../data/domain/models/habit.dart';
 import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/habit_series.dart';
+import '../../features/settings/controllers/settings_controller.dart';
+import '../constants/app_languages.dart';
 
 String generateNewId(String prefix) => '$prefix-${Uuid().v4()}';
 
@@ -153,12 +159,20 @@ Expression<bool> isSameDateQuery(
       date1.day.equals(date2.day);
 }
 
-String getRepeatFrequencyLabel(RepeatFrequency? frequency) {
-  if (frequency == null) {
-    return "No Repeat";
+String getRepeatFrequencyLabel(
+    BuildContext context, RepeatFrequency? frequency) {
+  final l10n = AppLocalizations.of(context)!;
+  if (frequency == null) return l10n.noRepeatLabel;
+  switch (frequency) {
+    case RepeatFrequency.daily:
+      return l10n.repeatDaily;
+    case RepeatFrequency.weekly:
+      return l10n.repeatWeekly;
+    case RepeatFrequency.monthly:
+      return l10n.repeatMonthly;
+    default:
+      return l10n.noRepeatLabel;
   }
-  final label = frequency.toString().split('.').last;
-  return label[0].toUpperCase() + label.substring(1);
 }
 
 // dt is utc
@@ -187,4 +201,23 @@ HabitsTableData applyExceptionOverride(
     currentValue: Value(exception.currentValue ?? habit.currentValue),
     isCompleted: Value(exception.isCompleted ?? habit.isCompleted),
   );
+}
+
+// Helper function to format dates according to user's language preference
+String formatDateWithUserLanguage(
+    WidgetRef ref, DateTime date, String pattern) {
+  final settingsState = ref.watch(settingsControllerProvider);
+
+  // Get language from user settings
+  final userLanguage = settingsState.valueOrNull?.language;
+
+  // Get locale code from user language preference or use default
+  final dateFormatLocale = userLanguage?.dateFormatLocale ??
+      AppLanguages.defaultLanguage.dateFormatLocale;
+
+  // Capitalize the first letter of the formatted date
+  final dateString = DateFormat(pattern, dateFormatLocale).format(date);
+  return dateString.isNotEmpty
+      ? dateString[0].toUpperCase() + dateString.substring(1)
+      : dateString;
 }

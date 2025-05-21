@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../home/presentation/home_screen.dart';
 import '../../overview/presentation/overview_screen.dart';
@@ -32,6 +33,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final indexTab = ref.watch(indexTabProvider);
 
     return Scaffold(
@@ -42,7 +44,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         // Disable swipe to change tab
         physics: const NeverScrollableScrollPhysics(),
 
-        children: [
+        children: const [
           HomeScreen(),
           OverviewScreen(),
           SuggestionScreen(),
@@ -56,10 +58,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               color: Theme.of(context)
                   .colorScheme
                   .shadow
-                  .withAlpha((0.1 * 255).toInt()), // Shadow color
+                  .withAlpha((0.1 * 255).toInt()),
               spreadRadius: 1,
               blurRadius: 1,
-              offset: const Offset(0, -0.01), // changes position of shadow
+              offset: const Offset(0, -0.01),
             ),
           ],
         ),
@@ -71,16 +73,17 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           currentIndex: indexTab,
           onTap: (index) {
             ref.read(mainControllerProvider).setTab(index);
-            _pageController.jumpToPage(index); // Jump to the selected page
+            _pageController.jumpToPage(index);
           },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart), label: "Overview"),
+                icon: Icon(Icons.home), label: l10n.navHome),
             BottomNavigationBarItem(
-                icon: Icon(Icons.lightbulb), label: "Suggestions"),
+                icon: Icon(Icons.bar_chart), label: l10n.navOverview),
             BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: "Settings"),
+                icon: Icon(Icons.lightbulb), label: l10n.navSuggestions),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: l10n.navSettings),
           ],
         ),
       ),

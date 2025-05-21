@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class MonthPicker extends StatefulWidget {
+import '../../../../core/utils/helpers.dart';
+
+class MonthPicker extends ConsumerStatefulWidget {
+  // Change to ConsumerStatefulWidget
   final DateTime initialDate;
   final DateTime firstDate;
   final DateTime lastDate;
@@ -14,10 +18,12 @@ class MonthPicker extends StatefulWidget {
   });
 
   @override
-  State<MonthPicker> createState() => _MonthPickerState();
+  ConsumerState<MonthPicker> createState() =>
+      _MonthPickerState(); // Change to ConsumerState
 }
 
-class _MonthPickerState extends State<MonthPicker> {
+class _MonthPickerState extends ConsumerState<MonthPicker> {
+  // Change to ConsumerState
   late DateTime selectedDate;
 
   @override
@@ -29,12 +35,14 @@ class _MonthPickerState extends State<MonthPicker> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final currentYear = selectedDate.year;
     final currentMonth = selectedDate.month;
 
     return AlertDialog(
       title: Center(
-          child: Text('Select Month', style: theme.textTheme.titleMedium)),
+          child:
+              Text(l10n.selectMonthTitle, style: theme.textTheme.titleMedium)),
       content: SizedBox(
         width: 300,
         height: 290,
@@ -106,8 +114,9 @@ class _MonthPickerState extends State<MonthPicker> {
                       ),
                       child: Center(
                         child: Text(
-                          DateFormat('MMM')
-                              .format(DateTime(currentYear, month)),
+                          // Replace DateFormat with formatDateWithUserLanguage
+                          formatDateWithUserLanguage(
+                              ref, DateTime(currentYear, month), 'MMM'),
                           style: TextStyle(
                             color: isSelected
                                 ? theme.colorScheme.onPrimary
@@ -131,11 +140,11 @@ class _MonthPickerState extends State<MonthPicker> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.cancelButton),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(selectedDate),
-          child: const Text('Select'),
+          child: Text(l10n.selectButton),
         ),
       ],
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../controllers/overview_controller.dart';
 import 'widgets/chart_section.dart';
@@ -11,6 +12,7 @@ class OverviewScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final monthNotifier = ref.read(selectedMonthProvider.notifier);
     final selectedMonth = ref.watch(selectedMonthProvider);
@@ -71,7 +73,7 @@ class OverviewScreen extends ConsumerWidget {
           child: CircularProgressIndicator(color: theme.colorScheme.primary),
         ),
         error: (error, stack) => Center(
-          child: Text('Error: $error',
+          child: Text(l10n.errorMessage(error.toString()),
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: theme.colorScheme.error)),
         ),
@@ -87,7 +89,7 @@ class OverviewScreen extends ConsumerWidget {
                       child: StatCard(
                     iconWidget: Icon(Icons.summarize_outlined,
                         color: theme.colorScheme.primary, size: 20),
-                    title: "Total",
+                    title: l10n.totalHabits,
                     amount: stats.totalHabits.toString(),
                     isHighlighted: false,
                   )),
@@ -96,7 +98,7 @@ class OverviewScreen extends ConsumerWidget {
                       child: StatCard(
                     iconWidget: Icon(Icons.check_circle_outline,
                         color: theme.colorScheme.primary, size: 20),
-                    title: "Rate",
+                    title: l10n.completionRate,
                     amount:
                         '${stats.totalHabits != 0 ? (stats.completedHabits / stats.totalHabits * 100).round() : 0}% (${stats.completedHabits}/${stats.totalHabits})',
                     isHighlighted: false,
@@ -110,7 +112,7 @@ class OverviewScreen extends ConsumerWidget {
                       child: StatCard(
                     iconWidget: Icon(Icons.timer,
                         color: theme.colorScheme.primary, size: 20),
-                    title: "Complete",
+                    title: l10n.completeHabits,
                     amount: stats.completeTypeHabits.toString(),
                     isHighlighted: false,
                   )),
@@ -119,7 +121,7 @@ class OverviewScreen extends ConsumerWidget {
                       child: StatCard(
                     iconWidget: Icon(Icons.hourglass_empty,
                         color: theme.colorScheme.primary, size: 20),
-                    title: "Progress",
+                    title: l10n.progressHabits,
                     amount: stats.progressTypeHabits.toString(),
                     isHighlighted: false,
                   )),

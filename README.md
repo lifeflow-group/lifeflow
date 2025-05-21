@@ -73,6 +73,37 @@ Lifeflow is a mobile application designed to help users build and maintain posit
 - **built_value**: For immutable data models
 - **Json Serializable**: Provides Dart build system builders for handling JSON.
 
+## Setting up API Key for Translation
+
+To use the automatic translation features, you need to set up a Google API key that has access to the Gemini API or Google Translate API:
+
+1. **Create `.env` file**:
+   - Copy the `.env.example` file to create your own `.env` file:
+     ```sh
+     cp .env.example .env
+     ```
+   - Edit the `.env` file and replace `YOUR_API_KEY_HERE` with your actual Google API key.
+
+2. **Using Environment Variables** (alternative method):
+   - You can also set the API key as an environment variable:
+     ```sh
+     # On Windows:
+     set ARB_TRANSLATE_API_KEY=YOUR_API_KEY_HERE
+
+     # On macOS/Linux:
+     export ARB_TRANSLATE_API_KEY=YOUR_API_KEY_HERE
+     ```
+
+3. **Generate Translations**:
+   - To translate messages to all supported languages:
+     ```sh
+     arb_translate
+     ```
+   - To translate to a specific language (e.g., Vietnamese):
+     ```sh
+     arb_translate -s lib/l10n/app_en.arb -t lib/l10n/app_vi.arb -l vi
+     ```
+
 ## Resources
 
 A few resources to get you started if this is your first Flutter project:

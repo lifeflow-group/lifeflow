@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../core/utils/helpers.dart';
 
@@ -10,6 +11,8 @@ class CategoryBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -20,7 +23,7 @@ class CategoryBottomSheet extends StatelessWidget {
             children: [
               SizedBox(width: 48),
               Text(
-                "Select a Category",
+                l10n.selectCategoryTitle,
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge
@@ -53,7 +56,7 @@ class CategoryBottomSheet extends StatelessWidget {
                         Image.asset(category.iconPath, width: 40, height: 40),
                         const SizedBox(height: 8),
                         Text(
-                          category.name,
+                          category.getLocalizedName(context),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../controllers/overview_controller.dart';
-import 'widgets/chart_section.dart';
-import 'widgets/month_picker.dart';
-import 'widgets/stat_card.dart';
+import '../../controllers/overview_controller.dart';
+import '../widgets/chart_section.dart';
+import '../widgets/month_picker.dart';
+import '../widgets/stat_card.dart';
 
 class OverviewScreen extends ConsumerWidget {
   const OverviewScreen({super.key});
@@ -127,10 +127,10 @@ class OverviewScreen extends ConsumerWidget {
                   )),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               /// Build Chart Section
-              const ChartSection(),
+              ChartSection(month: selectedMonth),
             ],
           ),
         ),

@@ -105,5 +105,10 @@
   "errorLoadingChartData": "Ошибка загрузки данных диаграммы: {error}",
   "noHabitDataMonth": "Нет данных о привычках за этот месяц",
   "suggestionTitle": "Рекомендации по оптимизации",
-  "suggestionError": "Ошибка: {error}"
+  "suggestionError": "Ошибка: {error}",
+  "filterAll": "Все",
+  "filterMostFrequent": "Наиболее частые",
+  "filterTopPerformed": "Лучшие результаты",
+  "noHabitsInCategory": "В этой категории нет привычек за {month}",
+  "noRankedItemsAvailable": "Нет доступных элементов"
 }

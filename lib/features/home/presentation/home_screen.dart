@@ -90,7 +90,10 @@ class HomeScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          child: HabitItem(habit: habit),
+                          child: HabitItem(
+                              habit: habit,
+                              controllerInvalidate: () =>
+                                  ref.invalidate(homeControllerProvider)),
                         ),
                       );
                     },

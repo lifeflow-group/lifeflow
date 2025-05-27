@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/controllers/habit_controller.dart';
 import '../../data/domain/models/habit.dart';
-import '../../features/home/controllers/home_controller.dart';
 import '../widgets/scope_dialog.dart';
 import '../widgets/enter_number_dialog.dart';
 
@@ -37,9 +36,6 @@ Future<bool> handleDeleteHabit(
     };
   }
 
-  if (isDeleted) {
-    ref.invalidate(homeControllerProvider);
-  }
   showSnackbar(
       isDeleted ? 'Habit deleted successfully!' : 'Failed to delete habit!');
 
@@ -65,7 +61,7 @@ void showSnackbar(String message) {
 
 Future<bool> recordHabitCompletion(WidgetRef ref, Habit habit) async {
   final controller = ref.read(habitControllerProvider);
-  final selectedDate = ref.read(selectedDateProvider).toLocal();
+  final selectedDate = habit.startDate.toLocal();
 
   // Check if the date is valid
   if (!isValidDate(selectedDate)) {
@@ -74,21 +70,15 @@ Future<bool> recordHabitCompletion(WidgetRef ref, Habit habit) async {
   }
 
   final newValue = !(habit.isCompleted ?? false);
-
   await controller.recordHabit(
-      habit: habit,
-      selectedDate: selectedDate,
-      isCompleted: newValue,
-      currentValue: null);
+      habit: habit, isCompleted: newValue, currentValue: null);
 
-  // Invalidate the controller to reload the UI
-  ref.invalidate(homeControllerProvider);
   return true;
 }
 
 Future<int?> recordHabitProgress(
     BuildContext context, WidgetRef ref, Habit habit) async {
-  final selectedDate = ref.read(selectedDateProvider).toLocal();
+  final selectedDate = habit.startDate.toLocal();
   // Check if the date is valid
   if (!isValidDate(selectedDate)) {
     showSnackbar("Cannot record habit for a future date.");
@@ -105,11 +95,9 @@ Future<int?> recordHabitProgress(
 
   await controller.recordHabit(
       habit: habit,
-      selectedDate: selectedDate,
       currentValue: newValue,
       isCompleted:
           habit.targetValue != null ? newValue >= habit.targetValue! : null);
 
-  ref.invalidate(homeControllerProvider);
   return newValue;
 }

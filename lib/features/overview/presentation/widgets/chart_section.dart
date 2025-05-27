@@ -2,203 +2,309 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/utils/helpers.dart';
+import '../../../../data/domain/models/habit_category.dart';
 import '../../controllers/overview_controller.dart';
+import 'category_list_tile.dart';
 import 'legend_item.dart';
 
-class ChartSection extends ConsumerWidget {
-  const ChartSection({super.key});
+class ChartSection extends ConsumerStatefulWidget {
+  const ChartSection({super.key, required this.month});
+
+  final DateTime month;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChartSection> createState() => _ChartSectionState();
+}
+
+class _ChartSectionState extends ConsumerState<ChartSection> {
+  int? touchedIndex;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final overviewController = ref.watch(overviewControllerProvider);
 
-    return overviewController.when(
-      loading: () => Center(
-          child: CircularProgressIndicator(color: theme.colorScheme.primary)),
-      error: (error, stack) => Center(
-        child: Text(l10n.errorLoadingChartData(error.toString()),
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: theme.colorScheme.error)),
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: theme.colorScheme.onPrimary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side:
+            BorderSide(color: theme.colorScheme.outlineVariant.withAlpha(127)),
       ),
-      data: (stats) {
-        // Handle empty data case
-        if (stats.totalHabits == 0) {
-          return SizedBox(
-            height: 230,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.pie_chart_outline,
-                      size: 48,
-                      color: theme.colorScheme.onSurface
-                          .withAlpha((0.4 * 255).round())),
-                  const SizedBox(height: 16),
-                  Text(l10n.noHabitDataMonth,
-                      style: theme.textTheme.bodyMedium?.copyWith(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+        child: overviewController.when(
+          loading: () => Center(
+              child:
+                  CircularProgressIndicator(color: theme.colorScheme.primary)),
+          error: (error, stack) => Center(
+            child: Text(l10n.errorLoadingChartData(error.toString()),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.colorScheme.error)),
+          ),
+          data: (stats) {
+            // Handle empty data case
+            if (stats.totalHabits == 0) {
+              return SizedBox(
+                height: 230,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.pie_chart_outline,
+                          size: 48,
                           color: theme.colorScheme.onSurface
-                              .withAlpha((0.6 * 255).round()))),
-                ],
-              ),
-            ),
-          );
-        }
+                              .withAlpha((0.4 * 255).round())),
+                      const SizedBox(height: 16),
+                      Text(l10n.noHabitDataMonth,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withAlpha((0.6 * 255).round()))),
+                    ],
+                  ),
+                ),
+              );
+            }
 
-        // Prepare chart data from category distribution
-        final pieChartSections = _preparePieChartSections(context, stats);
+            final List<CategoryStats> sortedCategories =
+                List<CategoryStats>.from(stats.categoryDistribution)
+                  ..sort((a, b) => b.percentage.compareTo(a.percentage));
 
-        final List<CategoryStats> sortedCategories =
-            List<CategoryStats>.from(stats.categoryDistribution)
-              ..sort((a, b) => b.percentage.compareTo(a.percentage));
+            final middleIndex = 4;
+            double cumulativePercentage = 0;
+            bool hasOthers = false;
+            final rightCategories = <CategoryStats>[];
+            final leftCategories = <CategoryStats>[];
 
-        final List<CategoryStats> rightCategories = [];
-        final List<CategoryStats> leftCategories = [];
+            for (final category in sortedCategories) {
+              if (cumulativePercentage < 50 &&
+                  rightCategories.length < middleIndex) {
+                rightCategories.add(category);
+                cumulativePercentage += category.percentage;
+              } else {
+                leftCategories.insert(0, category);
+                if (leftCategories.length >= middleIndex - 1 &&
+                    rightCategories.length + leftCategories.length <
+                        sortedCategories.length) {
+                  hasOthers = true;
+                  break;
+                }
+              }
+            }
+            final visibleLimit = rightCategories.length + leftCategories.length;
 
-        final middleIndex = (stats.categoryDistribution.length / 2).ceil();
-        double cumulativePercentage = 0;
+            final List<CategoryStats> visibleCategories = hasOthers
+                ? sortedCategories.take(visibleLimit).toList()
+                : sortedCategories;
+            final List<CategoryStats> othersCategories =
+                hasOthers ? sortedCategories.skip(visibleLimit).toList() : [];
+            // Prepare chart data from category distribution
+            final pieChartSections = _preparePieChartSections(
+                context, visibleCategories, othersCategories, touchedIndex);
 
-        for (final category in sortedCategories) {
-          if (cumulativePercentage < 50 &&
-              rightCategories.length < middleIndex) {
-            rightCategories.add(category);
-            cumulativePercentage += category.percentage;
-          } else if (leftCategories.length < middleIndex) {
-            leftCategories.add(category);
-          }
-        }
-
-        return SizedBox(
-          height: 230, // Adjust height to fit chart and legends comfortably
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.categoryTitle, style: theme.textTheme.titleMedium),
-              SizedBox(height: 12.0),
-              Expanded(
-                child: Row(
-                  children: [
-                    // Left Legend
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: leftCategories
-                            .map((category) => LegendItem(
-                                iconPath: category.iconPath,
-                                iconColor: category.color,
-                                percentageColor: category.color
-                                    .withAlpha((0.8 * 255).round()),
-                                percentage:
-                                    '${category.percentage.toStringAsFixed(0)}%',
-                                label: category.categoryName))
-                            .toList(),
+            return Column(
+              children: [
+                SizedBox(height: 4.0),
+                Text(l10n.categoryTitle, style: theme.textTheme.titleMedium),
+                SizedBox(height: 12.0),
+                SizedBox(
+                  height: 210,
+                  child: Row(
+                    children: [
+                      // Left Legend
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (hasOthers)
+                              LegendItem(
+                                categoryStats: CategoryStats(
+                                  category: HabitCategory((p0) => p0
+                                    ..id = 'others'
+                                    ..name = l10n.othersLabel
+                                    ..iconPath = 'assets/icons/others.png'
+                                    ..colorHex = '#B0BEC5'),
+                                  habitCount: othersCategories.length,
+                                  percentage: othersCategories.fold(
+                                      0, (sum, item) => sum + item.percentage),
+                                ),
+                              ),
+                            ...leftCategories.map((categoryStats) =>
+                                LegendItem(categoryStats: categoryStats)),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    // Chart
-                    Expanded(
-                      flex: 2, // Give more space for chart
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.width / 2,
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: PieChart(
-                          PieChartData(
-                            sections: pieChartSections,
-                            borderData: FlBorderData(show: false),
-                            sectionsSpace: 2.5, // Space between sections
-                            centerSpaceRadius: 30, // Donut hole size
-                            startDegreeOffset: -90,
-                            pieTouchData: PieTouchData(
-                              touchCallback:
-                                  (FlTouchEvent event, pieTouchResponse) {
-                                // TODO: Handle touch interaction
-                              },
+                      // Chart
+                      Expanded(
+                        flex: 2, // Give more space for chart
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.width / 2,
+                          width: MediaQuery.of(context).size.width / 2,
+                          child: PieChart(
+                            PieChartData(
+                              sections: pieChartSections,
+                              borderData: FlBorderData(show: false),
+                              sectionsSpace: 2.5, // Space between sections
+                              centerSpaceRadius: 30, // Donut hole size
+                              startDegreeOffset: -90,
+                              pieTouchData: PieTouchData(
+                                touchCallback:
+                                    (FlTouchEvent event, pieTouchResponse) {
+                                  setState(() {
+                                    touchedIndex = pieTouchResponse
+                                        ?.touchedSection?.touchedSectionIndex;
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
 
-                    // Right Legend
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: rightCategories
-                            .map((category) => LegendItem(
-                                  iconPath: category.iconPath,
-                                  iconColor: category.color,
-                                  percentageColor: category.color
-                                      .withAlpha((0.8 * 255).round()),
-                                  percentage:
-                                      '${category.percentage.toStringAsFixed(0)}%',
-                                  label: category.categoryName,
-                                  isRightAligned: true,
-                                ))
-                            .toList(),
+                      // Right Legend
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: rightCategories
+                              .map((categoryStats) => LegendItem(
+                                  categoryStats: categoryStats,
+                                  isRightAligned: true))
+                              .toList(),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+                const SizedBox(height: 12),
+
+                /// Habits List
+                Column(
+                  children: [
+                    ...List.generate(visibleCategories.length, (i) {
+                      return Column(
+                        children: [
+                          CategoryListTile(
+                              categoryStats: visibleCategories[i],
+                              month: widget.month,
+                              isSelected: i == touchedIndex,
+                              onTap: () => _navigateToDetail(context,
+                                  visibleCategories[i].category, widget.month)),
+
+                          // Add divider if not the last item
+                          if (i < visibleCategories.length - 1)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Divider(
+                                height: 1,
+                                thickness: 0.5,
+                                color: theme.colorScheme.outlineVariant,
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
+
+                    // "Others" section with divider before it if we have visible categories
+                    if (hasOthers) ...[
+                      Container(
+                        decoration: BoxDecoration(
+                          border: touchedIndex == visibleCategories.length
+                              ? Border.all(
+                                  color: theme.colorScheme.primary, width: 1)
+                              : null,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: othersCategories.map((categoryStats) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Divider(
+                                    height: 1,
+                                    thickness: 0.5,
+                                    color: theme.colorScheme.outlineVariant,
+                                  ),
+                                ),
+                                CategoryListTile(
+                                  categoryStats: categoryStats,
+                                  month: widget.month,
+                                  onTap: () => _navigateToDetail(context,
+                                      categoryStats.category, widget.month),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ],
+                )
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
+  Future<void> _navigateToDetail(
+      BuildContext context, HabitCategory category, DateTime month) async {
+    if (context.mounted) {
+      await context.push('/category-habit-analytics',
+          extra: {'category': category, 'month': month});
+      ref.invalidate(overviewControllerProvider);
+    }
+  }
+
   List<PieChartSectionData> _preparePieChartSections(
-      BuildContext context, OverviewStats stats) {
+      BuildContext context,
+      List<CategoryStats> visibleCategories,
+      List<CategoryStats> othersCategories,
+      int? touchedIndex) {
     final l10n = AppLocalizations.of(context)!;
 
-    // Sort categories by percentage (descending)
-    final sortedCategories =
-        List<CategoryStats>.from(stats.categoryDistribution)
-          ..sort((a, b) => b.percentage.compareTo(a.percentage));
+    final othersPercentage =
+        othersCategories.fold(0.0, (sum, item) => sum + item.percentage);
 
-    // Define max categories to show individually
-    final int maxIndividualCategories = 7;
-    List<CategoryStats> visibleCategories;
-    double othersPercentage = 0;
+    final List<PieChartSectionData> sections = [];
 
-    if (sortedCategories.length > 8) {
-      // Case: More than 8 categories -> take top 7 + "Others"
-      visibleCategories =
-          sortedCategories.take(maxIndividualCategories).toList();
+    for (int i = 0; i < visibleCategories.length; i++) {
+      final category = visibleCategories[i];
+      final isTouched = touchedIndex == i;
 
-      // Calculate "Others" percentage (sum of all remaining categories)
-      for (var i = maxIndividualCategories; i < sortedCategories.length; i++) {
-        othersPercentage += sortedCategories[i].percentage;
-      }
-    } else {
-      // Case: 8 or fewer categories -> show all categories, no "Others"
-      visibleCategories = sortedCategories;
+      sections.add(PieChartSectionData(
+        color: hexToColor(category.category.colorHex),
+        value: category.percentage,
+        radius: isTouched ? 65 : 60, // Highlight when selected
+        showTitle: false,
+      ));
     }
-
-    // Create pie sections for visible categories
-    final List<PieChartSectionData> sections =
-        visibleCategories.map((category) {
-      return PieChartSectionData(
-          color: category.color,
-          value: category.percentage,
-          radius: 60, // Default radius
-          showTitle: false);
-    }).toList();
 
     // Add "Others" section if needed
     if (othersPercentage > 0) {
+      final isTouched = touchedIndex == visibleCategories.length;
       sections.add(PieChartSectionData(
-          color: Colors.grey.shade400,
-          value: othersPercentage,
-          radius: 60,
-          showTitle: false,
-          title: l10n.othersLabel));
+        color: Colors.grey.shade400,
+        value: othersPercentage,
+        radius: isTouched ? 65 : 60,
+        showTitle: false,
+        title: l10n.othersLabel,
+      ));
     }
 
     return sections;

@@ -120,14 +120,6 @@ class SettingsScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     SettingsItem(
-                      icon: Icons.notifications_none_outlined,
-                      title: l10n.notifications,
-                      onTap: () {
-                        // Handle Notifications tap
-                      },
-                    ),
-                    const SettingsDivider(),
-                    SettingsItem(
                       icon: Icons.settings_outlined,
                       title: l10n.weekStartsOnTitle,
                       value: weekStartDay,

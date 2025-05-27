@@ -212,10 +212,7 @@ void main() {
           .thenAnswer((_) async {});
 
       await controller.recordHabit(
-          habit: habit!,
-          selectedDate: habitDate,
-          currentValue: null,
-          isCompleted: true);
+          habit: habit!, currentValue: null, isCompleted: true);
 
       final updatedHabit = await repository.habit.getHabit(habitId);
       expect(updatedHabit!.isCompleted, true);
@@ -228,7 +225,6 @@ void main() {
 
       await controller.recordHabit(
         habit: habit!,
-        selectedDate: recordDate,
         currentValue: 3,
         isCompleted: true,
       );
@@ -249,7 +245,6 @@ void main() {
 
       await controller.recordHabit(
         habit: habit!.rebuild((p0) => p0.id = exceptionId),
-        selectedDate: exceptionDate,
         currentValue: null,
         isCompleted: true,
       );

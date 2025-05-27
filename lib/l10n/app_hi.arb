@@ -105,5 +105,10 @@
   "errorLoadingChartData": "चार्ट डेटा लोड करने में त्रुटि: {error}",
   "noHabitDataMonth": "इस महीने के लिए कोई आदत डेटा उपलब्ध नहीं है",
   "suggestionTitle": "ऑप्टिमाइज़ेशन सुझाव",
-  "suggestionError": "त्रुटि: {error}"
+  "suggestionError": "त्रुटि: {error}",
+  "filterAll": "सभी",
+  "filterMostFrequent": "सबसे अधिक बार",
+  "filterTopPerformed": "शीर्ष प्रदर्शन किया गया",
+  "noHabitsInCategory": "इस श्रेणी में {month} के लिए कोई आदतें नहीं हैं",
+  "noRankedItemsAvailable": "कोई आइटम उपलब्ध नहीं है"
 }

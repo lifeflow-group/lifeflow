@@ -106,7 +106,6 @@ class HabitController {
 
   Future<void> recordHabit({
     required Habit habit,
-    required DateTime selectedDate,
     required int? currentValue,
     required bool? isCompleted,
   }) async {
@@ -128,7 +127,7 @@ class HabitController {
         final newException = HabitException((b) => b
           ..id = habit.id
           ..habitSeriesId = habit.habitSeriesId
-          ..date = selectedDate.toUtc()
+          ..date = habit.startDate.toUtc()
           ..isSkipped = false
           ..reminderEnabled = habit.reminderEnabled
           ..currentValue = currentValue
@@ -147,15 +146,16 @@ class HabitController {
 
     // Handle notification
     final now = DateTime.now();
-    final isToday = selectedDate.year == now.year &&
-        selectedDate.month == now.month &&
-        selectedDate.day == now.day;
+    final startDate = habit.startDate.toLocal();
+    final isToday = startDate.year == now.year &&
+        startDate.month == now.month &&
+        startDate.day == now.day;
     final completed = isCompleted == true || currentValue == habit.targetValue;
 
     if (isToday && habit.reminderEnabled && completed) {
       final notificationId = habit.habitSeriesId != null
-          ? generateNotificationId(selectedDate, seriesId: habit.habitSeriesId)
-          : generateNotificationId(selectedDate, habitId: habit.id);
+          ? generateNotificationId(startDate, seriesId: habit.habitSeriesId)
+          : generateNotificationId(startDate, habitId: habit.id);
 
       await _notification.cancelNotification(notificationId);
     }

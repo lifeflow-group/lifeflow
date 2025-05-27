@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/helpers.dart';
+import '../../controllers/overview_controller.dart';
+
 class LegendItem extends StatelessWidget {
-  final String iconPath;
-  final Color iconColor;
-  final Color percentageColor;
-  final String percentage;
-  final String label;
+  final CategoryStats categoryStats;
   final bool isRightAligned;
 
   const LegendItem({
     super.key,
-    required this.iconPath,
-    required this.iconColor,
-    required this.percentageColor,
-    required this.percentage,
-    required this.label,
+    required this.categoryStats,
     this.isRightAligned = false,
   });
 
@@ -30,15 +25,16 @@ class LegendItem extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(iconPath, width: 17, height: 17),
+            Image.asset(categoryStats.category.iconPath, width: 17, height: 17),
             const SizedBox(width: 8),
-            Text(percentage,
+            Text('${categoryStats.percentage.toStringAsFixed(0)}%',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold, color: percentageColor))
+                    fontWeight: FontWeight.bold,
+                    color: hexToColor(categoryStats.category.colorHex)))
           ],
         ),
         const SizedBox(height: 2),
-        Text(label,
+        Text(categoryStats.category.name,
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: theme.colorScheme.onSurface.withAlpha(153)),
             overflow: TextOverflow.ellipsis,

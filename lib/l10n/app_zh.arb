@@ -105,5 +105,10 @@
   "errorLoadingChartData": "加载图表数据时出错：{error}",
   "noHabitDataMonth": "本月没有习惯数据",
   "suggestionTitle": "优化建议",
-  "suggestionError": "错误：{error}"
+  "suggestionError": "错误：{error}",
+  "filterAll": "全部",
+  "filterMostFrequent": "最常发生",
+  "filterTopPerformed": "最佳表现",
+  "noHabitsInCategory": "此类别中{month}没有习惯",
+  "noRankedItemsAvailable": "没有可用的项目"
 }

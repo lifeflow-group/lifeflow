@@ -105,5 +105,10 @@
   "errorLoadingChartData": "차트 데이터 로드 중 오류 발생: {error}",
   "noHabitDataMonth": "이번 달의 습관 데이터가 없습니다",
   "suggestionTitle": "최적화 제안",
-  "suggestionError": "오류: {error}"
+  "suggestionError": "오류: {error}",
+  "filterAll": "전체",
+  "filterMostFrequent": "가장 빈번한",
+  "filterTopPerformed": "최고 성과",
+  "noHabitsInCategory": "{month}에는 해당 범주에 습관이 없습니다.",
+  "noRankedItemsAvailable": "사용 가능한 항목이 없습니다"
 }

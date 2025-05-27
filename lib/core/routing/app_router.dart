@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/domain/models/habit.dart';
+import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/scheduled_notification.dart';
 import '../../features/habit_detail/presentation/habit_detail_screen.dart';
 import '../../features/habit_detail/presentation/habit_view_screen.dart';
 import '../../features/login/presentation/login_screen.dart';
 import '../../features/main/presentation/main_screen.dart';
+import '../../features/overview/presentation/screens/category_habit_analytics_screen.dart';
 import '../../features/settings/presentation/terms_of_use_screen.dart';
 import '../../features/settings/presentation/widgets/language_selection_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
@@ -52,6 +54,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/language-selection',
         builder: (context, state) => const LanguageSelectionScreen(),
+      ),
+      GoRoute(
+        path: '/category-habit-analytics',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+
+          final category = extra?['category'] as HabitCategory?;
+          final month = extra?['month'] as DateTime?;
+
+          if (category == null || month == null) {
+            return const Center(child: Text('No category found'));
+          }
+
+          return CategoryHabitAnalyticsScreen(category: category, month: month);
+        },
       ),
     ],
   );

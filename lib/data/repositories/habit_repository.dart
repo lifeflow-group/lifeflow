@@ -65,6 +65,13 @@ class HabitRepository {
     return records.map((record) => _recordToHabit(record)).toList();
   }
 
+  Future<List<Habit>> getHabitsForMonthAndCategory(
+      DateTime date, String categoryId, String userId) async {
+    final records = await _dao.getHabitsWithCategoriesForMonthAndCategory(
+        date, categoryId, userId);
+    return records.map((record) => _recordToHabit(record)).toList();
+  }
+
   Future<Habit?> getHabitWithCategoryBySeriesAndDate(
       String seriesId, DateTime dateLocal) async {
     // Fetch the list of habits and categories

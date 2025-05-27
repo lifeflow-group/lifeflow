@@ -105,5 +105,10 @@
   "errorLoadingChartData": "Fehler beim Laden der Chartdaten: {error}",
   "noHabitDataMonth": "Keine Gewohnheitsdaten für diesen Monat verfügbar",
   "suggestionTitle": "Optimierungsvorschläge",
-  "suggestionError": "Fehler: {error}"
+  "suggestionError": "Fehler: {error}",
+  "filterAll": "Alle",
+  "filterMostFrequent": "Am häufigsten",
+  "filterTopPerformed": "Am besten durchgeführt",
+  "noHabitsInCategory": "Keine Gewohnheiten in dieser Kategorie für {month}",
+  "noRankedItemsAvailable": "Keine Einträge verfügbar"
 }

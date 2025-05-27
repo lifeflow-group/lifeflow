@@ -174,5 +174,18 @@
         "type": "Object"
       }
     }
-  }
+  },
+
+  "filterAll": "All",
+  "filterMostFrequent": "Most Frequent",
+  "filterTopPerformed": "Top Performed",
+  "noHabitsInCategory": "No habits in this category for {month}",
+  "@noHabitsInCategory": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "noRankedItemsAvailable": "No items available"
 }

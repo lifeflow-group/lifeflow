@@ -105,5 +105,10 @@
   "errorLoadingChartData": "Lỗi khi tải dữ liệu biểu đồ: {error}",
   "noHabitDataMonth": "Không có dữ liệu thói quen nào cho tháng này",
   "suggestionTitle": "Gợi ý tối ưu hóa",
-  "suggestionError": "Lỗi: {error}"
+  "suggestionError": "Lỗi: {error}",
+  "filterAll": "Tất cả",
+  "filterMostFrequent": "Thường xuyên nhất",
+  "filterTopPerformed": "Thực hiện tốt nhất",
+  "noHabitsInCategory": "Chưa có thói quen nào trong danh mục này cho tháng {month}",
+  "noRankedItemsAvailable": "Không có mục nào khả dụng"
 }

@@ -105,5 +105,10 @@
   "errorLoadingChartData": "Erreur de chargement des données du graphique : {error}",
   "noHabitDataMonth": "Aucune donnée d'habitude disponible pour ce mois",
   "suggestionTitle": "Suggestions d'optimisation",
-  "suggestionError": "Erreur : {error}"
+  "suggestionError": "Erreur : {error}",
+  "filterAll": "Tous",
+  "filterMostFrequent": "Les plus fréquents",
+  "filterTopPerformed": "Meilleurs résultats",
+  "noHabitsInCategory": "Aucun habitude dans cette catégorie pour {month}",
+  "noRankedItemsAvailable": "Aucun élément disponible"
 }

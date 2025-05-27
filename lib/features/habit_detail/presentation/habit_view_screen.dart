@@ -210,11 +210,8 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
     if (newValue == null) return;
 
     final controllerProvider = ref.read(habitControllerProvider);
-    final startDate = habit.startDate.toLocal();
-    final date = DateTime(startDate.year, startDate.month, startDate.day);
     await controllerProvider.recordHabit(
         habit: habit,
-        selectedDate: date,
         isCompleted: newValue >= (habit.targetValue ?? 1),
         currentValue: newValue);
 

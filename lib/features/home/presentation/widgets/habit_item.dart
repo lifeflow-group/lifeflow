@@ -5,26 +5,34 @@ import 'package:intl/intl.dart';
 
 import '../../../../data/domain/models/habit.dart';
 import '../../../../shared/actions/habit_actions.dart';
-import '../../controllers/home_controller.dart';
 
 class HabitItem extends ConsumerWidget {
-  const HabitItem({super.key, required this.habit});
+  const HabitItem({
+    super.key,
+    required this.habit,
+    this.colorBackground,
+    this.colorBorder,
+    this.controllerInvalidate,
+  });
+
   final Habit habit;
+  final Color? colorBackground;
+  final Color? colorBorder;
+  final VoidCallback? controllerInvalidate;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color,
+          color: colorBackground ?? Theme.of(context).cardTheme.color,
+          border:
+              Border.all(color: colorBorder ?? Colors.transparent, width: 0.5),
           borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         onTap: () async {
-          final result =
-              await context.push('/habit-view', extra: {'habit': habit});
-          if (result != null) {
-            // If there are changes → refresh home
-            ref.invalidate(homeControllerProvider);
-          }
+          await context.push('/habit-view', extra: {'habit': habit});
+          // Invalidate controller after navigating to habit view
+          controllerInvalidate?.call();
         },
         leading: Padding(
             padding: const EdgeInsets.only(right: 4.0),
@@ -41,7 +49,14 @@ class HabitItem extends ConsumerWidget {
                 child: Checkbox(
                   value: habit.isCompleted ?? false,
                   shape: CircleBorder(),
-                  onChanged: (value) => recordHabitCompletion(ref, habit),
+                  onChanged: (value) async {
+                    final result = await recordHabitCompletion(ref, habit);
+                    print('Completion result: $result');
+                    if (result) {
+                      // If completion was successful, invalidate controller
+                      controllerInvalidate?.call();
+                    }
+                  },
                 ),
               )
             : SizedBox(
@@ -49,7 +64,14 @@ class HabitItem extends ConsumerWidget {
                 child: IconButton(
                   padding: EdgeInsets.all(4.0),
                   constraints: BoxConstraints(),
-                  onPressed: () => recordHabitProgress(context, ref, habit),
+                  onPressed: () async {
+                    final result =
+                        await recordHabitProgress(context, ref, habit);
+                    if (result != null) {
+                      // If progress was recorded, invalidate controller
+                      controllerInvalidate?.call();
+                    }
+                  },
                   icon: const Icon(Icons.add_circle_outline),
                 ),
               ),

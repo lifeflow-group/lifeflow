@@ -105,5 +105,10 @@
   "errorLoadingChartData": "チャートデータの読み込み中にエラーが発生しました: {error}",
   "noHabitDataMonth": "この月の習慣データがありません",
   "suggestionTitle": "最適化に関する提案",
-  "suggestionError": "エラー: {error}"
+  "suggestionError": "エラー: {error}",
+  "filterAll": "すべて",
+  "filterMostFrequent": "最も多い",
+  "filterTopPerformed": "トップ実行",
+  "noHabitsInCategory": "{month}にはこのカテゴリの習慣がありません",
+  "noRankedItemsAvailable": "アイテムがありません"
 }

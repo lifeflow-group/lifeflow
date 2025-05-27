@@ -263,46 +263,71 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
         HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
   }
 
-  /// Alternative implementation using date range for better performance
+  // Base method that both specialized methods will use
   Future<List<(HabitsTableData, HabitCategoriesTableData)>>
-      getHabitsWithCategoriesForMonth(DateTime month, String? userId) async {
+      getHabitsWithCategoriesForMonthBase(DateTime month, String? userId,
+          {String? categoryId} // Optional category filter
+          ) async {
     if (userId == null) return [];
 
     final from = DateTime(month.year, month.month, 1);
     final to = DateTime(month.year, month.month + 1, 0);
 
-    // 1. Get non-recurring habits
+    // 1. Build base conditions for non-recurring habits
+    var nonRecurringCondition = habitsTable.habitSeriesId.isNull() &
+        habitsTable.userId.equals(userId) &
+        habitsTable.startDate.isBetween(Variable(from), Variable(to));
+
+    // Add category filter if provided
+    if (categoryId != null) {
+      nonRecurringCondition =
+          nonRecurringCondition & habitsTable.categoryId.equals(categoryId);
+    }
+
+    // Execute query with conditions
     final nonRecurringQuery = select(habitsTable).join([
       leftOuterJoin(
         habitCategoriesTable,
         habitCategoriesTable.id.equalsExp(habitsTable.categoryId),
       ),
     ])
-      ..where(habitsTable.habitSeriesId.isNull() &
-          habitsTable.userId.equals(userId) &
-          habitsTable.startDate.isBetween(Variable(from), Variable(to)));
+      ..where(nonRecurringCondition);
 
     final nonRecurringHabits = await nonRecurringQuery.get();
 
-    // 2. Get recurring series in the month
-    final recurringSeries = await (select(habitSeriesTable)
-          ..where((series) =>
-              series.userId.equals(userId) &
-              series.startDate.isSmallerThanValue(to) &
-              (series.untilDate.isNull() |
-                  series.untilDate.isBiggerThanValue(from))))
-        .get();
+    // 2. Get recurring series with optional category filter
+    final seriesQuery = select(habitSeriesTable).join([
+      innerJoin(habitsTable, habitsTable.id.equalsExp(habitSeriesTable.habitId))
+    ]);
 
-    // 3. Get all exceptions in this month
+    // Build series condition
+    var seriesCondition = habitSeriesTable.userId.equals(userId) &
+        habitSeriesTable.startDate.isSmallerThanValue(to) &
+        (habitSeriesTable.untilDate.isNull() |
+            habitSeriesTable.untilDate.isBiggerThanValue(from));
+
+    // Add category filter if provided
+    if (categoryId != null) {
+      seriesCondition =
+          seriesCondition & habitsTable.categoryId.equals(categoryId);
+    }
+
+    // Apply conditions and get series
+    seriesQuery.where(seriesCondition);
+    final recurringSeries =
+        await seriesQuery.map((row) => row.readTable(habitSeriesTable)).get();
+
+    // 3. Get all exceptions in this month (same for both methods)
     final allExceptions = await (select(habitExceptionsTable)
           ..where((ex) => ex.date.isBetween(Variable(from), Variable(to))))
         .get();
+
     final exceptionsBySeries = <String, List<HabitExceptionsTableData>>{};
     for (final ex in allExceptions) {
       exceptionsBySeries.putIfAbsent(ex.habitSeriesId, () => []).add(ex);
     }
 
-    // 4. Generate virtual instances from recurring series
+    // 4. Generate virtual instances from recurring series (same for both methods)
     final List<(HabitsTableData, HabitCategoriesTableData)> recurringHabits =
         [];
 
@@ -311,7 +336,6 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
       if (habit == null) continue;
 
       final category = await _getHabitCategory(habit.categoryId);
-      // ?? HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
 
       final repeatDates = getRepeatDatesForMonth(
           series.repeatFrequency, from, to, series.startDate);
@@ -348,6 +372,18 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
     }).toList();
 
     return [...directHabits, ...recurringHabits];
+  }
+
+  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
+      getHabitsWithCategoriesForMonth(DateTime month, String? userId) {
+    return getHabitsWithCategoriesForMonthBase(month, userId);
+  }
+
+  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
+      getHabitsWithCategoriesForMonthAndCategory(
+          DateTime month, String categoryId, String? userId) {
+    return getHabitsWithCategoriesForMonthBase(month, userId,
+        categoryId: categoryId);
   }
 
   List<DateTime> getRepeatDatesForMonth(

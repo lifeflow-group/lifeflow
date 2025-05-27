@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
 import '../../../data/services/user_service.dart';
@@ -36,18 +34,12 @@ class SelectedMonthNotifier extends StateNotifier<DateTime> {
 
 // CategoryStats class to represent category distribution
 class CategoryStats {
-  final String categoryId;
-  final String categoryName;
-  final String iconPath;
-  final Color color;
+  final HabitCategory category;
   final int habitCount;
   final double percentage;
 
   CategoryStats({
-    required this.categoryId,
-    required this.categoryName,
-    required this.iconPath,
-    required this.color,
+    required this.category,
     required this.habitCount,
     required this.percentage,
   });
@@ -144,31 +136,10 @@ class OverviewController extends AutoDisposeAsyncNotifier<OverviewStats> {
         final category = categoryDetailsMap[entry.key]!;
         final percentage = entry.value / monthHabits.length * 100;
 
-        // Find matching default category for styling information
-        final defaultCategory = defaultCategories.firstWhere(
-          (c) => c.id == category.id,
-          orElse: () => defaultCategories[0], // Use first category as fallback
-        );
-
-        // Convert hex color string to Color
-        final colorHex = defaultCategory.colorHex;
-        final color = Color(
-          int.parse(colorHex.substring(1), radix: 16) | 0xFF000000,
-        );
-
-        // Use the icon path from the category
-        final iconPath = defaultCategory.iconPath;
-
-        categoryDistribution.add(
-          CategoryStats(
-            categoryId: category.id,
-            categoryName: category.name,
-            iconPath: iconPath,
-            color: color,
+        categoryDistribution.add(CategoryStats(
+            category: category,
             habitCount: entry.value,
-            percentage: percentage,
-          ),
-        );
+            percentage: percentage));
       }
     }
 

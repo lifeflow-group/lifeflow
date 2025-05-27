@@ -114,6 +114,14 @@ final List<HabitCategory> defaultCategories = [
     ..colorHex = "#8E44AD"), // Dark Purple
 ];
 
+Color hexToColor(String hexString) {
+  final buffer = StringBuffer();
+  if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+  hexString = hexString.replaceFirst('#', '');
+  buffer.write(hexString);
+  return Color(int.parse(buffer.toString(), radix: 16));
+}
+
 // Generates recurring UTC dates for a habit
 List<DateTime> generateRecurringDates(
   HabitSeries series, {

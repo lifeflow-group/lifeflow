@@ -110,5 +110,11 @@
   "filterMostFrequent": "सबसे अधिक बार",
   "filterTopPerformed": "शीर्ष प्रदर्शन किया गया",
   "noHabitsInCategory": "इस श्रेणी में {month} के लिए कोई आदतें नहीं हैं",
-  "noRankedItemsAvailable": "कोई आइटम उपलब्ध नहीं है"
+  "noRankedItemsAvailable": "कोई आइटम उपलब्ध नहीं है",
+  "filterByCategoryLabel": "श्रेणी द्वारा फ़िल्टर करें",
+  "filterByCategoryTitle": "श्रेणी द्वारा फ़िल्टर करें",
+  "allCategoriesLabel": "सभी श्रेणियाँ",
+  "noHabitsInCategoryMessage": "इस श्रेणी में कोई आदत नहीं मिली",
+  "clearFilterTooltip": "फ़िल्टर साफ़ करें",
+  "showAllHabitsButton": "सभी आदतें दिखाएँ"
 }

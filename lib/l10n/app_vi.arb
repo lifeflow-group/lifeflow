@@ -110,5 +110,11 @@
   "filterMostFrequent": "Thường xuyên nhất",
   "filterTopPerformed": "Thực hiện tốt nhất",
   "noHabitsInCategory": "Chưa có thói quen nào trong danh mục này cho tháng {month}",
-  "noRankedItemsAvailable": "Không có mục nào khả dụng"
+  "noRankedItemsAvailable": "Không có mục nào khả dụng",
+  "filterByCategoryLabel": "Lọc theo danh mục",
+  "filterByCategoryTitle": "Lọc theo danh mục",
+  "allCategoriesLabel": "Tất cả danh mục",
+  "noHabitsInCategoryMessage": "Không tìm thấy thói quen nào trong danh mục này",
+  "clearFilterTooltip": "Xóa bộ lọc",
+  "showAllHabitsButton": "Hiển thị tất cả thói quen"
 }

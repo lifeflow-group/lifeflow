@@ -110,5 +110,11 @@
   "filterMostFrequent": "最常发生",
   "filterTopPerformed": "最佳表现",
   "noHabitsInCategory": "此类别中{month}没有习惯",
-  "noRankedItemsAvailable": "没有可用的项目"
+  "noRankedItemsAvailable": "没有可用的项目",
+  "filterByCategoryLabel": "按类别筛选",
+  "filterByCategoryTitle": "按类别筛选",
+  "allCategoriesLabel": "所有类别",
+  "noHabitsInCategoryMessage": "此类别中没有习惯",
+  "clearFilterTooltip": "清除筛选",
+  "showAllHabitsButton": "显示所有习惯"
 }

@@ -110,5 +110,11 @@
   "filterMostFrequent": "Наиболее частые",
   "filterTopPerformed": "Лучшие результаты",
   "noHabitsInCategory": "В этой категории нет привычек за {month}",
-  "noRankedItemsAvailable": "Нет доступных элементов"
+  "noRankedItemsAvailable": "Нет доступных элементов",
+  "filterByCategoryLabel": "Фильтровать по категории",
+  "filterByCategoryTitle": "Фильтровать по категории",
+  "allCategoriesLabel": "Все категории",
+  "noHabitsInCategoryMessage": "В этой категории нет привычек",
+  "clearFilterTooltip": "Сбросить фильтр",
+  "showAllHabitsButton": "Показать все привычки"
 }

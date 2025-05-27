@@ -110,5 +110,11 @@
   "filterMostFrequent": "最も多い",
   "filterTopPerformed": "トップ実行",
   "noHabitsInCategory": "{month}にはこのカテゴリの習慣がありません",
-  "noRankedItemsAvailable": "アイテムがありません"
+  "noRankedItemsAvailable": "アイテムがありません",
+  "filterByCategoryLabel": "カテゴリで絞り込む",
+  "filterByCategoryTitle": "カテゴリで絞り込む",
+  "allCategoriesLabel": "すべてのカテゴリ",
+  "noHabitsInCategoryMessage": "このカテゴリには習慣が見つかりません",
+  "clearFilterTooltip": "フィルターをクリア",
+  "showAllHabitsButton": "すべての習慣を表示"
 }

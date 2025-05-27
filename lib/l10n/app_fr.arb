@@ -110,5 +110,11 @@
   "filterMostFrequent": "Les plus fréquents",
   "filterTopPerformed": "Meilleurs résultats",
   "noHabitsInCategory": "Aucun habitude dans cette catégorie pour {month}",
-  "noRankedItemsAvailable": "Aucun élément disponible"
+  "noRankedItemsAvailable": "Aucun élément disponible",
+  "filterByCategoryLabel": "Filtrer par catégorie",
+  "filterByCategoryTitle": "Filtrer par catégorie",
+  "allCategoriesLabel": "Toutes les catégories",
+  "noHabitsInCategoryMessage": "Aucune habitude trouvée dans cette catégorie",
+  "clearFilterTooltip": "Effacer le filtre",
+  "showAllHabitsButton": "Afficher toutes les habitudes"
 }

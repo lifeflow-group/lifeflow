@@ -187,5 +187,12 @@
       }
     }
   },
-  "noRankedItemsAvailable": "No items available"
+  "noRankedItemsAvailable": "No items available",
+
+  "filterByCategoryLabel": "Filter by Category",
+  "filterByCategoryTitle": "Filter by Category",
+  "allCategoriesLabel": "All Categories", 
+  "noHabitsInCategoryMessage": "No habits found in this category",
+  "clearFilterTooltip": "Clear filter",
+  "showAllHabitsButton": "Show All Habits"
 }

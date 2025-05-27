@@ -51,7 +51,6 @@ class HabitItem extends ConsumerWidget {
                   shape: CircleBorder(),
                   onChanged: (value) async {
                     final result = await recordHabitCompletion(ref, habit);
-                    print('Completion result: $result');
                     if (result) {
                       // If completion was successful, invalidate controller
                       controllerInvalidate?.call();

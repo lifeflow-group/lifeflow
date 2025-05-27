@@ -4,7 +4,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../data/domain/models/habit_category.dart';
 import '../../../shared/actions/habit_actions.dart';
+import '../../habit_detail/presentation/widgets/category_bottom_sheet.dart';
 import '../controllers/home_controller.dart';
 import 'widgets/date_selector.dart';
 import 'widgets/habit_item.dart';
@@ -15,30 +17,77 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final habitsAsync = ref.watch(homeControllerProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
 
     return SafeArea(
       child: Scaffold(
         body: Column(
           children: [
             DateSelector(),
+            const SizedBox(height: 12),
+
+            /// Category Filter Chip
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 12.0),
+              child: FilterChip(
+                label: Text(
+                  selectedCategory != null
+                      ? selectedCategory.getLocalizedName(context)
+                      : l10n.filterByCategoryLabel,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface.withAlpha(180)),
+                ),
+                selected: selectedCategory != null,
+                onSelected: (_) => _handleCategoryFilter(context, ref),
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                selectedColor: theme.colorScheme.primary.withAlpha(60),
+                checkmarkColor: theme.colorScheme.onSurface.withAlpha(120),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
             const SizedBox(height: 8),
+
+            /// Habits List
             habitsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Text(l10n.errorMessage(error.toString())),
-              ),
+              error: (error, stack) =>
+                  Center(child: Text(l10n.errorMessage(error.toString()))),
               data: (habits) {
                 if (habits.isEmpty) {
                   return Expanded(
                     child: Center(
-                      child: Text(
-                        l10n.noHabitsMessage,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w400),
-                        textAlign: TextAlign.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            selectedCategory != null
+                                ? l10n.noHabitsInCategoryMessage
+                                : l10n.noHabitsMessage,
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w400),
+                            textAlign: TextAlign.center,
+                          ),
+                          if (selectedCategory != null) ...[
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                ref
+                                    .read(homeControllerProvider.notifier)
+                                    .clearCategoryFilter();
+                              },
+                              child: Text(l10n.showAllHabitsButton),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   );
@@ -68,7 +117,7 @@ class HomeScreen extends ConsumerWidget {
                                   margin: const EdgeInsets.only(left: 12),
                                   width: double.infinity,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.error,
+                                    color: theme.colorScheme.error,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Column(
@@ -77,13 +126,10 @@ class HomeScreen extends ConsumerWidget {
                                       Icon(Icons.delete),
                                       const SizedBox(width: 8),
                                       Text(l10n.deleteButton,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
+                                          style: theme.textTheme.titleMedium
                                               ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary)),
+                                                  color: theme
+                                                      .colorScheme.onPrimary)),
                                     ],
                                   ),
                                 ),
@@ -115,5 +161,21 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleCategoryFilter(
+      BuildContext context, WidgetRef ref) async {
+    final currentCategory = ref.read(selectedCategoryProvider);
+    final result = await showCategoryBottomSheet(context,
+        initialCategory: currentCategory);
+
+    if (result == null) return;
+    if (result is String && result == "clear") {
+      // Clear category filter
+      ref.read(homeControllerProvider.notifier).clearCategoryFilter();
+    } else if (result is HabitCategory) {
+      // Apply category filter
+      ref.read(homeControllerProvider.notifier).filterByCategory(result);
+    }
   }
 }

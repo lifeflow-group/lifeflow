@@ -95,10 +95,14 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               /// Select Category
               InkWell(
                 onTap: () async {
-                  final selectedCategory =
-                      await _showCategoryBottomSheet(context);
-                  if (selectedCategory != null) {
-                    controller.updateHabitCategory(selectedCategory);
+                  final category = await showCategoryBottomSheet(context,
+                      initialCategory: habitCategory);
+
+                  if (category == null) return;
+                  if (category is String && category == "clear") {
+                    controller.updateHabitCategory(null);
+                  } else if (category is HabitCategory) {
+                    controller.updateHabitCategory(category);
                   }
                 },
                 child: InputDecorator(
@@ -414,17 +418,6 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Future<HabitCategory?> _showCategoryBottomSheet(BuildContext context) async {
-    return await showModalBottomSheet<HabitCategory>(
-      context: context,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (context) {
-        return CategoryBottomSheet();
-      },
     );
   }
 

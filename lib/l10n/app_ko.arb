@@ -110,5 +110,11 @@
   "filterMostFrequent": "가장 빈번한",
   "filterTopPerformed": "최고 성과",
   "noHabitsInCategory": "{month}에는 해당 범주에 습관이 없습니다.",
-  "noRankedItemsAvailable": "사용 가능한 항목이 없습니다"
+  "noRankedItemsAvailable": "사용 가능한 항목이 없습니다",
+  "filterByCategoryLabel": "카테고리로 필터링",
+  "filterByCategoryTitle": "카테고리로 필터링",
+  "allCategoriesLabel": "모든 카테고리",
+  "noHabitsInCategoryMessage": "이 카테고리에 해당하는 습관이 없습니다",
+  "clearFilterTooltip": "필터 지우기",
+  "showAllHabitsButton": "모든 습관 보기"
 }

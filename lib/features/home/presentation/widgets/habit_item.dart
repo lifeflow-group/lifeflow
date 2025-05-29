@@ -22,6 +22,7 @@ class HabitItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isCompleted = habit.isCompleted ?? false;
     return Container(
       decoration: BoxDecoration(
           color: colorBackground ?? Theme.of(context).cardTheme.color,
@@ -43,19 +44,32 @@ class HabitItem extends ConsumerWidget {
               ? DateFormat('HH:mm').format(habit.startDate.toLocal())
               : '${habit.currentValue ?? 0}/${habit.targetValue} ${habit.unit}',
         ),
+        contentPadding: const EdgeInsets.only(left: 14, right: 12.0),
         trailing: habit.trackingType == TrackingType.complete
             ? SizedBox(
                 width: 20,
-                child: Checkbox(
-                  value: habit.isCompleted ?? false,
-                  shape: CircleBorder(),
-                  onChanged: (value) async {
-                    final result = await recordHabitCompletion(ref, habit);
-                    if (result) {
-                      // If completion was successful, invalidate controller
-                      controllerInvalidate?.call();
-                    }
-                  },
+                child: Transform.scale(
+                  scale: 0.9,
+                  child: Checkbox(
+                    value: isCompleted,
+                    shape: CircleBorder(),
+                    side: WidgetStateBorderSide.resolveWith(
+                      (states) => BorderSide(
+                        width: isCompleted ? 4 : 2,
+                        color: isCompleted
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurface,
+                        strokeAlign: BorderSide.strokeAlignCenter,
+                      ),
+                    ),
+                    onChanged: (value) async {
+                      final result = await recordHabitCompletion(ref, habit);
+                      if (result) {
+                        // If completion was successful, invalidate controller
+                        controllerInvalidate?.call();
+                      }
+                    },
+                  ),
                 ),
               )
             : SizedBox(

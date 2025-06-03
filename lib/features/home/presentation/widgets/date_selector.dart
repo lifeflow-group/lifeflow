@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/app_settings.dart';
+import '../../../../data/services/analytics_service.dart';
 import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/home_controller.dart';
 
@@ -17,6 +18,7 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
   late PageController _pageController;
   final int _initialPage = 500;
   late DateTime _baseDate;
+  late AnalyticsService _analyticsService;
 
   @override
   void initState() {
@@ -26,12 +28,22 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize analyticsService in didChangeDependencies to ensure ref is ready
+    _analyticsService = ref.read(analyticsServiceProvider);
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
   }
 
   void _navigateWeek(bool isNext) {
+    // Log week navigation
+    _analyticsService.trackWeekNavigation(isNext ? 'next' : 'previous');
+
     if (isNext) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -78,18 +90,32 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
                 ),
                 InkWell(
                   onTap: () async {
+                    // Log calendar opened
+                    _analyticsService.trackCalendarPickerOpened(
+                        selectedDate.toString().split(' ')[0]);
+
                     final pickedDate = await showDatePicker(
                       context: context,
                       initialDate: selectedDate,
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
+
                     if (pickedDate != null) {
+                      _analyticsService.trackCalendarDateSelected(
+                          selectedDate.toString().split(' ')[0],
+                          pickedDate.toString().split(' ')[0],
+                          pickedDate.difference(selectedDate).inDays);
+
                       _goToWeekOf(pickedDate);
+                    } else {
+                      _analyticsService.trackCalendarPickerDismissed(
+                          selectedDate.toString().split(' ')[0]);
                     }
                   },
                   child: Text(
-                    formatDateWithUserLanguage(ref, selectedDate, 'MMMM yyyy'),
+                    formatDateWithUserLanguage(
+                        settingsState, selectedDate, 'MMMM yyyy'),
                     style: theme.textTheme.bodyLarge
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
@@ -101,7 +127,13 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       TextButton(
-                        onPressed: () => _goToWeekOf(now),
+                        onPressed: () {
+                          _analyticsService.trackTodayButtonClicked(
+                              selectedDate.toString().split(' ')[0],
+                              now.difference(selectedDate).inDays);
+
+                          _goToWeekOf(now);
+                        },
                         style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all<Color>(
                                 Colors.transparent),
@@ -148,6 +180,11 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
                     baseWeekStart.add(Duration(days: weekOffset * 7));
                 final newWeekEnd = newWeekStart.add(Duration(days: 6));
 
+                _analyticsService.trackWeekChanged(
+                    weekOffset,
+                    newWeekStart.toString().split(' ')[0],
+                    newWeekEnd.toString().split(' ')[0]);
+
                 // If the selected date is not in the new week, update it
                 if (selectedDate.isBefore(newWeekStart) ||
                     selectedDate.isAfter(newWeekEnd)) {
@@ -177,7 +214,15 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
                           date.day == now.day;
 
                       return GestureDetector(
-                        onTap: () => notifier.updateSelectedDate(date),
+                        onTap: () {
+                          _analyticsService.trackDaySelected(
+                              selectedDate.toString().split(' ')[0],
+                              date.toString().split(' ')[0],
+                              _getDayOfWeekName(date.weekday),
+                              isToday);
+
+                          notifier.updateSelectedDate(date);
+                        },
                         child: Container(
                           width: 45,
                           padding: const EdgeInsets.only(top: 10, bottom: 6),
@@ -192,7 +237,8 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                formatDateWithUserLanguage(ref, date, 'E'),
+                                formatDateWithUserLanguage(
+                                    settingsState, date, 'E'),
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: isSelected
                                       ? theme.colorScheme.onPrimary
@@ -244,6 +290,20 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
     }
   }
 
+  // Helper method to get day name for analytics
+  String _getDayOfWeekName(int weekday) {
+    const days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
+    return days[weekday - 1];
+  }
+
   Future<void> _goToWeekOf(DateTime date) async {
     final notifier = ref.read(selectedDateProvider.notifier);
 
@@ -251,11 +311,22 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
         ref.read(settingsControllerProvider).valueOrNull?.weekStartDay ??
             WeekStartDay.monday;
 
+    // Calculate the week start for the target date
     final targetWeekStart = _calculateStartOfWeek(date, weekStartDay);
-    final baseWeekStart = _calculateStartOfWeek(_baseDate, weekStartDay);
 
-    final weekDiff = targetWeekStart.difference(baseWeekStart).inDays ~/ 7;
-    final targetPage = _initialPage + weekDiff;
+    // Calculate the current week being viewed, not based on _baseDate
+    final currentPage = _pageController.page?.round() ?? _initialPage;
+    final weekOffset = currentPage - _initialPage;
+    final baseWeekStart = _calculateStartOfWeek(_baseDate, weekStartDay);
+    final currentWeekStart = baseWeekStart.add(Duration(days: weekOffset * 7));
+
+    // Calculate week difference from the current week, not from _baseDate
+    final weekDiff =
+        (targetWeekStart.difference(currentWeekStart).inDays / 7).round();
+    final targetPage = currentPage + weekDiff;
+
+    _analyticsService.trackWeekJump(
+        currentPage, targetPage, weekDiff, date.toString().split(' ')[0]);
 
     await _pageController.animateToPage(
       targetPage,

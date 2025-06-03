@@ -8,6 +8,7 @@ import '../../../core/utils/helpers.dart';
 import '../../../data/controllers/habit_controller.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/scheduled_notification.dart';
+import '../../../data/services/analytics_service.dart';
 import '../../../shared/actions/habit_actions.dart';
 import '../../../shared/widgets/enter_number_dialog.dart';
 import '../../home/controllers/home_controller.dart';
@@ -27,11 +28,19 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
   HabitDetailController get controller =>
       ref.read(habitDetailControllerProvider);
 
+  AnalyticsService get _analyticsService => ref.read(analyticsServiceProvider);
+
+  // Track if we opened from notification
+  bool _openedFromNotification = false;
+
   @override
   void initState() {
     super.initState();
 
     Future.microtask(() async {
+      // Set flag for navigation source
+      _openedFromNotification = widget.scheduledNotification != null;
+
       if (widget.habit == null && widget.scheduledNotification == null) {
         controller.resetForm();
       } else if (widget.habit != null) {
@@ -41,6 +50,47 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
             .loadHabitFromNotification(widget.scheduledNotification!);
       }
     });
+  }
+
+  // Helper method for navigation
+  void _navigateBack(
+      [dynamic result,
+      String? analyticsAction,
+      Map<String, dynamic>? analyticsParams]) {
+    // Track analytics if specified
+    if (analyticsAction != null && analyticsParams != null) {
+      switch (analyticsAction) {
+        case 'back_pressed':
+          _analyticsService.trackHabitViewBackPressed(
+              analyticsParams['habitId'] ?? 'unknown',
+              analyticsParams['habitName'] ?? '');
+          break;
+        case 'deleted':
+          _analyticsService.trackHabitDeleted(
+              analyticsParams['habitId'] ?? 'unknown',
+              analyticsParams['habitName'] ?? '');
+          break;
+        case 'edit_completed':
+          _analyticsService.trackHabitEditCompleted(
+              analyticsParams['habitId'] ?? 'unknown',
+              analyticsParams['habitName'] ?? '');
+          break;
+        case 'edit_canceled':
+          _analyticsService.trackHabitEditCanceled(
+              analyticsParams['habitId'] ?? 'unknown',
+              analyticsParams['habitName'] ?? '');
+          break;
+      }
+    }
+
+    // Navigate based on source
+    if (_openedFromNotification) {
+      // Go to main if opened from notification
+      context.goNamed('main');
+    } else {
+      // Otherwise use normal navigation
+      context.pop(result);
+    }
   }
 
   @override
@@ -64,16 +114,29 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-            onPressed: () => context.pop(),
-            color: Theme.of(context).colorScheme.onSurface),
+          onPressed: () {
+            _navigateBack(null, 'back_pressed',
+                {'habitId': habit?.id ?? 'unknown', 'habitName': habitName});
+          },
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: trackingType == TrackingType.progress
             ? TextButton(
-                onPressed: () => _handelUpdateCurrentValue(
-                    context: context,
-                    habit: habit,
-                    currentValue: currentValue,
-                    ref: ref),
+                onPressed: () {
+                  // Use controller to track progress update initiated
+                  _analyticsService.trackProgressUpdateInitiated(
+                      habit?.id ?? 'unknown',
+                      habitName,
+                      currentValue,
+                      targetValue);
+
+                  _handelUpdateCurrentValue(
+                      context: context,
+                      habit: habit,
+                      currentValue: currentValue,
+                      ref: ref);
+                },
                 child: Text(
                   trackingType == TrackingType.progress
                       ? l10n.progressFormat(currentValue, targetValue, unit)
@@ -100,8 +163,17 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                         ),
                       ),
                       onChanged: (value) async {
+                        // Use controller to track completion toggled
+                        _analyticsService.trackHabitCompletionToggled(
+                            habit?.id ?? 'unknown', habitName, isCompleted);
+
                         final result = await recordHabitCompletion(ref, habit!);
                         if (result == false) return;
+
+                        // Use controller to track completion updated
+                        _analyticsService.trackHabitCompletionUpdated(
+                            habit.id, habitName, isCompleted);
+
                         controller.updateHabitIsCompleted(!isCompleted);
                       }),
                 )
@@ -109,10 +181,22 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                   padding: EdgeInsets.all(4.0),
                   constraints: BoxConstraints(),
                   onPressed: () async {
-                    final currentValue =
+                    // Use controller to track progress add initiated
+                    _analyticsService.trackProgressAddInitiated(
+                        habit?.id ?? 'unknown',
+                        habitName,
+                        currentValue,
+                        targetValue);
+
+                    final newValue =
                         await recordHabitProgress(context, ref, habit!);
-                    if (currentValue == null) return;
-                    controller.updateHabitCurrentValue(currentValue);
+                    if (newValue == null) return;
+
+                    // Use controller to track progress updated
+                    _analyticsService.trackProgressUpdated(
+                        habit.id, habitName, newValue, targetValue);
+
+                    controller.updateHabitCurrentValue(newValue);
                   },
                   icon: Icon(Icons.add_circle_outline,
                       color: Theme.of(context).colorScheme.onSurface),
@@ -157,9 +241,18 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                               horizontal: 20, vertical: 12)),
                       onPressed: () async {
                         if (habit == null) return;
+
+                        // Use controller to track delete initiated
+                        _analyticsService.trackHabitDeleteInitiated(
+                            habit.id, habitName);
+
                         final isDeleted =
                             await handleDeleteHabit(context, ref, habit);
-                        if (isDeleted && context.mounted) context.pop();
+
+                        if (isDeleted && context.mounted) {
+                          _navigateBack(null, 'deleted',
+                              {'habitId': habit.id, 'habitName': habitName});
+                        }
                       },
                       child: Text(l10n.deleteButton,
                           style: Theme.of(context).textTheme.titleMedium),
@@ -175,10 +268,26 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 12)),
                       onPressed: () async {
-                        final result =
-                            await context.push('/habit-detail', extra: habit);
+                        // Use controller to track edit initiated
+                        _analyticsService.trackHabitEditInitiated(
+                            habit?.id ?? 'unknown', habitName);
+
+                        // Use named route instead of path
+                        final result = await context.pushNamed('habit-detail',
+                            extra: habit);
+
                         if (context.mounted) {
-                          context.pop(result);
+                          if (result != null) {
+                            _navigateBack(result, 'edit_completed', {
+                              'habitId': habit?.id ?? 'unknown',
+                              'habitName': habitName
+                            });
+                          } else {
+                            _navigateBack(null, 'edit_canceled', {
+                              'habitId': habit?.id ?? 'unknown',
+                              'habitName': habitName
+                            });
+                          }
                         }
                       },
                       child: Text(l10n.editButton,
@@ -203,11 +312,22 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     if (habit == null) return;
+
     final newValue = await showDialog<int?>(
         context: context,
         builder: (context) => EnterNumberDialog(
             currentValue: currentValue, title: l10n.updateProgressTitle));
-    if (newValue == null) return;
+
+    if (newValue == null) {
+      // Use controller to track dialog dismissed
+      _analyticsService.trackProgressUpdateDialogDismissed(
+          habit.id, habit.name);
+      return;
+    }
+
+    // Use controller to track value manually set
+    _analyticsService.trackProgressValueManuallySet(
+        habit.id, habit.name, currentValue, newValue, habit.targetValue ?? 1);
 
     final controllerProvider = ref.read(habitControllerProvider);
     await controllerProvider.recordHabit(

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../data/domain/models/habit.dart';
+import '../../../../data/services/analytics_service.dart';
 import '../../../../shared/actions/habit_actions.dart';
 
 class HabitItem extends ConsumerWidget {
@@ -23,6 +24,8 @@ class HabitItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isCompleted = habit.isCompleted ?? false;
+    final analyticsService = ref.read(analyticsServiceProvider);
+
     return Container(
       decoration: BoxDecoration(
           color: colorBackground ?? Theme.of(context).cardTheme.color,
@@ -31,7 +34,16 @@ class HabitItem extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         onTap: () async {
-          await context.push('/habit-view', extra: {'habit': habit});
+          analyticsService.trackHabitDetailsOpened(
+            habit.id,
+            habit.name,
+            habit.category.name,
+            habit.trackingType.toString(),
+          );
+
+          // Use named route instead of path
+          await context.pushNamed('habit-view', extra: {'habit': habit});
+
           // Invalidate controller after navigating to habit view
           controllerInvalidate?.call();
         },
@@ -63,10 +75,22 @@ class HabitItem extends ConsumerWidget {
                       ),
                     ),
                     onChanged: (value) async {
+                      analyticsService.trackHabitCompletionToggled(
+                        habit.id,
+                        habit.name,
+                        !isCompleted,
+                      );
+
                       final result = await recordHabitCompletion(ref, habit);
                       if (result) {
                         // If completion was successful, invalidate controller
                         controllerInvalidate?.call();
+
+                        analyticsService.trackHabitCompletionRecorded(
+                          habit.id,
+                          habit.name,
+                          !isCompleted,
+                        );
                       }
                     },
                   ),
@@ -78,11 +102,25 @@ class HabitItem extends ConsumerWidget {
                   padding: EdgeInsets.all(4.0),
                   constraints: BoxConstraints(),
                   onPressed: () async {
+                    analyticsService.trackHabitProgressInitiated(
+                      habit.id,
+                      habit.name,
+                      habit.currentValue,
+                      habit.targetValue,
+                    );
+
                     final result =
                         await recordHabitProgress(context, ref, habit);
                     if (result != null) {
                       // If progress was recorded, invalidate controller
                       controllerInvalidate?.call();
+
+                      analyticsService.trackHabitProgressRecorded(
+                        habit.id,
+                        habit.name,
+                        result,
+                        habit.targetValue,
+                      );
                     }
                   },
                   icon: const Icon(Icons.add_circle_outline),

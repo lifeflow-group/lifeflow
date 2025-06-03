@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/habit_category.dart';
+import '../../../../data/services/analytics_service.dart';
+import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/category_habit_analytics_controller.dart';
 import '../widgets/habit_list_with_date_headers.dart';
 import '../widgets/month_picker.dart';
@@ -28,6 +31,8 @@ class CategoryHabitAnalyticsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final settingsState = ref.watch(settingsControllerProvider);
+    final analyticsService = ref.read(analyticsServiceProvider);
 
     // Use controller with family provider
     final controller = ref.watch(categoryHabitAnalyticsControllerProvider(
@@ -43,7 +48,13 @@ class CategoryHabitAnalyticsScreen extends ConsumerWidget {
     final errorMessage = controller.errorMessage;
 
     // Format month based on current locale
-    final monthName = formatDateWithUserLanguage(ref, selectedMonth, 'MMMM');
+    final monthName =
+        formatDateWithUserLanguage(settingsState, selectedMonth, 'MMMM');
+
+    // Helper function to format month for analytics
+    String formatMonthForAnalytics(DateTime date) {
+      return formatDateWithUserLanguage(settingsState, date, 'yyyy-MM');
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -55,7 +66,14 @@ class CategoryHabitAnalyticsScreen extends ConsumerWidget {
                 fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            analyticsService.trackCategoryAnalyticsBackPressed(
+                category.name,
+                category.id,
+                formatMonthForAnalytics(selectedMonth),
+                _getFilterName(controller.currentFilter));
+            context.pop();
+          },
         ),
         actions: [
           TextButton.icon(
@@ -65,10 +83,21 @@ class CategoryHabitAnalyticsScreen extends ConsumerWidget {
                 style: theme.textTheme.titleMedium
                     ?.copyWith(color: theme.colorScheme.onSurface)),
             onPressed: () async {
+              analyticsService.trackCategoryAnalyticsMonthPickerOpened(
+                  formatMonthForAnalytics(selectedMonth), category.name);
+
               final monthSelected = await showMonthPicker(
                   context: context, initialDate: selectedMonth);
+
               if (monthSelected != null) {
+                analyticsService.trackCategoryAnalyticsMonthSelected(
+                    formatMonthForAnalytics(selectedMonth),
+                    formatMonthForAnalytics(monthSelected),
+                    category.name);
                 notifier.changeMonth(monthSelected);
+              } else {
+                analyticsService.trackCategoryAnalyticsMonthPickerDismissed(
+                    formatMonthForAnalytics(selectedMonth), category.name);
               }
             },
           ),
@@ -116,24 +145,21 @@ class CategoryHabitAnalyticsScreen extends ConsumerWidget {
                             isSelected: controller.currentFilter ==
                                 CategoryDetailFilterType.all,
                             filterType: CategoryDetailFilterType.all,
-                            onFilterChange: (filterType) =>
-                                notifier.changeFilter(filterType),
+                            onFilterChange: notifier.changeFilter,
                           ),
                           FilterChipButton(
                             label: l10n.filterMostFrequent,
                             isSelected: controller.currentFilter ==
                                 CategoryDetailFilterType.mostFrequent,
                             filterType: CategoryDetailFilterType.mostFrequent,
-                            onFilterChange: (filterType) =>
-                                notifier.changeFilter(filterType),
+                            onFilterChange: notifier.changeFilter,
                           ),
                           FilterChipButton(
                             label: l10n.filterTopPerformed,
                             isSelected: controller.currentFilter ==
                                 CategoryDetailFilterType.topPerformed,
                             filterType: CategoryDetailFilterType.topPerformed,
-                            onFilterChange: (filterType) =>
-                                notifier.changeFilter(filterType),
+                            onFilterChange: notifier.changeFilter,
                           ),
                         ],
                       ),
@@ -153,8 +179,14 @@ class CategoryHabitAnalyticsScreen extends ConsumerWidget {
                         HabitListWithDateHeaders(
                             habits: habitsList,
                             // Reload habits
-                            controllerInvalidate: () =>
-                                notifier.loadHabitsForMonth(selectedMonth))
+                            controllerInvalidate: () => {
+                                  analyticsService.trackCategoryAnalyticsReload(
+                                      category.name,
+                                      category.id,
+                                      formatMonthForAnalytics(selectedMonth),
+                                      _getFilterName(controller.currentFilter)),
+                                  notifier.loadHabitsForMonth(selectedMonth)
+                                })
                       else if (controller.currentFilter ==
                           CategoryDetailFilterType.mostFrequent)
                         RankedItemList(items: notifier.mostFrequentList)
@@ -165,5 +197,17 @@ class CategoryHabitAnalyticsScreen extends ConsumerWidget {
                   ),
                 ),
     );
+  }
+
+  // Helper method to get filter name for analytics
+  String _getFilterName(CategoryDetailFilterType filter) {
+    switch (filter) {
+      case CategoryDetailFilterType.all:
+        return 'all';
+      case CategoryDetailFilterType.mostFrequent:
+        return 'most_frequent';
+      case CategoryDetailFilterType.topPerformed:
+        return 'top_performed';
+    }
   }
 }

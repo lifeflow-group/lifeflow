@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_languages.dart';
 import '../../../data/domain/models/language.dart';
+import '../../../data/services/analytics_service.dart';
 import 'settings_controller.dart';
 
 // State object for the controller
@@ -41,6 +42,9 @@ class LanguageSelectionController
             selectedLanguage: _getInitialLanguage(ref),
             supportedLanguages: AppLanguages.supportedLanguages));
 
+  // Access analytics service
+  AnalyticsService get _analyticsService => ref.read(analyticsServiceProvider);
+
   // Helper method to get initial language code from settings
   static Language _getInitialLanguage(Ref ref) {
     // Read value from settingsControllerProvider
@@ -61,12 +65,31 @@ class LanguageSelectionController
   // Temporarily select a language without saving it
   void selectLanguageCode(Language language) {
     if (language != state.selectedLanguage) {
+      // Track language selection changed
+      _analyticsService.trackLanguageOptionSelected(
+        language.languageCode,
+        language.languageName,
+        state.selectedLanguage.languageCode,
+        state.selectedLanguage.languageName,
+      );
+
       state = state.copyWith(selectedLanguage: language);
+    } else {
+      // Track re-selecting same language
+      _analyticsService.trackLanguageOptionReselected(
+        language.languageCode,
+        language.languageName,
+      );
     }
   }
 
   // Add/remove supported languages (if needed)
   void updateSupportedLanguages(List<Language> languages) {
+    _analyticsService.trackSupportedLanguagesUpdated(
+      languages.length,
+      languages.map((l) => l.languageCode).join(','),
+    );
+
     state = state.copyWith(supportedLanguages: languages);
   }
 
@@ -77,10 +100,45 @@ class LanguageSelectionController
     settings.maybeWhen(
       data: (data) {
         if (data.language != state.selectedLanguage) {
+          _analyticsService.trackLanguageSelectionInitialStateLoaded(
+            data.language.languageCode,
+            data.language.languageName,
+            state.supportedLanguages.length,
+          );
+
           state = state.copyWith(selectedLanguage: data.language);
         }
       },
-      orElse: () {},
+      orElse: () {
+        _analyticsService.trackLanguageSelectionDefaultStateUsed(
+          AppLanguages.defaultLanguage.languageCode,
+          AppLanguages.defaultLanguage.languageName,
+        );
+      },
+    );
+  }
+
+  // Track when user confirms their language selection
+  void trackLanguageSaved() {
+    _analyticsService.trackLanguageSaved(
+      state.selectedLanguage.languageCode,
+      state.selectedLanguage.languageName,
+    );
+  }
+
+  // Track when user cancels language selection
+  void trackLanguageSelectionCanceled() {
+    _analyticsService.trackLanguageSelectionCanceled(
+      state.selectedLanguage.languageCode,
+      state.selectedLanguage.languageName,
+    );
+  }
+
+  // Track when all language options are loaded
+  void trackLanguageOptionsLoaded() {
+    _analyticsService.trackLanguageOptionsLoaded(
+      state.supportedLanguages.length,
+      state.selectedLanguage.languageCode,
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,6 +9,7 @@ import 'data/datasources/local/app_database.dart';
 import 'data/datasources/local/database_provider.dart';
 import 'data/datasources/local/seed/database_seed.dart';
 import 'data/services/notification_service.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +23,9 @@ void main() async {
   await notificationService
       .initialize((payload) => notificationHandler.handlePayload(payload));
   notificationService.scheduleUpcomingNotifications(database);
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
   runApp(ProviderScope(
     overrides: [appDatabaseProvider.overrideWithValue(database)],

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/services/analytics_service.dart';
 import '../../../data/services/user_service.dart';
 import '../../../data/domain/models/suggestion.dart';
 import '../repositories/habits_repository.dart';
@@ -17,6 +18,7 @@ class SuggestionController extends AsyncNotifier<List<Suggestion>> {
   HabitsRepository get habitsRepository => ref.watch(habitsRepositoryProvider);
   SuggestionRepository get suggestionRepository =>
       ref.read(suggestionRepositoryProvider);
+  AnalyticsService get _analytics => ref.read(analyticsServiceProvider);
 
   @override
   FutureOr<List<Suggestion>> build() {
@@ -25,25 +27,47 @@ class SuggestionController extends AsyncNotifier<List<Suggestion>> {
 
   Future<List<Suggestion>> loadSuggestions() async {
     state = const AsyncLoading();
+    _analytics.trackSuggestionDataLoadingStarted();
 
-    // Get habit analysis input
-    final time = DateTime.now();
-    final userId = await ref.read(userServiceProvider).getCurrentUserId();
-    if (userId == null) return [];
+    try {
+      // Get habit analysis input
+      final time = DateTime.now();
+      final userId = await ref.read(userServiceProvider).getCurrentUserId();
+      if (userId == null) {
+        _analytics.trackSuggestionDataLoadNoUser();
+        return [];
+      }
 
-    final input = await habitsRepository.getHabitAnalysisInput(
-        DateTimeRange(start: time.subtract(Duration(days: 30)), end: time),
-        userId);
+      final input = await habitsRepository.getHabitAnalysisInput(
+          DateTimeRange(start: time.subtract(Duration(days: 30)), end: time),
+          userId);
 
-    if (input == null) return [];
+      if (input == null) {
+        _analytics.trackSuggestionDataLoadEmptyInput();
+        return [];
+      }
 
-    debugPrint('Input: ${input.habits.length} habits');
+      _analytics.trackSuggestionAnalysisInputLoaded(input.habits.length, 30);
 
-    // Send data for analysis and generate suggestions
-    final suggestions = await suggestionRepository.analyzeHabits(input);
+      // Send data for analysis and generate suggestions
+      final suggestions = await suggestionRepository.analyzeHabits(input);
 
-    return suggestions;
+      // Log result in controller (business-focused data)
+      _analytics.trackSuggestionDataLoaded(
+          suggestions.length, suggestions.isNotEmpty, true);
+
+      return suggestions;
+    } catch (e) {
+      // Log errors in controller
+      _analytics.trackSuggestionDataLoadError(
+          e.toString(), e.runtimeType.toString());
+
+      rethrow;
+    }
   }
 
-  void refresh() => ref.invalidateSelf();
+  Future<void> refresh() async {
+    _analytics.trackSuggestionControllerRefreshCalled();
+    ref.invalidateSelf();
+  }
 }

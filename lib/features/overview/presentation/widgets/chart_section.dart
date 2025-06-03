@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/habit_category.dart';
+import '../../../../data/services/analytics_service.dart';
+import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/overview_controller.dart';
 import 'category_list_tile.dart';
 import 'legend_item.dart';
@@ -27,6 +29,8 @@ class _ChartSectionState extends ConsumerState<ChartSection> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final overviewController = ref.watch(overviewControllerProvider);
+    final overviewNotifier = ref.read(overviewControllerProvider.notifier);
+    final analyticsService = ref.read(analyticsServiceProvider);
 
     return Card(
       margin: EdgeInsets.zero,
@@ -43,14 +47,18 @@ class _ChartSectionState extends ConsumerState<ChartSection> {
           loading: () => Center(
               child:
                   CircularProgressIndicator(color: theme.colorScheme.primary)),
-          error: (error, stack) => Center(
-            child: Text(l10n.errorLoadingChartData(error.toString()),
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(color: theme.colorScheme.error)),
-          ),
+          error: (error, stack) {
+            // Log chart loading error
+            return Center(
+              child: Text(l10n.errorLoadingChartData(error.toString()),
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: theme.colorScheme.error)),
+            );
+          },
           data: (stats) {
             // Handle empty data case
             if (stats.totalHabits == 0) {
+              // Log empty chart data
               return SizedBox(
                 height: 230,
                 child: Center(
@@ -159,9 +167,33 @@ class _ChartSectionState extends ConsumerState<ChartSection> {
                               pieTouchData: PieTouchData(
                                 touchCallback:
                                     (FlTouchEvent event, pieTouchResponse) {
+                                  if (event is! FlTapUpEvent) return;
+
+                                  final newIndex = pieTouchResponse
+                                      ?.touchedSection?.touchedSectionIndex;
+
+                                  if (newIndex != null &&
+                                      newIndex != touchedIndex) {
+                                    String categoryName = 'others';
+                                    double percentage = 0;
+
+                                    if (newIndex < visibleCategories.length) {
+                                      categoryName = visibleCategories[newIndex]
+                                          .category
+                                          .name;
+                                      percentage = visibleCategories[newIndex]
+                                          .percentage;
+                                    } else if (hasOthers) {
+                                      percentage = othersCategories.fold(0,
+                                          (sum, item) => sum + item.percentage);
+                                    }
+
+                                    analyticsService.trackChartSectionTapped(
+                                        categoryName, percentage, newIndex);
+                                  }
+
                                   setState(() {
-                                    touchedIndex = pieTouchResponse
-                                        ?.touchedSection?.touchedSectionIndex;
+                                    touchedIndex = newIndex;
                                   });
                                 },
                               ),
@@ -198,8 +230,11 @@ class _ChartSectionState extends ConsumerState<ChartSection> {
                               categoryStats: visibleCategories[i],
                               month: widget.month,
                               isSelected: i == touchedIndex,
-                              onTap: () => _navigateToDetail(context,
-                                  visibleCategories[i].category, widget.month)),
+                              onTap: () => _navigateToDetail(
+                                  context,
+                                  visibleCategories[i].category,
+                                  widget.month,
+                                  overviewNotifier)),
 
                           // Add divider if not the last item
                           if (i < visibleCategories.length - 1)
@@ -243,8 +278,11 @@ class _ChartSectionState extends ConsumerState<ChartSection> {
                                 CategoryListTile(
                                   categoryStats: categoryStats,
                                   month: widget.month,
-                                  onTap: () => _navigateToDetail(context,
-                                      categoryStats.category, widget.month),
+                                  onTap: () => _navigateToDetail(
+                                      context,
+                                      categoryStats.category,
+                                      widget.month,
+                                      overviewNotifier),
                                 ),
                               ],
                             );
@@ -263,10 +301,29 @@ class _ChartSectionState extends ConsumerState<ChartSection> {
   }
 
   Future<void> _navigateToDetail(
-      BuildContext context, HabitCategory category, DateTime month) async {
+    BuildContext context,
+    HabitCategory category,
+    DateTime month,
+    OverviewController overviewNotifier,
+  ) async {
     if (context.mounted) {
-      await context.push('/category-habit-analytics',
+      final analyticsService = ref.read(analyticsServiceProvider);
+
+      analyticsService.trackNavigateToCategoryDetail(
+          category.name,
+          formatDateWithUserLanguage(
+              ref.read(settingsControllerProvider), month, 'yyyy-MM'),
+          true);
+
+      // Use named routes instead of paths
+      await context.pushNamed('category-habit-analytics',
           extra: {'category': category, 'month': month});
+
+      analyticsService.trackReturnFromCategoryDetail(
+          category.name,
+          formatDateWithUserLanguage(
+              ref.read(settingsControllerProvider), month, 'yyyy-MM'));
+
       ref.invalidate(overviewControllerProvider);
     }
   }

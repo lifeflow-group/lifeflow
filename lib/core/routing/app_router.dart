@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/domain/models/habit.dart';
 import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/scheduled_notification.dart';
+import '../../data/services/analytics_service.dart';
 import '../../features/habit_detail/presentation/habit_detail_screen.dart';
 import '../../features/habit_detail/presentation/habit_view_screen.dart';
 import '../../features/login/presentation/login_screen.dart';
@@ -20,10 +21,23 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: navigatorKey,
     initialLocation: '/splash',
     routes: [
-      GoRoute(path: '/', builder: (context, state) => MainScreen()),
-      GoRoute(path: '/splash', builder: (context, state) => SplashScreen()),
-      GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
       GoRoute(
+        name: 'main',
+        path: '/',
+        builder: (context, state) => MainScreen(),
+      ),
+      GoRoute(
+        name: 'splash',
+        path: '/splash',
+        builder: (context, state) => SplashScreen(),
+      ),
+      GoRoute(
+        name: 'login',
+        path: '/login',
+        builder: (context, state) => LoginScreen(),
+      ),
+      GoRoute(
+        name: 'habit-view',
         path: '/habit-view',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
@@ -41,21 +55,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        name: 'habit-detail',
         path: '/habit-detail',
         builder: (context, state) {
-          final habit = state.extra as Habit?;
+          // Handle both cases - extra could be a Habit or null
+          final habit = state.extra is Habit ? state.extra as Habit : null;
           return HabitDetailScreen(habit: habit);
         },
       ),
       GoRoute(
+        name: 'terms-of-use',
         path: '/terms-of-use',
         builder: (context, state) => const TermsOfUseScreen(),
       ),
       GoRoute(
+        name: 'language-selection',
         path: '/language-selection',
         builder: (context, state) => const LanguageSelectionScreen(),
       ),
       GoRoute(
+        name: 'category-habit-analytics',
         path: '/category-habit-analytics',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
@@ -71,5 +90,163 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
     ],
+    redirect: (BuildContext context, GoRouterState state) async {
+      // Optional: Handle redirects if needed
+      return null;
+    },
+    onException: (BuildContext context, GoRouterState state, GoRouter router) {
+      // Handle invalid routes
+    },
+    observers: [
+      // Optional: Use a NavigatorObserver for additional tracking
+      AnalyticsNavigatorObserver(ref),
+    ],
+    // Track route changes
+    routerNeglect: false,
+    debugLogDiagnostics: true,
   );
 });
+
+class AnalyticsNavigatorObserver extends NavigatorObserver {
+  final Ref ref;
+  Route<dynamic>? _previousRoute;
+
+  AnalyticsNavigatorObserver(this.ref);
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _previousRoute = previousRoute;
+    _logScreenView(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (previousRoute != null) {
+      _previousRoute = route;
+      _logScreenView(previousRoute);
+    }
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    if (newRoute != null) {
+      _previousRoute = oldRoute;
+      _logScreenView(newRoute);
+    }
+  }
+
+  void _logScreenView(Route<dynamic> route) {
+    final screenName = route.settings.name;
+    final routeName = _getRouteName(route);
+    final analyticsService = ref.read(analyticsServiceProvider);
+
+    if (screenName != null) {
+      // Base event parameters - cast to Map<String, Object>
+      Map<String, Object> eventParams = {};
+
+      // Add extra context based on the route
+      final Map<String, dynamic>? extraData =
+          route.settings.arguments is Map<String, dynamic>
+              ? route.settings.arguments as Map<String, dynamic>
+              : null;
+
+      // Add route-specific context
+      if (routeName == 'habit-view') {
+        _addHabitViewContext(route.settings.arguments, extraData, eventParams);
+      } else if (routeName == 'habit-detail') {
+        _addHabitDetailContext(
+            route.settings.arguments, extraData, eventParams);
+      } else if (routeName == 'category-habit-analytics') {
+        _addCategoryAnalyticsContext(
+            route.settings.arguments, extraData, eventParams);
+      }
+
+      // Log standard screen view
+      analyticsService.logScreenView(screenName);
+
+      // Log enhanced event with additional context
+      analyticsService.trackScreenViewed(
+          screenName,
+          routeName,
+          _previousRoute != null ? _getRouteName(_previousRoute!) : 'none',
+          eventParams);
+
+      // For specific screens, log custom events
+      if (routeName == 'habit-view') {
+        analyticsService.trackHabitViewScreenOpened(
+            eventParams['habit_id']?.toString() ?? 'unknown',
+            eventParams['source']?.toString() ?? 'unknown');
+      }
+    }
+  }
+
+  void _addHabitViewContext(dynamic arguments, Map<String, dynamic>? extraData,
+      Map<String, Object> eventParams) {
+    // Extract habit and notification info
+    final Map<String, dynamic>? extra = extraData;
+    final habit = extra?['habit'];
+    final scheduledNotification = extra?['scheduledNotification'];
+
+    // Determine source
+    String source = 'unknown';
+    String habitId = 'unknown';
+
+    if (habit != null) {
+      source = 'direct_habit';
+      habitId = habit.id;
+    } else if (scheduledNotification != null) {
+      source = 'notification';
+      habitId = scheduledNotification.habitId ?? 'unknown';
+    }
+
+    // Add to params
+    eventParams['source'] = source;
+    eventParams['habit_id'] = habitId;
+  }
+
+  void _addHabitDetailContext(dynamic arguments,
+      Map<String, dynamic>? extraData, Map<String, Object> eventParams) {
+    // Check if arguments is a Habit before casting
+    if (arguments is Habit) {
+      // If it's a Habit, process it normally
+      eventParams['habit_id'] = arguments.id;
+      eventParams['is_editing'] = true;
+    } else {
+      // If it's not a Habit, set default values
+      eventParams['habit_id'] = 'new';
+      eventParams['is_editing'] = false;
+    }
+  }
+
+  void _addCategoryAnalyticsContext(dynamic arguments,
+      Map<String, dynamic>? extraData, Map<String, Object> eventParams) {
+    final Map<String, dynamic>? extra = extraData;
+    final category = extra?['category'] as HabitCategory?;
+    final month = extra?['month'] as DateTime?;
+
+    if (category != null) {
+      eventParams['category_id'] = category.id;
+      eventParams['category_name'] = category.name;
+    }
+
+    if (month != null) {
+      eventParams['month'] = '${month.year}-${month.month}';
+    }
+  }
+
+  // Helper method to extract a more readable route name
+  String _getRouteName(Route<dynamic> route) {
+    // Extract name from route
+    if (route.settings.name != null) {
+      return route.settings.name!;
+    }
+
+    // Try to get a meaningful name from the route settings
+    final routeSettings = route.settings;
+    final name = routeSettings.name;
+    if (name != null) return name;
+
+    // Fall back to route type
+    return route.runtimeType.toString();
+  }
+}

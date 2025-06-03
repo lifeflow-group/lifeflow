@@ -6,10 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/datasources/local/app_database.dart';
+import '../../data/domain/models/app_settings.dart';
 import '../../data/domain/models/habit.dart';
 import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/habit_series.dart';
-import '../../features/settings/controllers/settings_controller.dart';
 import '../constants/app_languages.dart';
 
 String generateNewId(String prefix) => '$prefix-${Uuid().v4()}';
@@ -213,9 +213,7 @@ HabitsTableData applyExceptionOverride(
 
 // Helper function to format dates according to user's language preference
 String formatDateWithUserLanguage(
-    WidgetRef ref, DateTime date, String pattern) {
-  final settingsState = ref.watch(settingsControllerProvider);
-
+    AsyncValue<AppSettings> settingsState, DateTime date, String pattern) {
   // Get language from user settings
   final userLanguage = settingsState.valueOrNull?.language;
 

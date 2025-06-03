@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../../data/services/user_service.dart';
-import '../../settings/controllers/settings_controller.dart';
 import '../controllers/login_controller.dart';
 import 'widgets/social_button.dart';
 
@@ -154,13 +152,13 @@ class LoginScreen extends ConsumerWidget {
                           shadowColor: Colors.transparent,
                         ),
                         onPressed: () async {
-                          final userService = ref.read(userServiceProvider);
-                          final userId = await userService.loginAsGuest();
-                          await ref
-                              .read(settingsControllerProvider.notifier)
-                              .loadUserSettings(userId);
-                          if (context.mounted) {
-                            context.go('/');
+                          // Di chuyển tất cả tracking sang controller
+                          final userId = await controller.loginAsGuest();
+
+                          // Navigate to the main screen if login successful
+                          if (userId != null && context.mounted) {
+                            context.goNamed(
+                                'main'); // Sử dụng goNamed của GoRouter
                           }
                         },
                         child: Text(

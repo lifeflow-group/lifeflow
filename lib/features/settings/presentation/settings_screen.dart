@@ -6,6 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../core/constants/app_languages.dart';
 import '../../../data/domain/models/app_settings.dart';
 import '../../../data/domain/models/language.dart';
+import '../../../data/services/analytics_service.dart';
 import '../controllers/settings_controller.dart';
 import 'widgets/settings_divider.dart';
 import 'widgets/settings_item.dart';
@@ -17,6 +18,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final analyticsService = ref.read(analyticsServiceProvider);
     final double avatarSize = 65.0;
     final settingsState = ref.watch(settingsControllerProvider);
     final weekStartDay = settingsState.whenOrNull(
@@ -124,12 +126,22 @@ class SettingsScreen extends ConsumerWidget {
                       title: l10n.weekStartsOnTitle,
                       value: weekStartDay,
                       onTap: () async {
+                        // UI-specific interaction tracking
+                        analyticsService
+                            .trackWeekStartSettingTapped(weekStartDay);
+
                         final weekStart =
                             await showWeekStartDaySelector(context);
+
                         if (weekStart != null) {
+                          // Business logic update is tracked in controller
                           await ref
                               .read(settingsControllerProvider.notifier)
                               .setWeekStartDay(weekStart);
+                        } else {
+                          // Track setting canceled
+                          analyticsService
+                              .trackWeekStartSelectionCanceled(weekStartDay);
                         }
                       },
                     ),
@@ -139,12 +151,24 @@ class SettingsScreen extends ConsumerWidget {
                       title: l10n.changeAppLanguage,
                       value: language.languageName,
                       onTap: () async {
+                        // Track language setting tap
+                        analyticsService.trackLanguageSettingTapped(
+                            language.languageCode, language.languageName);
+
                         final selectedLanguage =
-                            await context.push('/language-selection');
+                            await context.pushNamed('language-selection');
+
                         if (selectedLanguage != null) {
+                          final newLanguage = selectedLanguage as Language;
+
+                          // Business logic update is tracked in controller
                           await ref
                               .read(settingsControllerProvider.notifier)
-                              .setLanguage(selectedLanguage as Language);
+                              .setLanguage(newLanguage);
+                        } else {
+                          // Track language selection canceled
+                          analyticsService.trackLanguageSelectionCanceled(
+                              language.languageCode, language.languageName);
                         }
                       },
                     ),
@@ -152,7 +176,12 @@ class SettingsScreen extends ConsumerWidget {
                     SettingsItem(
                       icon: Icons.privacy_tip_outlined,
                       title: l10n.termsOfUse,
-                      onTap: () => context.push('/terms-of-use'),
+                      onTap: () {
+                        // Track terms of use tapped
+                        analyticsService.trackTermsOfUseTapped();
+
+                        context.pushNamed('terms-of-use');
+                      },
                     ),
                   ],
                 ),

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/helpers.dart';
+import '../../../../data/services/analytics_service.dart';
+import '../../../settings/controllers/settings_controller.dart';
 
 class MonthPicker extends ConsumerStatefulWidget {
   // Change to ConsumerStatefulWidget
@@ -30,14 +33,29 @@ class _MonthPickerState extends ConsumerState<MonthPicker> {
   void initState() {
     super.initState();
     selectedDate = widget.initialDate;
+
+    // Log picker opened
+    Future.microtask(() {
+      final analyticsService = ref.read(analyticsServiceProvider);
+      final settingsState = ref.watch(settingsControllerProvider);
+      analyticsService.trackMonthPickerDialogOpened(
+          formatDateWithUserLanguage(
+              settingsState, widget.initialDate, 'yyyy-MM'),
+          formatDateWithUserLanguage(
+              settingsState, widget.firstDate, 'yyyy-MM'),
+          formatDateWithUserLanguage(
+              settingsState, widget.lastDate, 'yyyy-MM'));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final analyticsService = ref.read(analyticsServiceProvider);
     final currentYear = selectedDate.year;
     final currentMonth = selectedDate.month;
+    final settingsState = ref.watch(settingsControllerProvider);
 
     return AlertDialog(
       title: Center(
@@ -59,6 +77,10 @@ class _MonthPickerState extends ConsumerState<MonthPicker> {
                     final newDate = DateTime(currentYear - 1, currentMonth, 1);
                     if (newDate.isAfter(widget.firstDate) ||
                         isSameYearMonth(newDate, widget.firstDate)) {
+                      // Log year changed
+                      analyticsService.trackMonthPickerPreviousYear(
+                          currentYear, currentYear - 1);
+
                       setState(() => selectedDate = newDate);
                     }
                   },
@@ -74,6 +96,10 @@ class _MonthPickerState extends ConsumerState<MonthPicker> {
                     final newDate = DateTime(currentYear + 1, currentMonth, 1);
                     if (newDate.isBefore(widget.lastDate) ||
                         isSameYearMonth(newDate, widget.lastDate)) {
+                      // Log year changed
+                      analyticsService.trackMonthPickerNextYear(
+                          currentYear, currentYear + 1);
+
                       setState(() => selectedDate = newDate);
                     }
                   },
@@ -100,6 +126,17 @@ class _MonthPickerState extends ConsumerState<MonthPicker> {
                     onTap: isDisabled
                         ? null
                         : () {
+                            // Log month selection
+                            if (month != currentMonth) {
+                              analyticsService.trackMonthPickerMonthSelected(
+                                  formatDateWithUserLanguage(
+                                      settingsState, selectedDate, 'yyyy-MM'),
+                                  formatDateWithUserLanguage(
+                                      settingsState,
+                                      DateTime(currentYear, month, 1),
+                                      'yyyy-MM'));
+                            }
+
                             setState(() =>
                                 selectedDate = DateTime(currentYear, month, 1));
                           },
@@ -114,9 +151,8 @@ class _MonthPickerState extends ConsumerState<MonthPicker> {
                       ),
                       child: Center(
                         child: Text(
-                          // Replace DateFormat with formatDateWithUserLanguage
-                          formatDateWithUserLanguage(
-                              ref, DateTime(currentYear, month), 'MMM'),
+                          formatDateWithUserLanguage(settingsState,
+                              DateTime(currentYear, month), 'MMM'),
                           style: TextStyle(
                             color: isSelected
                                 ? theme.colorScheme.onPrimary
@@ -139,11 +175,30 @@ class _MonthPickerState extends ConsumerState<MonthPicker> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            // Log cancel button pressed
+            analyticsService.trackMonthPickerCancelled(
+                formatDateWithUserLanguage(
+                    settingsState, selectedDate, 'yyyy-MM'),
+                formatDateWithUserLanguage(
+                    settingsState, widget.initialDate, 'yyyy-MM'));
+
+            context.pop();
+          },
           child: Text(l10n.cancelButton),
         ),
         TextButton(
-          onPressed: () => Navigator.of(context).pop(selectedDate),
+          onPressed: () {
+            // Log confirm button pressed
+            analyticsService.trackMonthPickerConfirmed(
+                formatDateWithUserLanguage(
+                    settingsState, selectedDate, 'yyyy-MM'),
+                formatDateWithUserLanguage(
+                    settingsState, widget.initialDate, 'yyyy-MM'),
+                selectedDate.toString() != widget.initialDate.toString());
+
+            context.pop(selectedDate);
+          },
           child: Text(l10n.selectButton),
         ),
       ],

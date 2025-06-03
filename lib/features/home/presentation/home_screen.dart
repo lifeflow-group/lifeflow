@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../data/domain/models/habit_category.dart';
+import '../../../data/services/analytics_service.dart';
 import '../../../shared/actions/habit_actions.dart';
 import '../../habit_detail/presentation/widgets/category_bottom_sheet.dart';
 import '../controllers/home_controller.dart';
@@ -20,6 +21,8 @@ class HomeScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final habitsAsync = ref.watch(homeControllerProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final controller = ref.read(homeControllerProvider.notifier);
+    final analyticsService = ref.read(analyticsServiceProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -80,9 +83,9 @@ class HomeScreen extends ConsumerWidget {
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: () {
-                                ref
-                                    .read(homeControllerProvider.notifier)
-                                    .clearCategoryFilter();
+                                analyticsService
+                                    .trackHomeEmptyStateAllHabitsClicked();
+                                controller.clearCategoryFilter();
                               },
                               child: Text(l10n.showAllHabitsButton),
                             ),
@@ -109,8 +112,13 @@ class HomeScreen extends ConsumerWidget {
                             extentRatio: 0.25,
                             children: [
                               CustomSlidableAction(
-                                onPressed: (context) =>
-                                    handleDeleteHabit(context, ref, habit),
+                                onPressed: (context) {
+                                  analyticsService.trackHomeHabitDeleteAttempt(
+                                      habit.id,
+                                      habit.name,
+                                      habit.category.name);
+                                  handleDeleteHabit(context, ref, habit);
+                                },
                                 padding: const EdgeInsets.all(0),
                                 backgroundColor: Colors.transparent,
                                 child: Container(
@@ -136,10 +144,21 @@ class HomeScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          child: HabitItem(
-                              habit: habit,
-                              controllerInvalidate: () =>
-                                  ref.invalidate(homeControllerProvider)),
+                          child: GestureDetector(
+                            onTap: () {
+                              analyticsService.trackHomeHabitViewed(
+                                  habit.id,
+                                  habit.name,
+                                  habit.category.name,
+                                  habit.trackingType.toString());
+                              context.goNamed('habit-view',
+                                  extra: {'habit': habit});
+                            },
+                            child: HabitItem(
+                                habit: habit,
+                                controllerInvalidate: () =>
+                                    ref.invalidate(homeControllerProvider)),
+                          ),
                         ),
                       );
                     },
@@ -152,10 +171,15 @@ class HomeScreen extends ConsumerWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final newHabit = await context.push('/habit-detail');
+            analyticsService.trackHomeAddHabitInitiated();
+
+            final newHabit = await context.pushNamed('habit-detail');
             if (newHabit == null) return;
+
             // Re-fetch the homeControllerProvider (auto triggers build())
             ref.invalidate(homeControllerProvider);
+
+            analyticsService.trackHomeHabitCreated();
           },
           child: const Icon(Icons.add),
         ),
@@ -165,17 +189,22 @@ class HomeScreen extends ConsumerWidget {
 
   Future<void> _handleCategoryFilter(
       BuildContext context, WidgetRef ref) async {
+    final controller = ref.read(homeControllerProvider.notifier);
     final currentCategory = ref.read(selectedCategoryProvider);
+    final analyticsService = ref.read(analyticsServiceProvider);
+
+    analyticsService.trackHomeCategoryFilterOpened(currentCategory?.name);
+
     final result = await showCategoryBottomSheet(context,
         initialCategory: currentCategory);
 
     if (result == null) return;
     if (result is String && result == "clear") {
       // Clear category filter
-      ref.read(homeControllerProvider.notifier).clearCategoryFilter();
+      controller.clearCategoryFilter();
     } else if (result is HabitCategory) {
       // Apply category filter
-      ref.read(homeControllerProvider.notifier).filterByCategory(result);
+      controller.filterByCategory(result);
     }
   }
 }

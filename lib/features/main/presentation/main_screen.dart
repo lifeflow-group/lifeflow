@@ -35,12 +35,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final indexTab = ref.watch(indexTabProvider);
+    final mainController = ref.read(mainControllerProvider);
 
     return Scaffold(
       body: PageView(
         controller: _pageController,
-        onPageChanged: (index) =>
-            ref.read(mainControllerProvider).setTab(index),
+        onPageChanged: (index) {
+          mainController.setTabFromSwipe(index);
+        },
         // Disable swipe to change tab
         physics: const NeverScrollableScrollPhysics(),
 
@@ -72,8 +74,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           showUnselectedLabels: true,
           currentIndex: indexTab,
           onTap: (index) {
-            ref.read(mainControllerProvider).setTab(index);
-            _pageController.jumpToPage(index);
+            mainController.setTab(index);
+
+            if (index != indexTab) {
+              _pageController.jumpToPage(index);
+            }
           },
           items: [
             BottomNavigationBarItem(

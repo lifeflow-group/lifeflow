@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/habit_category.dart';
+import '../../../../data/services/analytics_service.dart';
 
 Future<dynamic> showCategoryBottomSheet(
   BuildContext context, {
   HabitCategory? initialCategory,
 }) async {
-  return await showModalBottomSheet(
+  // Create provider container and store analytics service reference
+  final container = ProviderContainer();
+  final analyticsService = container.read(analyticsServiceProvider);
+
+  // Track bottom sheet opening
+  analyticsService.trackCategorySheetOpened(initialCategory?.name);
+
+  final result = await showModalBottomSheet(
     context: context,
     shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -17,24 +26,49 @@ Future<dynamic> showCategoryBottomSheet(
       return CategoryBottomSheet(initialCategory: initialCategory);
     },
   );
+
+  // Track result
+  if (result == null) {
+    analyticsService
+        .trackCategorySheetDismissedWithoutSelection(initialCategory?.name);
+  } else if (result == "clear") {
+    analyticsService.trackCategoryClearedFromSheet(initialCategory?.name);
+  } else if (result is HabitCategory) {
+    analyticsService.trackCategorySelectedFromSheet(
+        result.name, initialCategory?.name, result.id != initialCategory?.id);
+  }
+
+  // Don't forget to dispose the container when done
+  container.dispose();
+
+  return result;
 }
 
-class CategoryBottomSheet extends StatefulWidget {
+class CategoryBottomSheet extends ConsumerStatefulWidget {
   const CategoryBottomSheet({super.key, this.initialCategory});
 
   final HabitCategory? initialCategory;
 
   @override
-  State<CategoryBottomSheet> createState() => _CategoryBottomSheetState();
+  ConsumerState<CategoryBottomSheet> createState() =>
+      _CategoryBottomSheetState();
 }
 
-class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
+class _CategoryBottomSheetState extends ConsumerState<CategoryBottomSheet> {
   HabitCategory? selectedCategory;
+  late final AnalyticsService _analyticsService;
 
   @override
   void initState() {
     super.initState();
     selectedCategory = widget.initialCategory;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize analyticsService here to ensure ref is ready
+    _analyticsService = ref.read(analyticsServiceProvider);
   }
 
   @override
@@ -59,7 +93,11 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
                     ?.copyWith(fontSize: 18),
               ),
               IconButton(
-                  onPressed: () => context.pop(),
+                  onPressed: () {
+                    _analyticsService.trackCategorySheetClosedViaXButton(
+                        selectedCategory != null);
+                    context.pop();
+                  },
                   icon: const Icon(Icons.close)),
             ],
           ),
@@ -79,14 +117,19 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
                 final isSelected = selectedCategory?.id == category.id;
 
                 return GestureDetector(
-                  onTap: () => setState(() {
-                    if (isSelected) {
-                      // If already selected, clear selection
-                      selectedCategory = null;
-                    } else {
-                      selectedCategory = category;
-                    }
-                  }),
+                  onTap: () {
+                    _analyticsService.trackCategoryTappedInSheet(
+                        category.name, isSelected);
+
+                    setState(() {
+                      if (isSelected) {
+                        // If already selected, clear selection
+                        selectedCategory = null;
+                      } else {
+                        selectedCategory = category;
+                      }
+                    });
+                  },
                   child: Card(
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -126,7 +169,11 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
             children: [
               Expanded(
                 child: ElevatedButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      _analyticsService.trackCategorySheetCanceledViaButton(
+                          selectedCategory != null);
+                      context.pop();
+                    },
                     style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         side: BorderSide(
@@ -151,6 +198,10 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
+                    _analyticsService.trackCategorySheetConfirmed(
+                        selectedCategory?.name,
+                        selectedCategory?.id != widget.initialCategory?.id);
+
                     // Return the selected category or "clear" if selectedCategory is null
                     context.pop(selectedCategory ?? "clear");
                   },

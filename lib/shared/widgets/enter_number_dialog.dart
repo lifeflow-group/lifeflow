@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EnterNumberDialog extends StatefulWidget {
-  const EnterNumberDialog(
-      {super.key, this.currentValue, this.title = 'Add Progress'});
+  const EnterNumberDialog({
+    super.key,
+    this.currentValue,
+    this.title,
+  });
+
   final int? currentValue;
-  final String title;
+  final String? title;
 
   @override
   State<EnterNumberDialog> createState() => _EnterNumberDialogState();
@@ -22,9 +27,18 @@ class _EnterNumberDialogState extends State<EnterNumberDialog> {
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final dialogTitle = widget.title ?? l10n.addProgressTitle;
+
     return AlertDialog(
-      title: Text(widget.title),
+      title: Text(dialogTitle),
       content: Form(
         key: formKey,
         child: TextFormField(
@@ -32,14 +46,16 @@ class _EnterNumberDialogState extends State<EnterNumberDialog> {
           keyboardType: TextInputType.number,
           autofocus: true,
           decoration: InputDecoration(
-              labelText: widget.title, border: OutlineInputBorder()),
+            labelText: l10n.enterProgressLabel,
+            border: OutlineInputBorder(),
+          ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return 'Please enter a value';
+              return l10n.enterNumberEmptyError;
             }
             final number = int.tryParse(value);
             if (number == null || number < 0) {
-              return 'Enter a valid number';
+              return l10n.enterNumberInvalidError;
             }
             return null;
           },
@@ -48,7 +64,7 @@ class _EnterNumberDialogState extends State<EnterNumberDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.cancelButton),
         ),
         ElevatedButton(
           onPressed: () async {
@@ -57,7 +73,7 @@ class _EnterNumberDialogState extends State<EnterNumberDialog> {
               Navigator.of(context).pop(newValue);
             }
           },
-          child: const Text('Ok'),
+          child: Text(l10n.okButton),
         ),
       ],
     );

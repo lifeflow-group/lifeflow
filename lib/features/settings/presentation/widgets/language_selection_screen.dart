@@ -22,9 +22,13 @@ class _LanguageSelectionScreenState
     // Delay state modification until after the current build cycle
     Future.microtask(() {
       if (mounted) {
-        ref
-            .read(languageSelectionControllerProvider.notifier)
-            .loadInitialState();
+        // Load initial language state
+        final controller =
+            ref.read(languageSelectionControllerProvider.notifier);
+        controller.loadInitialState();
+
+        // Move tracking to controller - we'll track this immediately after loadInitialState
+        controller.trackLanguageOptionsLoaded();
       }
     });
   }
@@ -73,11 +77,23 @@ class _LanguageSelectionScreenState
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            // Track cancel button pressed - moved to controller
+            controller.trackLanguageSelectionCanceled();
+
+            // Use GoRouter to navigate back
+            context.pop();
+          },
         ),
         actions: [
           TextButton(
-            onPressed: () => context.pop(selectedLanguage),
+            onPressed: () {
+              // Track save button pressed - moved to controller
+              controller.trackLanguageSaved();
+
+              // Use GoRouter to navigate back with the selected language
+              context.pop(selectedLanguage);
+            },
             child: Text(
               l10n.saveButton,
               style: theme.textTheme.titleMedium
@@ -107,6 +123,7 @@ class _LanguageSelectionScreenState
               ),
               trailing: isSelected ? _buildRadioIndicator(context) : null,
               onTap: () {
+                // Track language selection moved to controller
                 controller.selectLanguageCode(language);
               },
             ),

@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
+import '../../../data/services/analytics_service.dart';
 import '../../../data/services/user_service.dart';
+import '../../../features/settings/controllers/settings_controller.dart';
 import '../repositories/overview_repository.dart';
 
 final selectedMonthProvider =
@@ -68,10 +71,22 @@ final overviewControllerProvider =
 
 class OverviewController extends AutoDisposeAsyncNotifier<OverviewStats> {
   OverviewRepository get _repo => ref.watch(overviewRepositoryProvider);
+  AnalyticsService get _analyticsService => ref.read(analyticsServiceProvider);
 
   @override
   Future<OverviewStats> build() async {
     ref.listen<DateTime>(selectedMonthProvider, (previous, next) {
+      if (previous != null) {
+        final settingsState = ref.read(settingsControllerProvider);
+        final fromMonth =
+            formatDateWithUserLanguage(settingsState, previous, 'yyyy-MM');
+        final toMonth =
+            formatDateWithUserLanguage(settingsState, next, 'yyyy-MM');
+        final monthsDifference = _calculateMonthDifference(previous, next);
+
+        _analyticsService.trackMonthChanged(
+            fromMonth, toMonth, monthsDifference);
+      }
       ref.invalidateSelf(); // Re-fetch when selected month changes
     });
 
@@ -80,9 +95,14 @@ class OverviewController extends AutoDisposeAsyncNotifier<OverviewStats> {
 
   Future<OverviewStats> fetchMonthlyStats() async {
     final selectedMonth = ref.read(selectedMonthProvider);
+    final settingsState = ref.read(settingsControllerProvider);
     final userId = await ref.read(userServiceProvider).getCurrentUserId();
+    final formattedMonth =
+        formatDateWithUserLanguage(settingsState, selectedMonth, 'yyyy-MM');
 
     if (userId == null) {
+      _analyticsService.trackOverviewStatsNoUser(formattedMonth);
+
       return OverviewStats(
         totalHabits: 0,
         completedHabits: 0,
@@ -92,63 +112,93 @@ class OverviewController extends AutoDisposeAsyncNotifier<OverviewStats> {
       );
     }
 
-    final monthHabits =
-        await _repo.habit.getHabitsForMonth(selectedMonth, userId);
+    try {
+      final monthHabits =
+          await _repo.habit.getHabitsForMonth(selectedMonth, userId);
 
-    // Calculate basic stats
-    int completedHabits = 0;
-    int completeTypeHabits = 0;
-    int progressTypeHabits = 0;
+      // Calculate basic stats
+      int completedHabits = 0;
+      int completeTypeHabits = 0;
+      int progressTypeHabits = 0;
 
-    // Count habits by category
-    final categoryCountMap = <String, int>{};
-    final categoryDetailsMap = <String, HabitCategory>{};
+      // Count habits by category
+      final categoryCountMap = <String, int>{};
+      final categoryDetailsMap = <String, HabitCategory>{};
 
-    for (var habit in monthHabits) {
-      // Count by tracking type
-      if (habit.trackingType == TrackingType.complete) {
-        completeTypeHabits++;
-      } else if (habit.trackingType == TrackingType.progress) {
-        progressTypeHabits++;
+      for (var habit in monthHabits) {
+        // Count by tracking type
+        if (habit.trackingType == TrackingType.complete) {
+          completeTypeHabits++;
+        } else if (habit.trackingType == TrackingType.progress) {
+          progressTypeHabits++;
+        }
+
+        // Count completed habits
+        if (habit.isCompleted ?? false) {
+          completedHabits++;
+        }
+
+        // Count by category
+        final categoryId = habit.category.id;
+        categoryCountMap[categoryId] = (categoryCountMap[categoryId] ?? 0) + 1;
+        categoryDetailsMap[categoryId] = habit.category;
       }
 
-      // Count completed habits
-      if (habit.isCompleted ?? false) {
-        completedHabits++;
+      // Calculate category distribution percentages
+      final List<CategoryStats> categoryDistribution = [];
+
+      if (monthHabits.isNotEmpty) {
+        // Sort categories by count (descending)
+        final sortedCategories = categoryCountMap.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+        // Calculate percentages
+        for (var entry in sortedCategories) {
+          final category = categoryDetailsMap[entry.key]!;
+          final percentage = entry.value / monthHabits.length * 100;
+
+          categoryDistribution.add(CategoryStats(
+              category: category,
+              habitCount: entry.value,
+              percentage: percentage));
+        }
       }
 
-      // Count by category
-      final categoryId = habit.category.id;
-      categoryCountMap[categoryId] = (categoryCountMap[categoryId] ?? 0) + 1;
-      categoryDetailsMap[categoryId] = habit.category;
+      final stats = OverviewStats(
+        totalHabits: monthHabits.length,
+        completedHabits: completedHabits,
+        completeTypeHabits: completeTypeHabits,
+        progressTypeHabits: progressTypeHabits,
+        categoryDistribution: categoryDistribution,
+      );
+
+      // Calculate completion rate
+      final completionRate = stats.totalHabits != 0
+          ? (stats.completedHabits / stats.totalHabits * 100).round()
+          : 0;
+
+      // Log stats loaded successfully
+      _analyticsService.trackOverviewStatsLoaded(formattedMonth,
+          stats.totalHabits, stats.completedHabits, completionRate);
+
+      // Log chart data loaded if there are categories
+      if (stats.categoryDistribution.isNotEmpty) {
+        _analyticsService.trackChartDataLoaded(formattedMonth,
+            stats.categoryDistribution.length, stats.totalHabits);
+      } else {
+        _analyticsService.trackChartEmptyData(formattedMonth);
+      }
+
+      return stats;
+    } catch (e) {
+      // Log error
+      _analyticsService.trackOverviewError(e.toString(), formattedMonth);
+      rethrow;
     }
+  }
 
-    // Calculate category distribution percentages
-    final List<CategoryStats> categoryDistribution = [];
-
-    if (monthHabits.isNotEmpty) {
-      // Sort categories by count (descending)
-      final sortedCategories = categoryCountMap.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-
-      // Calculate percentages
-      for (var entry in sortedCategories) {
-        final category = categoryDetailsMap[entry.key]!;
-        final percentage = entry.value / monthHabits.length * 100;
-
-        categoryDistribution.add(CategoryStats(
-            category: category,
-            habitCount: entry.value,
-            percentage: percentage));
-      }
-    }
-
-    return OverviewStats(
-      totalHabits: monthHabits.length,
-      completedHabits: completedHabits,
-      completeTypeHabits: completeTypeHabits,
-      progressTypeHabits: progressTypeHabits,
-      categoryDistribution: categoryDistribution,
-    );
+  // Helper method to calculate months between two dates
+  int _calculateMonthDifference(DateTime from, DateTime to) {
+    return (to.year - from.year) * 12 + to.month - from.month;
   }
 }

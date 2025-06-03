@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "698817676474",
+    "project_id": "lifeflow-azvn",
+    "storage_bucket": "lifeflow-azvn.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698817676474:android:4453d5e6c6cdf0919bae83",
+        "android_client_info": {
+          "package_name": "com.azeravn.lifeflow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAX3G0vVOcB5-_fiH1hVLy1P8tkHUtF4XE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -7,6 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
+import '../../../data/services/analytics_service.dart';
 import '../../../shared/widgets/scope_dialog.dart';
 import '../controllers/habit_detail_controller.dart';
 import 'widgets/category_bottom_sheet.dart';
@@ -22,6 +23,7 @@ class HabitDetailScreen extends ConsumerStatefulWidget {
 class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
   HabitDetailController get controller =>
       ref.read(habitDetailControllerProvider);
+  AnalyticsService get _analyticsService => ref.read(analyticsServiceProvider);
   TextEditingController nameController = TextEditingController();
   final focusNode = FocusNode();
   Habit? get habit => widget.habit;
@@ -95,13 +97,19 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               /// Select Category
               InkWell(
                 onTap: () async {
+                  _analyticsService.trackCategorySelectorOpened(
+                    habitCategory?.name,
+                  );
+
                   final category = await showCategoryBottomSheet(context,
                       initialCategory: habitCategory);
 
                   if (category == null) return;
                   if (category is String && category == "clear") {
+                    _analyticsService.trackCategoryCleared(habitCategory?.name);
                     controller.updateHabitCategory(null);
                   } else if (category is HabitCategory) {
+                    _analyticsService.trackCategorySelected(category.name);
                     controller.updateHabitCategory(category);
                   }
                 },
@@ -155,6 +163,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               /// Select Date
               InkWell(
                 onTap: () async {
+                  _analyticsService.trackDatePickerOpened(selectedDate);
+
                   final pickedDate = await showDatePicker(
                     context: context,
                     initialDate: selectedDate,
@@ -162,6 +172,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     lastDate: DateTime(2100),
                   );
                   if (pickedDate != null) {
+                    _analyticsService.trackDateSelected(pickedDate);
                     controller.updateHabitDate(pickedDate);
                   }
                 },
@@ -200,11 +211,21 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               /// Select time
               InkWell(
                 onTap: () async {
+                  // Use controller to track time picker opened
+                  _analyticsService.trackTimePickerOpened(
+                    ref.read(habitTimeProvider).format(context),
+                  );
+
                   final pickedTime = await showTimePicker(
                       context: context,
                       initialTime: ref.read(habitTimeProvider),
                       initialEntryMode: TimePickerEntryMode.input);
                   if (pickedTime != null) {
+                    if (context.mounted) {
+                      // Use controller to track time selected
+                      _analyticsService
+                          .trackTimeSelected(pickedTime.format(context));
+                    }
                     controller.updateHabitTime(pickedTime);
                   }
                 },
@@ -243,8 +264,22 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               /// Select Repeat Frequency
               InkWell(
                 onTap: () async {
+                  // Use controller to track repeat frequency selector opened
+                  _analyticsService.trackRepeatFrequencyOpened(
+                      ref.read(habitRepeatFrequencyProvider)?.name);
+
                   final selectedFrequency =
                       await _showRepeatFrequencyBottomSheet(context);
+
+                  if (selectedFrequency != null) {
+                    // Use controller to track repeat frequency selected
+                    _analyticsService
+                        .trackRepeatFrequencySelected(selectedFrequency.name);
+                  } else {
+                    // Use controller to track repeat frequency cleared
+                    _analyticsService.trackRepeatFrequencyCleared();
+                  }
+
                   controller.updateHabitRepeatFrequency(selectedFrequency);
                 },
                 child: InputDecorator(
@@ -311,6 +346,11 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                             groupValue: habitTrackingType,
                             onChanged: (value) {
                               if (value == null) return;
+
+                              // Use controller to track tracking type changed
+                              _analyticsService
+                                  .trackTrackingTypeChanged('complete');
+
                               controller.updateTrackingType(value);
                             },
                           ),
@@ -326,6 +366,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                             groupValue: habitTrackingType,
                             onChanged: (value) {
                               if (value == null) return;
+
+                              _analyticsService
+                                  .trackTrackingTypeChanged(value.name);
                               controller.updateTrackingType(value);
                               if (value == TrackingType.progress &&
                                   habitTargetValue == 0 &&
@@ -356,8 +399,13 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                                     : l10n.progressGoalUnitDefault)),
                             IconButton(
                               icon: const Icon(Icons.edit, size: 18),
-                              onPressed: () =>
-                                  _showProgressDialog(context, ref),
+                              onPressed: () {
+                                // Use controller to track progress goal edit requested
+                                _analyticsService
+                                    .trackProgressGoalEditRequested(
+                                        habitTargetValue, habitUnit);
+                                _showProgressDialog(context, ref);
+                              },
                             ),
                           ],
                         ),
@@ -377,6 +425,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                         ?.copyWith(fontWeight: FontWeight.bold)),
                 value: habitReminder,
                 onChanged: (bool value) {
+                  // Use controller to track reminder toggled
+                  _analyticsService.trackReminderToggled(value);
+
                   controller.updateHabitReminder(value);
                 },
               ),
@@ -389,13 +440,35 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 child: ElevatedButton(
                     onPressed: isFormValid
                         ? () async {
+                            // Use controller to track habit save attempt
+                            _analyticsService.trackHabitSaveAttempt(
+                              isEditing,
+                              habitName,
+                              habitCategory.name,
+                              habitTrackingType.name,
+                              habitReminder,
+                            );
+
                             final Habit? habitResult;
                             if (isEditing) {
                               habitResult = await controller.updateHabit(
                                   habit!, () => showScopeDialog(context));
+
+                              if (habitResult != null) {
+                                // Use controller to track habit updated
+                                _analyticsService.trackHabitUpdated(
+                                    habitResult.id, habitResult.name);
+                              }
                             } else {
                               habitResult = await controller.createHabit();
+
+                              if (habitResult != null) {
+                                // Use controller to track habit created
+                                _analyticsService.trackHabitCreated(
+                                    habitResult.id, habitResult.name);
+                              }
                             }
+
                             if (context.mounted) {
                               context.pop(habitResult);
                             }
@@ -458,14 +531,24 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                // Use controller to track progress goal dialog canceled
+                _analyticsService.trackProgressGoalDialogCanceled();
+                Navigator.pop(context);
+              },
               child: Text(l10n.cancelButton),
             ),
             TextButton(
               onPressed: () {
-                controller.updateHabitTargetValue(
-                    int.tryParse(targetValueController.text) ?? 0);
-                controller.updateHabitUnit(unitController.text);
+                final targetValue =
+                    int.tryParse(targetValueController.text) ?? 0;
+                final unitValue = unitController.text;
+
+                // Use controller to track progress goal set
+                _analyticsService.trackProgressGoalSet(targetValue, unitValue);
+
+                controller.updateHabitTargetValue(targetValue);
+                controller.updateHabitUnit(unitValue);
                 Navigator.pop(context);
               },
               child: Text(l10n.saveButton),
@@ -505,21 +588,35 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                         icon: Icon(Icons.close, color: Colors.grey),
-                        onPressed: () => Navigator.pop(context)),
+                        onPressed: () {
+                          // Use controller to track repeat frequency sheet dismissed
+                          _analyticsService
+                              .trackRepeatFrequencySheetDismissed();
+                          Navigator.pop(context);
+                        }),
                   ),
                 ],
               ),
               ListTile(
                 title: Text(l10n.noRepeatLabel,
                     style: Theme.of(context).textTheme.titleMedium),
-                onTap: () => Navigator.pop(context, null),
+                onTap: () {
+                  // Use controller to track repeat frequency none selected
+                  _analyticsService.trackRepeatFrequencyNoneSelected();
+                  Navigator.pop(context, null);
+                },
                 contentPadding: EdgeInsets.only(left: 22.0),
               ),
               ...RepeatFrequency.values.map((frequency) {
                 return ListTile(
                   title: Text(getRepeatFrequencyLabel(context, frequency),
                       style: Theme.of(context).textTheme.titleMedium),
-                  onTap: () => Navigator.pop(context, frequency),
+                  onTap: () {
+                    // Use controller to track repeat frequency option selected
+                    _analyticsService
+                        .trackRepeatFrequencyOptionSelected(frequency.name);
+                    Navigator.pop(context, frequency);
+                  },
                   contentPadding: EdgeInsets.only(left: 22.0),
                 );
               }),

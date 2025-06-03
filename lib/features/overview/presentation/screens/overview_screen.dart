@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../../core/utils/helpers.dart';
+import '../../../../data/services/analytics_service.dart';
+import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/overview_controller.dart';
 import '../widgets/chart_section.dart';
 import '../widgets/month_picker.dart';
@@ -17,6 +20,13 @@ class OverviewScreen extends ConsumerWidget {
     final monthNotifier = ref.read(selectedMonthProvider.notifier);
     final selectedMonth = ref.watch(selectedMonthProvider);
     final overviewController = ref.watch(overviewControllerProvider);
+    final analyticsService = ref.read(analyticsServiceProvider);
+    final settingsState = ref.watch(settingsControllerProvider);
+
+    // Helper function to format dates
+    String formatMonth(DateTime date) {
+      return formatDateWithUserLanguage(settingsState, date, 'yyyy-MM');
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -26,10 +36,23 @@ class OverviewScreen extends ConsumerWidget {
               color:
                   theme.colorScheme.onSurface.withAlpha((0.72 * 255).round()),
               size: 20),
-          onPressed: () => monthNotifier.previousMonth(),
+          onPressed: () {
+            // Call analytics service directly
+            final previousMonth =
+                DateTime(selectedMonth.year, selectedMonth.month - 1, 1);
+            analyticsService.trackOverviewPreviousMonth(
+                formatMonth(selectedMonth), formatMonth(previousMonth));
+
+            // Update month
+            monthNotifier.previousMonth();
+          },
         ),
         title: InkWell(
           onTap: () async {
+            // Call analytics service directly
+            analyticsService
+                .trackOverviewMonthPickerOpened(formatMonth(selectedMonth));
+
             final now = DateTime.now();
             final pickedDate = await showMonthPicker(
                 context: context,
@@ -38,7 +61,19 @@ class OverviewScreen extends ConsumerWidget {
                 lastDate: DateTime(now.year + 5, 12));
 
             if (pickedDate != null) {
+              // Call analytics service directly
+              analyticsService.trackOverviewMonthSelected(
+                  formatMonth(selectedMonth),
+                  formatMonth(pickedDate),
+                  (pickedDate.year - selectedMonth.year) * 12 +
+                      pickedDate.month -
+                      selectedMonth.month);
+
               monthNotifier.updateSelectedMonth(pickedDate);
+            } else {
+              // Call analytics service directly
+              analyticsService.trackOverviewMonthPickerDismissed(
+                  formatMonth(selectedMonth));
             }
           },
           child: Row(
@@ -64,7 +99,16 @@ class OverviewScreen extends ConsumerWidget {
                   color: theme.colorScheme.onSurface
                       .withAlpha((0.72 * 255).round()),
                   size: 20),
-              onPressed: () => monthNotifier.nextMonth())
+              onPressed: () {
+                // Call analytics service directly
+                final nextMonth =
+                    DateTime(selectedMonth.year, selectedMonth.month + 1, 1);
+                analyticsService.trackOverviewNextMonth(
+                    formatMonth(selectedMonth), formatMonth(nextMonth));
+
+                // Update month
+                monthNotifier.nextMonth();
+              })
         ],
         centerTitle: true,
       ),
@@ -72,68 +116,72 @@ class OverviewScreen extends ConsumerWidget {
         loading: () => Center(
           child: CircularProgressIndicator(color: theme.colorScheme.primary),
         ),
-        error: (error, stack) => Center(
-          child: Text(l10n.errorMessage(error.toString()),
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.error)),
-        ),
-        data: (stats) => SingleChildScrollView(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// Build Stats Cards
-              Row(
-                children: [
-                  Expanded(
-                      child: StatCard(
-                    iconWidget: Icon(Icons.summarize_outlined,
-                        color: theme.colorScheme.primary, size: 20),
-                    title: l10n.totalHabits,
-                    amount: stats.totalHabits.toString(),
-                    isHighlighted: false,
-                  )),
-                  const SizedBox(width: 12),
-                  Expanded(
-                      child: StatCard(
-                    iconWidget: Icon(Icons.check_circle_outline,
-                        color: theme.colorScheme.primary, size: 20),
-                    title: l10n.completionRate,
-                    amount:
-                        '${stats.totalHabits != 0 ? (stats.completedHabits / stats.totalHabits * 100).round() : 0}% (${stats.completedHabits}/${stats.totalHabits})',
-                    isHighlighted: false,
-                  )),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                      child: StatCard(
-                    iconWidget: Icon(Icons.timer,
-                        color: theme.colorScheme.primary, size: 20),
-                    title: l10n.completeHabits,
-                    amount: stats.completeTypeHabits.toString(),
-                    isHighlighted: false,
-                  )),
-                  const SizedBox(width: 12),
-                  Expanded(
-                      child: StatCard(
-                    iconWidget: Icon(Icons.hourglass_empty,
-                        color: theme.colorScheme.primary, size: 20),
-                    title: l10n.progressHabits,
-                    amount: stats.progressTypeHabits.toString(),
-                    isHighlighted: false,
-                  )),
-                ],
-              ),
-              const SizedBox(height: 12),
+        error: (error, stack) {
+          return Center(
+            child: Text(l10n.errorMessage(error.toString()),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.colorScheme.error)),
+          );
+        },
+        data: (stats) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Build Stats Cards
+                Row(
+                  children: [
+                    Expanded(
+                        child: StatCard(
+                      iconWidget: Icon(Icons.summarize_outlined,
+                          color: theme.colorScheme.primary, size: 20),
+                      title: l10n.totalHabits,
+                      amount: stats.totalHabits.toString(),
+                      isHighlighted: false,
+                    )),
+                    const SizedBox(width: 12),
+                    Expanded(
+                        child: StatCard(
+                      iconWidget: Icon(Icons.check_circle_outline,
+                          color: theme.colorScheme.primary, size: 20),
+                      title: l10n.completionRate,
+                      amount:
+                          '${stats.totalHabits != 0 ? (stats.completedHabits / stats.totalHabits * 100).round() : 0}% (${stats.completedHabits}/${stats.totalHabits})',
+                      isHighlighted: false,
+                    )),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                        child: StatCard(
+                      iconWidget: Icon(Icons.timer,
+                          color: theme.colorScheme.primary, size: 20),
+                      title: l10n.completeHabits,
+                      amount: stats.completeTypeHabits.toString(),
+                      isHighlighted: false,
+                    )),
+                    const SizedBox(width: 12),
+                    Expanded(
+                        child: StatCard(
+                      iconWidget: Icon(Icons.hourglass_empty,
+                          color: theme.colorScheme.primary, size: 20),
+                      title: l10n.progressHabits,
+                      amount: stats.progressTypeHabits.toString(),
+                      isHighlighted: false,
+                    )),
+                  ],
+                ),
+                const SizedBox(height: 12),
 
-              /// Build Chart Section
-              ChartSection(month: selectedMonth),
-            ],
-          ),
-        ),
+                /// Build Chart Section
+                ChartSection(month: selectedMonth),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

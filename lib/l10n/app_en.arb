@@ -16,9 +16,11 @@
   "deleteButton": "Delete",
   "editButton": "Edit",
   "noData": "No data available",
+  "retryButton": "Try Again",
   "orSeparator": "or",
   "enabledLabel": "Enabled",
   "disabledLabel": "Disabled",
+  "okButton": "Ok",
 
   "navHome": "Home",
   "navOverview": "Overview",
@@ -167,6 +169,7 @@
   "noHabitDataMonth": "No habit data available for this month",
 
   "suggestionTitle": "Optimization Suggestions",
+  "noSuggestionsAvailable": "No suggestions available at the moment. Check back later for optimization ideas!",
   "suggestionError": "Error: {error}",
   "@suggestionError": {
     "placeholders": {
@@ -194,5 +197,23 @@
   "allCategoriesLabel": "All Categories", 
   "noHabitsInCategoryMessage": "No habits found in this category",
   "clearFilterTooltip": "Clear filter",
-  "showAllHabitsButton": "Show All Habits"
+  "showAllHabitsButton": "Show All Habits",
+  
+  "addProgressTitle": "Add Progress",
+  "enterProgressLabel": "Enter a value",
+  "enterNumberEmptyError": "Please enter a value",
+  "enterNumberInvalidError": "Enter a valid number",
+  
+  "habitDeletedSuccess": "Habit deleted successfully!",
+  "habitDeleteFailed": "Failed to delete habit!",
+  "cannotRecordFutureHabit": "Cannot record habit for a future date.",
+  "failedToUpdateHabit": "Failed to update habit. Please try again.",
+  "failedToUpdateProgress": "Failed to update progress. Please try again.",
+  
+  "scopeDialogDefaultTitle": "Apply changes to...",
+  "deleteHabitDialogTitle": "Delete habit?",
+  "deleteHabitDialogMessage": "Are you sure you want to delete this habit?",
+  "scopeOptionOnlyThis": "Only this habit",
+  "scopeOptionThisAndFuture": "This and future habits",
+  "scopeOptionAllInSeries": "All habits in this series"
 }

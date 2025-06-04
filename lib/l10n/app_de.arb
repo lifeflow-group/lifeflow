@@ -134,5 +134,9 @@
   "deleteHabitDialogMessage": "Sind Sie sicher, dass Sie diese Gewohnheit löschen möchten?",
   "scopeOptionOnlyThis": "Nur diese Gewohnheit",
   "scopeOptionThisAndFuture": "Diese und zukünftige Gewohnheiten",
-  "scopeOptionAllInSeries": "Alle Gewohnheiten in dieser Serie"
+  "scopeOptionAllInSeries": "Alle Gewohnheiten in dieser Serie",
+  "themeSelectionTitle": "Aussehen",
+  "themeModeLight": "Hell",
+  "themeModeDark": "Dunkel",
+  "themeModeSystem": "Geräte-Einstellungen verwenden"
 }

@@ -12,7 +12,7 @@ import '../../features/login/presentation/login_screen.dart';
 import '../../features/main/presentation/main_screen.dart';
 import '../../features/overview/presentation/screens/category_habit_analytics_screen.dart';
 import '../../features/settings/presentation/terms_of_use_screen.dart';
-import '../../features/settings/presentation/widgets/language_selection_screen.dart';
+import '../../features/settings/presentation/language_selection_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../constants/app_constants.dart';
 

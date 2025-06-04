@@ -134,5 +134,9 @@
   "deleteHabitDialogMessage": "您确定要删除此习惯吗？",
   "scopeOptionOnlyThis": "仅此习惯",
   "scopeOptionThisAndFuture": "此习惯及未来的习惯",
-  "scopeOptionAllInSeries": "此系列中的所有习惯"
+  "scopeOptionAllInSeries": "此系列中的所有习惯",
+  "themeSelectionTitle": "外观",
+  "themeModeLight": "浅色",
+  "themeModeDark": "深色",
+  "themeModeSystem": "使用设备设置"
 }

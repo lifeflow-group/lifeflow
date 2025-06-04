@@ -134,5 +134,9 @@
   "deleteHabitDialogMessage": "¿Estás seguro de que quieres eliminar este hábito?",
   "scopeOptionOnlyThis": "Solo este hábito",
   "scopeOptionThisAndFuture": "Este y futuros hábitos",
-  "scopeOptionAllInSeries": "Todos los hábitos de esta serie"
+  "scopeOptionAllInSeries": "Todos los hábitos de esta serie",
+  "themeSelectionTitle": "Apariencia",
+  "themeModeLight": "Claro",
+  "themeModeDark": "Oscuro",
+  "themeModeSystem": "Usar configuración del dispositivo"
 }

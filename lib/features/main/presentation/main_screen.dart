@@ -34,6 +34,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final indexTab = ref.watch(indexTabProvider);
     final mainController = ref.read(mainControllerProvider);
 
@@ -57,10 +58,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context)
-                  .colorScheme
-                  .shadow
-                  .withAlpha((0.1 * 255).toInt()),
+              color: theme.colorScheme.shadow.withAlpha((0.1 * 255).toInt()),
               spreadRadius: 1,
               blurRadius: 1,
               offset: const Offset(0, -0.01),
@@ -68,9 +66,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ],
         ),
         child: BottomNavigationBar(
+          backgroundColor: theme.brightness == Brightness.dark
+              ? theme.cardTheme.color
+              : theme.colorScheme.onPrimary,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: Theme.of(context).primaryColor,
-          unselectedItemColor: Theme.of(context).colorScheme.onSecondary,
+          selectedItemColor: theme.primaryColor,
+          unselectedItemColor: theme.colorScheme.onSecondary,
           showUnselectedLabels: true,
           currentIndex: indexTab,
           onTap: (index) {

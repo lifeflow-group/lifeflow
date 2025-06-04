@@ -17,6 +17,7 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Language.serializer)
       ..add(RepeatFrequency.serializer)
       ..add(Suggestion.serializer)
+      ..add(ThemeModeSetting.serializer)
       ..add(TrackingType.serializer)
       ..add(WeekStartDay.serializer)
       ..addBuilderFactory(

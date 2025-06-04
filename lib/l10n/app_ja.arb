@@ -134,5 +134,9 @@
   "deleteHabitDialogMessage": "この習慣を削除してもよろしいですか？",
   "scopeOptionOnlyThis": "この習慣のみ",
   "scopeOptionThisAndFuture": "この習慣と将来の習慣",
-  "scopeOptionAllInSeries": "このシリーズのすべての習慣"
+  "scopeOptionAllInSeries": "このシリーズのすべての習慣",
+  "themeSelectionTitle": "見た目",
+  "themeModeLight": "ライト",
+  "themeModeDark": "ダーク",
+  "themeModeSystem": "デバイス設定を使用"
 }

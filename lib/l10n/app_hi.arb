@@ -134,5 +134,9 @@
   "deleteHabitDialogMessage": "क्या आप वास्तव में इस आदत को हटाना चाहते हैं?",
   "scopeOptionOnlyThis": "केवल यह आदत",
   "scopeOptionThisAndFuture": "यह और भविष्य की आदतें",
-  "scopeOptionAllInSeries": "इस श्रृंखला की सभी आदतें"
+  "scopeOptionAllInSeries": "इस श्रृंखला की सभी आदतें",
+  "themeSelectionTitle": "रूप-रंग",
+  "themeModeLight": "प्रकाश",
+  "themeModeDark": "अंधकार",
+  "themeModeSystem": "डिवाइस सेटिंग्स का प्रयोग करें"
 }

@@ -134,5 +134,9 @@
   "deleteHabitDialogMessage": "이 습관을 삭제하시겠습니까?",
   "scopeOptionOnlyThis": "이 습관만",
   "scopeOptionThisAndFuture": "이 습관과 미래 습관",
-  "scopeOptionAllInSeries": "이 시리즈의 모든 습관"
+  "scopeOptionAllInSeries": "이 시리즈의 모든 습관",
+  "themeSelectionTitle": "모양",
+  "themeModeLight": "밝게",
+  "themeModeDark": "어둡게",
+  "themeModeSystem": "기기 설정 사용"
 }

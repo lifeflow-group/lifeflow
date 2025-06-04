@@ -10,6 +10,7 @@ import '../../../data/services/analytics_service.dart';
 import '../controllers/settings_controller.dart';
 import 'widgets/settings_divider.dart';
 import 'widgets/settings_item.dart';
+import 'widgets/theme_mode_selector_sheet.dart';
 import 'widgets/week_day_selector_sheet.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -18,6 +19,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     final analyticsService = ref.read(analyticsServiceProvider);
     final double avatarSize = 65.0;
     final settingsState = ref.watch(settingsControllerProvider);
@@ -47,9 +49,9 @@ class SettingsScreen extends ConsumerWidget {
                       widthFactor: 1.0,
                       child: Card(
                         margin: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        color: Colors.white,
+                        color: theme.brightness == Brightness.dark
+                            ? theme.cardTheme.color
+                            : theme.colorScheme.onPrimary,
                         child: Padding(
                           padding: EdgeInsets.only(
                               top: avatarSize / 2 + 8.0, bottom: 16.0),
@@ -69,19 +71,13 @@ class SettingsScreen extends ConsumerWidget {
                                 ),
                                 child: Text(
                                   l10n.signUpOrLogin,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
+                                  style: theme.textTheme.titleMedium,
                                 ),
                               ),
                               Text(
                                 l10n.guestMode,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurface),
                               )
                             ],
                           ),
@@ -97,28 +93,32 @@ class SettingsScreen extends ConsumerWidget {
                       height: avatarSize,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Theme.of(context).cardTheme.color,
-                        border: Border.all(color: Colors.white, width: 3.5),
+                        color: theme.brightness == Brightness.dark
+                            ? theme.cardTheme.color
+                            : theme.colorScheme.onPrimary,
+                        border: Border.all(
+                            color: theme.scaffoldBackgroundColor, width: 3.5),
                         boxShadow: [
                           BoxShadow(
                               color:
                                   Colors.black.withAlpha((0.15 * 255).toInt()),
-                              blurRadius: 8,
-                              offset: Offset(0, 4)),
+                              blurRadius: 2,
+                              offset: const Offset(0, 4)),
                         ],
                       ),
-                      child: Center(child: Icon(Icons.person, size: 32)),
+                      child: const Center(child: Icon(Icons.person, size: 32)),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 24),
-              Text(l10n.settings,
-                  style: Theme.of(context).textTheme.titleMedium),
-              SizedBox(height: 12),
+              const SizedBox(height: 24),
+              Text(l10n.settings, style: theme.textTheme.titleMedium),
+              const SizedBox(height: 12),
               Card(
                 margin: EdgeInsets.zero,
-                color: Colors.white,
+                color: theme.brightness == Brightness.dark
+                    ? theme.cardTheme.color
+                    : theme.colorScheme.onPrimary,
                 child: Column(
                   children: [
                     SettingsItem(
@@ -169,6 +169,43 @@ class SettingsScreen extends ConsumerWidget {
                           // Track language selection canceled
                           analyticsService.trackLanguageSelectionCanceled(
                               language.languageCode, language.languageName);
+                        }
+                      },
+                    ),
+                    const SettingsDivider(),
+                    SettingsItem(
+                      icon: Icons.brightness_medium,
+                      title: l10n.themeSelectionTitle,
+                      value: settingsState.whenOrNull(
+                              data: (data) => data.themeMode
+                                  .getLocalizedDisplay(context)) ??
+                          ThemeModeSetting.system.getLocalizedDisplay(context),
+                      onTap: () async {
+                        // Track theme mode setting tap
+                        analyticsService.logEvent('theme_mode_setting_tapped', {
+                          'current_theme_mode': settingsState.whenOrNull(
+                                data: (data) => data.themeMode.toString(),
+                              ) ??
+                              ThemeModeSetting.system.toString(),
+                        });
+
+                        final selectedThemeMode =
+                            await showThemeModeSelector(context);
+
+                        if (selectedThemeMode != null) {
+                          // Business logic update is tracked in controller
+                          await ref
+                              .read(settingsControllerProvider.notifier)
+                              .setThemeMode(selectedThemeMode);
+                        } else {
+                          // Track theme mode selection canceled
+                          analyticsService
+                              .logEvent('theme_mode_selection_canceled', {
+                            'current_theme_mode': settingsState.whenOrNull(
+                                  data: (data) => data.themeMode.toString(),
+                                ) ??
+                                ThemeModeSetting.system.toString()
+                          });
                         }
                       },
                     ),

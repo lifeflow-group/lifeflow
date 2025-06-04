@@ -160,6 +160,55 @@ class SettingsController extends StateNotifier<AsyncValue<AppSettings>> {
     }
   }
 
+  Future<void> setThemeMode(ThemeModeSetting themeMode) async {
+    _currentUserId ??= await _userService.getCurrentUserId();
+    if (_currentUserId == null) {
+      // Track error: null user ID
+      _analyticsService.logEvent('settings_update_error',
+          {'setting_type': 'theme_mode', 'error': 'User ID is null'});
+
+      state = AsyncValue.error('User ID is null', StackTrace.current);
+      return;
+    }
+
+    try {
+      // Get current theme mode for tracking change
+      final currentThemeMode = state.value?.themeMode;
+
+      // Track theme mode update started
+      _analyticsService.logEvent('theme_mode_update_started', {
+        'user_id': _currentUserId ?? 'unknown',
+        'from': currentThemeMode.toString(),
+        'to': themeMode.toString()
+      });
+
+      // Optimistic update
+      final updatedSettings = (state.value ?? AppSettings())
+          .rebuild((b) => b..themeMode = themeMode);
+
+      // Persist changes
+      await _settingsRepo.saveUserSettings(_currentUserId!, updatedSettings);
+
+      // Track theme mode updated successfully
+      _analyticsService.logEvent('theme_mode_updated_successfully', {
+        'user_id': _currentUserId ?? 'unknown',
+        'new_value': themeMode.toString()
+      });
+
+      state = AsyncValue.data(updatedSettings);
+    } catch (e) {
+      // Track theme mode update error
+      _analyticsService.logEvent('theme_mode_update_error', {
+        'user_id': _currentUserId ?? 'unknown',
+        'error': e.toString(),
+        'error_type': e.runtimeType.toString()
+      });
+
+      // Revert on error or show error
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
+
   void clearCurrentUser() {
     final previousUserId = _currentUserId;
 

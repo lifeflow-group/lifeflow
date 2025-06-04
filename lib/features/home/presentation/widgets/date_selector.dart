@@ -167,7 +167,7 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
             ),
           ),
           SizedBox(
-            height: 80,
+            height: 81,
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (page) {
@@ -228,9 +228,17 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
                           padding: const EdgeInsets.only(top: 10, bottom: 6),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? theme.primaryColor
-                                : theme.colorScheme.surface,
+                                ? theme.colorScheme.primary
+                                : theme.brightness == Brightness.dark
+                                    ? theme.cardTheme.color
+                                    : theme.colorScheme.surface,
                             borderRadius: BorderRadius.circular(10),
+                            border: theme.brightness == Brightness.dark &&
+                                    !isSelected
+                                ? Border.all(
+                                    color:
+                                        theme.colorScheme.outline.withAlpha(65))
+                                : null,
                           ),
                           alignment: Alignment.center,
                           child: Column(
@@ -239,25 +247,40 @@ class _DateSelectorState extends ConsumerState<DateSelector> {
                               Text(
                                 formatDateWithUserLanguage(
                                     settingsState, date, 'E'),
-                                style: theme.textTheme.bodyMedium?.copyWith(
+                                style: TextStyle(
+                                  fontSize:
+                                      theme.textTheme.bodyMedium?.fontSize ??
+                                          14,
                                   color: isSelected
-                                      ? theme.colorScheme.onPrimary
-                                      : theme.colorScheme.onSurface,
+                                      ? Colors.white
+                                      : theme.brightness == Brightness.dark
+                                          ? Colors.white
+                                          : theme.colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 1),
                               CircleAvatar(
                                 radius: 15,
                                 backgroundColor: isToday
-                                    ? theme.primaryColor.withAlpha(170)
+                                    ? isSelected
+                                        ? Colors.white.withAlpha(65)
+                                        : theme.primaryColor.withAlpha(170)
                                     : Colors.transparent,
                                 child: Text(
                                   date.day.toString(),
-                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                  style: TextStyle(
+                                    fontSize:
+                                        theme.textTheme.bodyLarge?.fontSize ??
+                                            16,
                                     fontWeight: FontWeight.bold,
-                                    color: isSelected || isToday
-                                        ? theme.colorScheme.onPrimary
-                                        : theme.colorScheme.onSurface,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : isToday
+                                            ? theme.brightness ==
+                                                    Brightness.dark
+                                                ? Colors.white
+                                                : theme.colorScheme.onSurface
+                                            : theme.colorScheme.onSurface,
                                   ),
                                 ),
                               ),

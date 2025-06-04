@@ -134,5 +134,9 @@
   "deleteHabitDialogMessage": "Bạn có chắc chắn muốn xóa thói quen này không?",
   "scopeOptionOnlyThis": "Chỉ thói quen này",
   "scopeOptionThisAndFuture": "Thói quen này và các thói quen trong tương lai",
-  "scopeOptionAllInSeries": "Tất cả các thói quen trong chuỗi này"
+  "scopeOptionAllInSeries": "Tất cả các thói quen trong chuỗi này",
+  "themeSelectionTitle": "Giao diện",
+  "themeModeLight": "Sáng",
+  "themeModeDark": "Tối",
+  "themeModeSystem": "Sử dụng cài đặt thiết bị"
 }

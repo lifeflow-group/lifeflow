@@ -7,6 +7,7 @@ import 'core/constants/app_theme.dart';
 import 'core/constants/app_languages.dart';
 import 'core/routing/app_router.dart';
 import 'data/providers/locale_provider.dart';
+import 'data/providers/theme_provider.dart';
 
 class LifeFlowApp extends ConsumerWidget {
   const LifeFlowApp({super.key});
@@ -15,6 +16,8 @@ class LifeFlowApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider);
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp.router(
       title: 'LifeFlow',
       locale: locale,
@@ -24,7 +27,7 @@ class LifeFlowApp extends ConsumerWidget {
       scaffoldMessengerKey: scaffoldMessengerKey,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }

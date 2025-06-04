@@ -25,6 +25,7 @@ part 'serializers.g.dart';
   HabitAnalysisInput,
   HabitData,
   WeekStartDay,
+  ThemeModeSetting,
   AppSettings,
   Language,
 ])

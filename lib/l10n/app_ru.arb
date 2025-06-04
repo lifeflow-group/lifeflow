@@ -134,5 +134,9 @@
   "deleteHabitDialogMessage": "Вы уверены, что хотите удалить эту привычку?",
   "scopeOptionOnlyThis": "Только эта привычка",
   "scopeOptionThisAndFuture": "Эта и будущие привычки",
-  "scopeOptionAllInSeries": "Все привычки в этой серии"
+  "scopeOptionAllInSeries": "Все привычки в этой серии",
+  "themeSelectionTitle": "Внешний вид",
+  "themeModeLight": "Светлая",
+  "themeModeDark": "Темная",
+  "themeModeSystem": "Использовать настройки устройства"
 }

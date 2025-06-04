@@ -26,8 +26,34 @@ final BuiltSet<WeekStartDay> _$weekStartDayValues =
   _$sunday,
 ]);
 
+const ThemeModeSetting _$light = const ThemeModeSetting._('light');
+const ThemeModeSetting _$dark = const ThemeModeSetting._('dark');
+const ThemeModeSetting _$system = const ThemeModeSetting._('system');
+
+ThemeModeSetting _$themeModeSettingValueOf(String name) {
+  switch (name) {
+    case 'light':
+      return _$light;
+    case 'dark':
+      return _$dark;
+    case 'system':
+      return _$system;
+    default:
+      throw new ArgumentError(name);
+  }
+}
+
+final BuiltSet<ThemeModeSetting> _$themeModeSettingValues =
+    new BuiltSet<ThemeModeSetting>(const <ThemeModeSetting>[
+  _$light,
+  _$dark,
+  _$system,
+]);
+
 Serializer<WeekStartDay> _$weekStartDaySerializer =
     new _$WeekStartDaySerializer();
+Serializer<ThemeModeSetting> _$themeModeSettingSerializer =
+    new _$ThemeModeSettingSerializer();
 Serializer<AppSettings> _$appSettingsSerializer = new _$AppSettingsSerializer();
 
 class _$WeekStartDaySerializer implements PrimitiveSerializer<WeekStartDay> {
@@ -47,6 +73,24 @@ class _$WeekStartDaySerializer implements PrimitiveSerializer<WeekStartDay> {
       WeekStartDay.valueOf(serialized as String);
 }
 
+class _$ThemeModeSettingSerializer
+    implements PrimitiveSerializer<ThemeModeSetting> {
+  @override
+  final Iterable<Type> types = const <Type>[ThemeModeSetting];
+  @override
+  final String wireName = 'ThemeModeSetting';
+
+  @override
+  Object serialize(Serializers serializers, ThemeModeSetting object,
+          {FullType specifiedType = FullType.unspecified}) =>
+      object.name;
+
+  @override
+  ThemeModeSetting deserialize(Serializers serializers, Object serialized,
+          {FullType specifiedType = FullType.unspecified}) =>
+      ThemeModeSetting.valueOf(serialized as String);
+}
+
 class _$AppSettingsSerializer implements StructuredSerializer<AppSettings> {
   @override
   final Iterable<Type> types = const [AppSettings, _$AppSettings];
@@ -63,6 +107,9 @@ class _$AppSettingsSerializer implements StructuredSerializer<AppSettings> {
       'language',
       serializers.serialize(object.language,
           specifiedType: const FullType(Language)),
+      'themeMode',
+      serializers.serialize(object.themeMode,
+          specifiedType: const FullType(ThemeModeSetting)),
     ];
 
     return result;
@@ -87,6 +134,11 @@ class _$AppSettingsSerializer implements StructuredSerializer<AppSettings> {
           result.language.replace(serializers.deserialize(value,
               specifiedType: const FullType(Language))! as Language);
           break;
+        case 'themeMode':
+          result.themeMode = serializers.deserialize(value,
+                  specifiedType: const FullType(ThemeModeSetting))!
+              as ThemeModeSetting;
+          break;
       }
     }
 
@@ -99,15 +151,22 @@ class _$AppSettings extends AppSettings {
   final WeekStartDay weekStartDay;
   @override
   final Language language;
+  @override
+  final ThemeModeSetting themeMode;
 
   factory _$AppSettings([void Function(AppSettingsBuilder)? updates]) =>
       (new AppSettingsBuilder()..update(updates))._build();
 
-  _$AppSettings._({required this.weekStartDay, required this.language})
+  _$AppSettings._(
+      {required this.weekStartDay,
+      required this.language,
+      required this.themeMode})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         weekStartDay, r'AppSettings', 'weekStartDay');
     BuiltValueNullFieldError.checkNotNull(language, r'AppSettings', 'language');
+    BuiltValueNullFieldError.checkNotNull(
+        themeMode, r'AppSettings', 'themeMode');
   }
 
   @override
@@ -122,7 +181,8 @@ class _$AppSettings extends AppSettings {
     if (identical(other, this)) return true;
     return other is AppSettings &&
         weekStartDay == other.weekStartDay &&
-        language == other.language;
+        language == other.language &&
+        themeMode == other.themeMode;
   }
 
   @override
@@ -130,6 +190,7 @@ class _$AppSettings extends AppSettings {
     var _$hash = 0;
     _$hash = $jc(_$hash, weekStartDay.hashCode);
     _$hash = $jc(_$hash, language.hashCode);
+    _$hash = $jc(_$hash, themeMode.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -138,7 +199,8 @@ class _$AppSettings extends AppSettings {
   String toString() {
     return (newBuiltValueToStringHelper(r'AppSettings')
           ..add('weekStartDay', weekStartDay)
-          ..add('language', language))
+          ..add('language', language)
+          ..add('themeMode', themeMode))
         .toString();
   }
 }
@@ -155,6 +217,10 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
   LanguageBuilder get language => _$this._language ??= new LanguageBuilder();
   set language(LanguageBuilder? language) => _$this._language = language;
 
+  ThemeModeSetting? _themeMode;
+  ThemeModeSetting? get themeMode => _$this._themeMode;
+  set themeMode(ThemeModeSetting? themeMode) => _$this._themeMode = themeMode;
+
   AppSettingsBuilder() {
     AppSettings._setDefaults(this);
   }
@@ -164,6 +230,7 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
     if ($v != null) {
       _weekStartDay = $v.weekStartDay;
       _language = $v.language.toBuilder();
+      _themeMode = $v.themeMode;
       _$v = null;
     }
     return this;
@@ -191,6 +258,8 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
             weekStartDay: BuiltValueNullFieldError.checkNotNull(
                 weekStartDay, r'AppSettings', 'weekStartDay'),
             language: language.build(),
+            themeMode: BuiltValueNullFieldError.checkNotNull(
+                themeMode, r'AppSettings', 'themeMode'),
           );
     } catch (_) {
       late String _$failedField;

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
-import '../../../data/services/analytics_service.dart';
+import '../../../data/services/analytics/analytics_service.dart';
 import '../../../data/services/user_service.dart';
 import '../../../features/settings/controllers/settings_controller.dart';
 import '../repositories/overview_repository.dart';

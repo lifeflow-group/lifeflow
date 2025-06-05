@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/domain/models/habit.dart';
 import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/scheduled_notification.dart';
-import '../../data/services/analytics_service.dart';
+import '../../data/services/analytics/analytics_service.dart';
 import '../../features/habit_detail/presentation/habit_detail_screen.dart';
 import '../../features/habit_detail/presentation/habit_view_screen.dart';
 import '../../features/login/presentation/login_screen.dart';

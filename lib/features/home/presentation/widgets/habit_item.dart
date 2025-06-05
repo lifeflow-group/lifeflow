@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../data/domain/models/habit.dart';
-import '../../../../data/services/analytics_service.dart';
+import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../../shared/actions/habit_actions.dart';
 
 class HabitItem extends ConsumerWidget {

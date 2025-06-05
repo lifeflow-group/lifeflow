@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/habit_category.dart';
-import '../../../../data/services/analytics_service.dart';
+import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/overview_controller.dart';
 import 'category_list_tile.dart';

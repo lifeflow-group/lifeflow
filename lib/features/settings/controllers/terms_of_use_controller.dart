@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/services/analytics_service.dart';
+import '../../../data/services/analytics/analytics_service.dart';
 
 /// Provider for managing terms of use content
 final termsOfUseControllerProvider =

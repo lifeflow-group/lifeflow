@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/habit_category.dart';
-import '../../../../data/services/analytics_service.dart';
+import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/category_habit_analytics_controller.dart';
 import '../widgets/habit_list_with_date_headers.dart';

@@ -1270,4 +1270,13 @@ class AnalyticsService {
     await logEvent(
         'habit_view_screen_opened', {'habit_id': habitId, 'source': source});
   }
+
+  Future<void> trackWebDatabaseCompatibilityIssue(String implementation,
+      List<String> missingFeatures, String userAgent) async {
+    await logEvent('web_database_compatibility_issue', {
+      'implementation': implementation,
+      'missing_features': missingFeatures.join(', '),
+      'user_agent': userAgent
+    });
+  }
 }

@@ -6,7 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../core/constants/app_languages.dart';
 import '../../../data/domain/models/app_settings.dart';
 import '../../../data/domain/models/language.dart';
-import '../../../data/services/analytics_service.dart';
+import '../../../data/services/analytics/analytics_service.dart';
 import '../controllers/settings_controller.dart';
 import 'widgets/settings_divider.dart';
 import 'widgets/settings_item.dart';

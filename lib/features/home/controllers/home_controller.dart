@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
-import '../../../data/services/analytics_service.dart';
+import '../../../data/services/analytics/analytics_service.dart';
 import '../../../data/services/user_service.dart';
 import '../repositories/home_repository.dart';
 

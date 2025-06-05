@@ -12,13 +12,13 @@ class NotificationForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("NotificationService", "Service Created")
+        Log.d("MobileNotificationService", "Service Created")
         // Start the foreground service
         startMyForeground()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("NotificationService", "Foreground Service Started")
+        Log.d("MobileNotificationService", "Foreground Service Started")
         return START_STICKY // Ensure the service restarts if it is killed
     }
 
@@ -49,13 +49,13 @@ class NotificationForegroundService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("NotificationService", "Foreground Service Stopped")
+        Log.d("MobileNotificationService", "Foreground Service Stopped")
     }
 
     // Restart the service if the app is killed
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        Log.d("NotificationService", "App Task Removed - restarting service...")
+        Log.d("MobileNotificationService", "App Task Removed - restarting service...")
 
         val restartServiceIntent = Intent(applicationContext, NotificationForegroundService::class.java)
         restartServiceIntent.setPackage(packageName)

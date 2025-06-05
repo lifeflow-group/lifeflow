@@ -5,17 +5,17 @@ import '../domain/models/habit.dart';
 import '../domain/models/habit_exception.dart';
 import '../domain/models/habit_series.dart';
 import '../repositories/repositories.dart';
-import '../services/notification_service.dart';
+import '../services/notifications/mobile_notification_service.dart';
 
 final habitControllerProvider = Provider<HabitController>((ref) {
   final repo = ref.read(repositoriesProvider);
-  return HabitController(ref, repo, NotificationService());
+  return HabitController(ref, repo, MobileNotificationService());
 });
 
 class HabitController {
   final Ref ref;
   final Repositories _repo;
-  final NotificationService _notification;
+  final MobileNotificationService _notification;
 
   HabitController(this.ref, this._repo, this._notification);
 

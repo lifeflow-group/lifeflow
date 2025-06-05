@@ -21,7 +21,7 @@ void main() {
   late ProviderContainer container;
   late HabitDetailController controller;
   late HabitDetailRepository repository;
-  final mockNotification = MockNotificationService();
+  final mockNotification = MockMobileNotificationService();
 
   final habitDate = DateTime(2025, 4, 17);
   const testUserId = 'user-123';
@@ -35,7 +35,8 @@ void main() {
   });
 
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    final inMemory = DatabaseConnection(NativeDatabase.memory());
+    db = AppDatabase.forTesting(inMemory);
 
     container = ProviderContainer(overrides: [
       userServiceProvider.overrideWithValue(FakeUserService()),

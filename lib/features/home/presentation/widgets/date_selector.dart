@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/app_settings.dart';
-import '../../../../data/services/analytics_service.dart';
+import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/home_controller.dart';
 

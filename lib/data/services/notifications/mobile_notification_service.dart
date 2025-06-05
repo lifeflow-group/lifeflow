@@ -5,19 +5,21 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-import '../../core/utils/helpers.dart';
-import '../datasources/local/app_database.dart';
-import '../domain/models/habit.dart';
-import '../domain/models/habit_series.dart';
-import '../domain/models/scheduled_notification.dart';
+import '../../../core/utils/helpers.dart';
+import '../../datasources/local/app_database.dart';
+import '../../domain/models/habit.dart';
+import '../../domain/models/habit_series.dart';
+import '../../domain/models/scheduled_notification.dart';
+import 'notification_service_interface.dart';
 
-class NotificationService {
+class MobileNotificationService implements NotificationServiceInterface {
   final FlutterLocalNotificationsPlugin _notificationsPlugin;
 
-  NotificationService({FlutterLocalNotificationsPlugin? plugin})
+  MobileNotificationService({FlutterLocalNotificationsPlugin? plugin})
       : _notificationsPlugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   /// **Initialize the notification system**
+  @override
   Future<void> initialize(
       Function(String? payload) onNotificationSelected) async {
     tz.initializeTimeZones();
@@ -44,6 +46,7 @@ class NotificationService {
   }
 
   /// **Request notification permissions**
+  @override
   Future<void> requestPermission() async {
     try {
       // Request Android permissions
@@ -74,6 +77,7 @@ class NotificationService {
   }
 
   /// **Schedule a notification**
+  @override
   Future<void> scheduleNotification(
       int id, String title, String body, DateTime dateTime,
       {String? payload}) async {
@@ -105,6 +109,7 @@ class NotificationService {
   }
 
   // Schedules reminders for recurring habits
+  @override
   Future<void> scheduleRecurringReminders(Habit habit, HabitSeries? habitSeries,
       {Set<DateTime>? excludedDatesUtc}) async {
     if (habitSeries == null) {
@@ -147,17 +152,20 @@ class NotificationService {
   }
 
   /// **Cancel a notification by ID**
+  @override
   Future<void> cancelNotification(int id) async {
     await _notificationsPlugin.cancel(id);
     debugPrint('Cancelled notification $id');
   }
 
   /// **Cancel all notifications**
+  @override
   Future<void> cancelAllNotifications() async {
     await _notificationsPlugin.cancelAll();
   }
 
   /// Cancel all notifications linked to a specific habitSeriesId
+  @override
   Future<void> cancelNotificationsByHabitSeriesId(String seriesId) async {
     final scheduledNotifications = await getScheduledNotifications();
 
@@ -170,6 +178,7 @@ class NotificationService {
     }
   }
 
+  @override
   Future<void> cancelFutureNotificationsByHabitSeriesId(
       String seriesId, DateTime startDate) async {
     // Retrieve all scheduled notifications
@@ -193,6 +202,7 @@ class NotificationService {
     }
   }
 
+  @override
   Future<void> scheduleUpcomingNotifications(AppDatabase database) async {
     final now = DateTime.now();
     final habits = await database.habitDao.getAllRecurringHabits();
@@ -241,6 +251,7 @@ class NotificationService {
     }
   }
 
+  @override
   Future<List<ScheduledNotification>> getScheduledNotifications() async {
     final List<PendingNotificationRequest> pendingNotifications =
         await _notificationsPlugin.pendingNotificationRequests();
@@ -279,6 +290,7 @@ class NotificationService {
   }
 
   /// Extract habitId from notification payload
+  @override
   String extractHabitIdFromPayload(String? payload) {
     if (payload == null) return "";
     try {

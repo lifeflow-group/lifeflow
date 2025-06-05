@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
-import '../../../data/services/analytics_service.dart';
+import '../../../data/services/analytics/analytics_service.dart';
 import '../../../data/services/user_service.dart';
 import '../../../features/settings/controllers/settings_controller.dart';
 import '../presentation/screens/category_habit_analytics_screen.dart';

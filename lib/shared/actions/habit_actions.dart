@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/controllers/habit_controller.dart';
 import '../../data/domain/models/habit.dart';
-import '../../data/services/analytics_service.dart';
+import '../../data/services/analytics/analytics_service.dart';
 import '../widgets/scope_dialog.dart';
 import '../widgets/enter_number_dialog.dart';
 

@@ -7,7 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/habit_category.dart';
-import '../../../data/services/analytics_service.dart';
+import '../../../data/services/analytics/analytics_service.dart';
 import '../../../shared/widgets/scope_dialog.dart';
 import '../controllers/habit_detail_controller.dart';
 import 'widgets/category_bottom_sheet.dart';

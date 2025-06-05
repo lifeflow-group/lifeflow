@@ -8,12 +8,13 @@ import 'package:lifeflow/data/datasources/local/dao/habit_dao.dart';
 import 'package:lifeflow/data/datasources/local/dao/habit_series_dao.dart';
 import 'package:lifeflow/data/domain/models/habit.dart';
 import 'package:lifeflow/data/domain/models/habit_category.dart';
-import 'package:lifeflow/data/services/notification_service.dart';
+import 'package:lifeflow/data/services/notifications/mobile_notification_service.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-class MockNotificationService extends Mock implements NotificationService {}
+class MockMobileNotificationService extends Mock
+    implements MobileNotificationService {}
 
 class MockFlutterLocalNotificationsPlugin extends Mock
     implements FlutterLocalNotificationsPlugin {}
@@ -35,7 +36,7 @@ class MockHabitDao extends Mock implements HabitDao {}
 class MockHabitSeriesDao extends Mock implements HabitSeriesDao {}
 
 void main() {
-  late NotificationService service;
+  late MobileNotificationService service;
   late MockFlutterLocalNotificationsPlugin mockPlugin;
 
   setUpAll(() {
@@ -48,7 +49,7 @@ void main() {
 
   setUp(() {
     mockPlugin = MockFlutterLocalNotificationsPlugin();
-    service = NotificationService(plugin: mockPlugin);
+    service = MobileNotificationService(plugin: mockPlugin);
   });
 
   test('scheduleNotification calls zonedSchedule with correct arguments',

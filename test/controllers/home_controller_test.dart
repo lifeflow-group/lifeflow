@@ -21,7 +21,8 @@ void main() {
   final selectDate = testDate.add(Duration(days: 5));
 
   setUp(() {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    final inMemory = DatabaseConnection(NativeDatabase.memory());
+    db = AppDatabase.forTesting(inMemory);
     container = ProviderContainer(overrides: [
       selectedDateProvider
           .overrideWith((ref) => SelectedDateNotifier(testDate)),

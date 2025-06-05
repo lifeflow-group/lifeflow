@@ -8,7 +8,7 @@ import '../../../core/utils/helpers.dart';
 import '../../../data/controllers/habit_controller.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/scheduled_notification.dart';
-import '../../../data/services/analytics_service.dart';
+import '../../../data/services/analytics/analytics_service.dart';
 import '../../../shared/actions/habit_actions.dart';
 import '../../../shared/widgets/enter_number_dialog.dart';
 import '../../home/controllers/home_controller.dart';

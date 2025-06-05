@@ -10,7 +10,7 @@ import '../../../data/domain/models/habit_exception.dart';
 import '../../../data/domain/models/habit_series.dart';
 import '../../../shared/widgets/scope_dialog.dart';
 import '../repositories/habit_detail_repository.dart';
-import '../../../data/services/notification_service.dart';
+import '../../../data/services/notifications/mobile_notification_service.dart';
 
 // Provider for managing the habit name.
 final habitNameProvider = StateProvider<String>((ref) => '');
@@ -52,13 +52,13 @@ final habitProvider = StateProvider<Habit?>((ref) => null);
 // Provider containing functions to update data
 final habitDetailControllerProvider = Provider<HabitDetailController>((ref) {
   final repo = ref.read(habitDetailRepositoryProvider);
-  return HabitDetailController(ref, repo, NotificationService());
+  return HabitDetailController(ref, repo, MobileNotificationService());
 });
 
 class HabitDetailController {
   final Ref ref;
   final HabitDetailRepository _repo;
-  final NotificationService _notification;
+  final MobileNotificationService _notification;
 
   HabitDetailController(this.ref, this._repo, this._notification);
 

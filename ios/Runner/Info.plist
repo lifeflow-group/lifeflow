@@ -55,5 +55,7 @@
 		<string>fetch</string>
 		<string>processing</string>
 	</array>
+	<key>NSUserNotificationUsageDescription</key>
+	<string>This app requires notification permission to send you reminders.</string>
 </dict>
 </plist>

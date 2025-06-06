@@ -19,10 +19,10 @@ void main() async {
   final database = AppDatabase();
   await seedDatabase(database);
 
-  final notificationHandler = NotificationHandler();
-  notificationHandler.handleAppLaunchFromNotification();
   final notificationService =
       kIsWeb ? WebNotificationService() : MobileNotificationService();
+  final notificationHandler = NotificationHandler();
+  notificationHandler.handleAppLaunchFromNotification();
   await notificationService
       .initialize((payload) => notificationHandler.handlePayload(payload));
   notificationService.scheduleUpcomingNotifications(database);

@@ -18,6 +18,15 @@ class MobileNotificationService implements NotificationServiceInterface {
   MobileNotificationService({FlutterLocalNotificationsPlugin? plugin})
       : _notificationsPlugin = plugin ?? FlutterLocalNotificationsPlugin();
 
+  /// A notification action which triggers a App navigation event
+  static const String navigationActionId = 'id_3';
+
+  /// Defines a iOS/MacOS notification category for text input actions.
+  static const String darwinNotificationCategoryText = 'textCategory';
+
+  /// Defines a iOS/MacOS notification category for plain actions.
+  static const String darwinNotificationCategoryPlain = 'plainCategory';
+
   /// **Initialize the notification system**
   @override
   Future<void> initialize(
@@ -27,15 +36,62 @@ class MobileNotificationService implements NotificationServiceInterface {
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const DarwinInitializationSettings iosSettings =
+    final List<DarwinNotificationCategory> darwinNotificationCategories =
+        <DarwinNotificationCategory>[
+      DarwinNotificationCategory(
+        darwinNotificationCategoryText,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.text(
+            'text_1',
+            'Action 1',
+            buttonTitle: 'Send',
+            placeholder: 'Placeholder',
+          ),
+        ],
+      ),
+      DarwinNotificationCategory(
+        darwinNotificationCategoryPlain,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.plain('id_1', 'Action 1'),
+          DarwinNotificationAction.plain(
+            'id_2',
+            'Action 2 (destructive)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.destructive,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            navigationActionId,
+            'Action 3 (foreground)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.foreground,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            'id_4',
+            'Action 4 (auth required)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.authenticationRequired,
+            },
+          ),
+        ],
+        options: <DarwinNotificationCategoryOption>{
+          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+        },
+      )
+    ];
+
+    /// Note: permissions aren't requested here just to demonstrate that can be done later
+    final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
+      notificationCategories: darwinNotificationCategories,
     );
 
-    const InitializationSettings settings =
-        InitializationSettings(android: androidSettings, iOS: iosSettings);
+    final InitializationSettings settings = InitializationSettings(
+        android: androidSettings, iOS: initializationSettingsDarwin);
 
     await _notificationsPlugin.initialize(
       settings,

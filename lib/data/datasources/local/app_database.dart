@@ -1,11 +1,8 @@
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutter/material.dart' show debugPrint;
-import 'package:path_provider/path_provider.dart';
-import 'package:web/web.dart' as web;
 
-import '../../services/analytics/analytics_service.dart';
-import '../../services/analytics/firebase_analytics_service_backend.dart';
+// Conditionally import to avoid platform-incompatible import errors
+import 'platform_executors/native_executor.dart'
+    if (dart.library.html) 'platform_executors/web_executor.dart';
 import 'dao/category_dao.dart';
 import 'dao/habit_dao.dart';
 import 'dao/habit_exception_dao.dart';
@@ -29,41 +26,7 @@ part 'app_database.g.dart';
   HabitExceptionDao,
 ])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? e])
-      : super(
-          e ??
-              driftDatabase(
-                name: 'lifeflow',
-                native: const DriftNativeOptions(
-                    databaseDirectory: getApplicationSupportDirectory),
-                web: DriftWebOptions(
-                  sqlite3Wasm: Uri.parse('sqlite3.wasm'),
-                  driftWorker: Uri.parse('drift_worker.js'),
-                  onResult: (result) {
-                    if (result.missingFeatures.isNotEmpty) {
-                      debugPrint(
-                        'Using ${result.chosenImplementation} due to unsupported '
-                        'browser features: ${result.missingFeatures}',
-                      );
-
-                      // Log to analytics for remote visibility
-                      final analyticsService =
-                          AnalyticsService(FirebaseAnalyticsServiceBackend());
-
-                      // Convert Set<MissingBrowserFeature> to List<String>
-                      final missingFeaturesList = result.missingFeatures
-                          .map((feature) => feature.toString())
-                          .toList();
-
-                      analyticsService.trackWebDatabaseCompatibilityIssue(
-                          result.chosenImplementation.toString(),
-                          missingFeaturesList,
-                          web.window.navigator.userAgent);
-                    }
-                  },
-                ),
-              ),
-        );
+  AppDatabase([QueryExecutor? e]) : super(e ?? createExecutor());
 
   AppDatabase.forTesting(DatabaseConnection super.connection);
 

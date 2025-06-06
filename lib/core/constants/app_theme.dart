@@ -27,6 +27,7 @@ class AppTheme {
       scrim: Color(0x80000000),
       error: Colors.red,
     ),
+    primaryColorLight: primaryColor,
     scaffoldBackgroundColor: lightBackground,
     appBarTheme: AppBarTheme(
       backgroundColor: primaryColor,
@@ -81,6 +82,7 @@ class AppTheme {
       scrim: Color(0x99000000), // Slightly denser scrim
       error: Colors.red.shade300, // Brighter error color for dark mode
     ),
+    primaryColorLight: primaryColor,
     scaffoldBackgroundColor: darkBackground,
     appBarTheme: AppBarTheme(
       backgroundColor: Color(0xFF2C2C2C), // Darker app bar

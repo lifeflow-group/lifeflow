@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show DateTimeRange;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../datasources/local/app_database.dart';
@@ -98,6 +99,19 @@ class HabitExceptionRepository {
 
     // Convert Companion list to Model list
     return exceptionsData
+        .map((exception) => HabitException.fromJson(exception.toJson()))
+        .toList();
+  }
+
+  /// Get habit exceptions within a date range for specific series
+  Future<List<HabitException>> getHabitExceptionsDateRange(
+      DateTimeRange range, List<String> seriesIds) async {
+    // Get exception data from DAO
+    final exceptionData =
+        await _dao.getHabitExceptionsDateRange(range, seriesIds);
+
+    // Convert DAO data to domain models
+    return exceptionData
         .map((exception) => HabitException.fromJson(exception.toJson()))
         .toList();
   }

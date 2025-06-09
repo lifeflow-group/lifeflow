@@ -109,6 +109,8 @@
   "suggestionTitle": "Gợi ý tối ưu hóa",
   "noSuggestionsAvailable": "Hiện tại không có gợi ý nào. Vui lòng quay lại sau để xem các ý tưởng tối ưu hóa!",
   "suggestionError": "Lỗi: {error}",
+  "suggestionLoadingTitle": "Xem gợi ý nào",
+  "suggestionLoadingDescription": "Gợi ý thói quen được tối ưu hóa của bạn được thiết kế riêng cho bạn và trải rộng nhiều danh mục như Sức khỏe, Năng suất, Chánh niệm, Học tập và hơn thế nữa.",
   "filterAll": "Tất cả",
   "filterMostFrequent": "Thường xuyên nhất",
   "filterTopPerformed": "Thực hiện tốt nhất",

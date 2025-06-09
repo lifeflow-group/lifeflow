@@ -1,25 +1,35 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/datasources/remote/api_service.dart';
 import '../../../data/domain/models/habit_analysis_input.dart';
 import '../../../data/domain/models/suggestion.dart';
-import '../services/server_suggestion_service.dart';
-import '../services/suggestion_service.dart';
+import '../../../data/repositories/habit_exception_repository.dart';
+import '../../../data/repositories/habit_repository.dart';
+import '../../../data/repositories/habit_series_repository.dart';
+import '../../../data/repositories/repositories.dart';
 
 final suggestionRepositoryProvider = Provider((ref) {
-  final suggestionService = ref.read(serverSuggestionServiceProvider);
-  return SuggestionRepository(suggestionService);
+  final apiService = ref.read(apiServiceProvider);
+  final repositories = ref.read(repositoriesProvider);
+  return SuggestionRepository(
+      apiService: apiService, repositories: repositories);
 });
 
 class SuggestionRepository {
-  SuggestionRepository(this.suggestionService);
+  SuggestionRepository({required this.apiService, required this.repositories});
 
-  final SuggestionService suggestionService;
+  final ApiService apiService;
+  final Repositories repositories;
 
   Future<List<Suggestion>> analyzeHabits(HabitAnalysisInput input) async {
-    final jsonData = await suggestionService.generateAISuggestions(input);
+    final jsonData = await apiService.generateAISuggestions(input);
     final suggestions =
         jsonData.map((data) => Suggestion.fromJson(data)).toList();
 
     return suggestions;
   }
+
+  HabitRepository get habit => repositories.habit;
+  HabitExceptionRepository get habitException => repositories.habitException;
+  HabitSeriesRepository get habitSeries => repositories.habitSeries;
 }

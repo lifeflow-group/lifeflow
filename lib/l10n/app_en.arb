@@ -178,6 +178,8 @@
       }
     }
   },
+  "suggestionLoadingTitle": "Let's see suggestions",
+  "suggestionLoadingDescription": "Your optimized habit suggestions are tailored to you and span categories like Health, Productivity, Mindfulness, Learning, and more.",
 
   "filterAll": "All",
   "filterMostFrequent": "Most Frequent",

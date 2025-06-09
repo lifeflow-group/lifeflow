@@ -109,6 +109,8 @@
   "suggestionTitle": "Suggestions d'optimisation",
   "noSuggestionsAvailable": "Aucune suggestion disponible pour le moment. Revenez plus tard pour des idées d'optimisation !",
   "suggestionError": "Erreur : {error}",
+  "suggestionLoadingTitle": "Voyons les suggestions",
+  "suggestionLoadingDescription": "Vos suggestions d'habitudes optimisées sont personnalisées et couvrent des catégories telles que la santé, la productivité, la pleine conscience, l'apprentissage, et plus encore.",
   "filterAll": "Tous",
   "filterMostFrequent": "Les plus fréquents",
   "filterTopPerformed": "Meilleurs résultats",

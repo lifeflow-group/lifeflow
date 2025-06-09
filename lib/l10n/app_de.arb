@@ -109,6 +109,8 @@
   "suggestionTitle": "Optimierungsvorschläge",
   "noSuggestionsAvailable": "Derzeit sind keine Vorschläge verfügbar. Schauen Sie später noch einmal nach, um Optimierungsideen zu erhalten!",
   "suggestionError": "Fehler: {error}",
+  "suggestionLoadingTitle": "Lass uns Vorschläge ansehen",
+  "suggestionLoadingDescription": "Deine optimierten Gewohnheitsvorschläge sind auf dich zugeschnitten und umfassen Kategorien wie Gesundheit, Produktivität, Achtsamkeit, Lernen und mehr.",
   "filterAll": "Alle",
   "filterMostFrequent": "Am häufigsten",
   "filterTopPerformed": "Am besten durchgeführt",

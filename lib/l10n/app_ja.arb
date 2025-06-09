@@ -109,6 +109,8 @@
   "suggestionTitle": "最適化に関する提案",
   "noSuggestionsAvailable": "現在、候補がありません。最適化のアイデアについては、後で確認してください！",
   "suggestionError": "エラー: {error}",
+  "suggestionLoadingTitle": "おすすめの習慣を見てみましょう",
+  "suggestionLoadingDescription": "最適化された習慣の提案は、あなたに合わせて調整されており、健康、生産性、マインドフルネス、学習など、さまざまなカテゴリにわたります。",
   "filterAll": "すべて",
   "filterMostFrequent": "最も多い",
   "filterTopPerformed": "トップ実行",

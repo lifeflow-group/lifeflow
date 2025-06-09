@@ -109,6 +109,8 @@
   "suggestionTitle": "최적화 제안",
   "noSuggestionsAvailable": "현재 제안이 없습니다. 나중에 최적화 아이디어를 확인해 보세요!",
   "suggestionError": "오류: {error}",
+  "suggestionLoadingTitle": "추천을 확인해 보세요",
+  "suggestionLoadingDescription": "건강, 생산성, 마음 챙김, 학습 등 여러 범주에 걸쳐 사용자에게 맞춤화된 최적의 습관 제안을 확인할 수 있습니다.",
   "filterAll": "전체",
   "filterMostFrequent": "가장 빈번한",
   "filterTopPerformed": "최고 성과",

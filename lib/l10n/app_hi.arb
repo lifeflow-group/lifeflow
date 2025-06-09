@@ -109,6 +109,8 @@
   "suggestionTitle": "ऑप्टिमाइज़ेशन सुझाव",
   "noSuggestionsAvailable": "इस समय कोई सुझाव उपलब्ध नहीं हैं। अनुकूलन विचारों के लिए बाद में फिर से देखें!",
   "suggestionError": "त्रुटि: {error}",
+  "suggestionLoadingTitle": "आइए सुझाव देखें",
+  "suggestionLoadingDescription": "आपके अनुकूलित आदत सुझाव आपके लिए तैयार किए गए हैं और स्वास्थ्य, उत्पादकता, दिमाग़ की शांति, सीखने और बहुत कुछ जैसी श्रेणियों में फैले हुए हैं।",
   "filterAll": "सभी",
   "filterMostFrequent": "सबसे अधिक बार",
   "filterTopPerformed": "शीर्ष प्रदर्शन किया गया",

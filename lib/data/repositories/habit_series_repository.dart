@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show DateTimeRange;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../datasources/local/app_database.dart';
@@ -54,5 +55,17 @@ class HabitSeriesRepository {
     final count = await _dao.deleteHabitSeries(id);
     if (count == 0) return false;
     return true;
+  }
+
+  /// Get habit series within a date range
+  Future<List<HabitSeries>> getHabitSeriesDateRange(
+      DateTimeRange range, String userId) async {
+    // Get data from DAO
+    final seriesData = await _dao.getHabitSeriesDateRange(range, userId);
+
+    // Convert DAO data to domain models
+    return seriesData
+        .map((data) => HabitSeries.fromJson(data.toJson()))
+        .toList();
   }
 }

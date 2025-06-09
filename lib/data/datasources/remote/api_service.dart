@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import '../../../core/constants/app_constants.dart';
 import '../../domain/models/habit_analysis_input.dart';
 
+final apiServiceProvider = Provider<ApiService>((ref) {
+  return ApiService();
+});
+
 class ApiService {
-  static Future<List<dynamic>> generateAISuggestions(
-      HabitAnalysisInput input) async {
+  Future<List<dynamic>> generateAISuggestions(HabitAnalysisInput input) async {
     final url = Uri.parse('${AppConstants.baseUrl}/suggestions/analyze');
 
     debugPrint('Sending request to url...');

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show DateTimeRange;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/utils/helpers.dart';
@@ -106,5 +107,28 @@ class HabitRepository {
       });
     }
     return null;
+  }
+
+  /// Get habits within a date range
+  Future<List<Habit>> getHabitsDateRange(
+      DateTimeRange range, String userId) async {
+    // Get habit data directly from DAO
+    final habitData = await _dao.getHabitsDateRange(range, userId);
+
+    // Convert DAO data to domain model
+    final habits = <Habit>[];
+
+    for (final habitDb in habitData) {
+      final categoryData = await _categoryDao.getCategory(habitDb.categoryId);
+
+      final habit = Habit.fromJson({
+        ...habitDb.toJson(),
+        'category': categoryData?.toJson() ?? defaultCategories.first.toJson(),
+      });
+
+      habits.add(habit);
+    }
+
+    return habits;
   }
 }

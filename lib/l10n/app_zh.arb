@@ -109,6 +109,8 @@
   "suggestionTitle": "优化建议",
   "noSuggestionsAvailable": "目前没有可用的建议。请稍后再查看以获取优化建议！",
   "suggestionError": "错误：{error}",
+  "suggestionLoadingTitle": "看看建议",
+  "suggestionLoadingDescription": "您的个性化习惯建议经过优化，涵盖健康、效率、正念、学习等多个类别。",
   "filterAll": "全部",
   "filterMostFrequent": "最常发生",
   "filterTopPerformed": "最佳表现",

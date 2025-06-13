@@ -201,18 +201,6 @@ class AnalyticsService {
         {'enabled': enabled, 'from_screen': 'habit_detail'});
   }
 
-  // Habit Detail Save Events
-  Future<void> trackHabitSaveAttempt(bool isEditing, String habitName,
-      String categoryName, String trackingType, bool hasReminder) async {
-    await logEvent('habit_save_attempt', {
-      'mode': isEditing ? 'update' : 'create',
-      'habit_name': habitName,
-      'category': categoryName,
-      'tracking_type': trackingType,
-      'has_reminder': hasReminder
-    });
-  }
-
   Future<void> trackHabitCreated(String habitId, String habitName) async {
     await logEvent(
         'habit_created', {'habit_id': habitId, 'habit_name': habitName});
@@ -287,11 +275,6 @@ class AnalyticsService {
   Future<void> trackHabitDeleted(String habitId, String habitName) async {
     await logEvent('habit_deleted_from_view',
         {'habit_id': habitId, 'habit_name': habitName});
-  }
-
-  Future<void> trackHabitEditInitiated(String habitId, String habitName) async {
-    await logEvent(
-        'habit_edit_initiated', {'habit_id': habitId, 'habit_name': habitName});
   }
 
   Future<void> trackHabitEditCompleted(String habitId, String habitName) async {
@@ -454,10 +437,6 @@ class AnalyticsService {
       String habitId, String habitName, String category) async {
     await logEvent('habit_delete_attempt',
         {'habit_id': habitId, 'habit_name': habitName, 'category': category});
-  }
-
-  Future<void> trackHomeAddHabitInitiated() async {
-    await logEvent('add_habit_initiated', {'source': 'home_screen'});
   }
 
   Future<void> trackHomeHabitCreated() async {
@@ -1277,6 +1256,216 @@ class AnalyticsService {
       'implementation': implementation,
       'missing_features': missingFeatures.join(', '),
       'user_agent': userAgent
+    });
+  }
+
+  /// ===== Suggestion Feature Analytics Events =====
+
+  // Suggestion Screen Events
+  Future<void> trackSuggestionsSelectedCount(int selectedCount) async {
+    await logEvent('suggestions_apply_clicked', {
+      'selected_count': selectedCount,
+    });
+  }
+
+  Future<void> trackSuggestionsApplied(
+      int selectedCount, int appliedCount) async {
+    await logEvent('suggestions_applied', {
+      'selected_count': selectedCount,
+      'applied_count': appliedCount,
+      'success_rate':
+          appliedCount == 0 ? 0 : (appliedCount / selectedCount * 100).round(),
+    });
+  }
+
+  Future<void> trackNavigateToAppliedSummary(int habitCount) async {
+    await logEvent('navigate_to_applied_summary', {
+      'habit_count': habitCount,
+    });
+  }
+
+  Future<void> trackReturnFromSummaryScreen() async {
+    await logEvent('return_from_applied_summary', {});
+  }
+
+  Future<void> trackSuggestionsApplyEmptyResult(int selectedCount) async {
+    await logEvent('suggestions_apply_empty_result', {
+      'selected_count': selectedCount,
+    });
+  }
+
+  // Suggestion Card Events
+  Future<void> trackSuggestionHabitEditStarted(
+      String suggestionId, String habitName, String categoryName) async {
+    await logEvent('suggestion_habit_edit_started', {
+      'suggestion_id': suggestionId,
+      'habit_name': habitName,
+      'category': categoryName,
+    });
+  }
+
+  Future<void> trackSuggestionHabitEditCancelled(
+      String suggestionId, String habitName) async {
+    await logEvent('suggestion_habit_edit_cancelled', {
+      'suggestion_id': suggestionId,
+      'habit_name': habitName,
+    });
+  }
+
+  Future<void> trackSuggestionHabitEditInvalidResult(
+      String suggestionId, String resultType) async {
+    await logEvent('suggestion_habit_edit_invalid_result', {
+      'suggestion_id': suggestionId,
+      'result_type': resultType,
+    });
+  }
+
+  Future<void> trackSuggestionHabitEditCompleted(String suggestionId,
+      String habitName, String categoryName, bool wasModified) async {
+    await logEvent('suggestion_habit_edit_completed', {
+      'suggestion_id': suggestionId,
+      'habit_name': habitName,
+      'category': categoryName,
+      'was_modified': wasModified,
+    });
+  }
+
+  Future<void> trackSuggestionUpdatedInList(
+      String suggestionId, String habitName) async {
+    await logEvent('suggestion_updated_in_list', {
+      'suggestion_id': suggestionId,
+      'habit_name': habitName,
+    });
+  }
+
+  Future<void> trackSuggestionHabitTapFailed(
+      String suggestionId, String reason) async {
+    await logEvent('suggestion_habit_tap_failed', {
+      'suggestion_id': suggestionId,
+      'reason': reason,
+    });
+  }
+
+  // Suggestion Controller Events
+  Future<void> trackApplySuggestionsStarted(int selectionCount) async {
+    await logEvent('apply_suggestions_started', {
+      'selection_count': selectionCount,
+    });
+  }
+
+  Future<void> trackApplySuggestionsEmptySelection() async {
+    await logEvent('apply_suggestions_empty_selection', {});
+  }
+
+  Future<void> trackApplySuggestionsProcessing(
+      int foundSuggestions, int withHabitData) async {
+    await logEvent('apply_suggestions_processing', {
+      'found_suggestions': foundSuggestions,
+      'with_habit_data': withHabitData,
+    });
+  }
+
+  Future<void> trackApplySuggestionsNoUser() async {
+    await logEvent('apply_suggestions_no_user', {});
+  }
+
+  Future<void> trackApplySuggestionAttempt(
+      String suggestionId, String habitName, String categoryName) async {
+    await logEvent('apply_suggestion_attempt', {
+      'suggestion_id': suggestionId,
+      'habit_name': habitName,
+      'category': categoryName,
+    });
+  }
+
+  Future<void> trackApplySuggestionUpdatingExisting(
+      String suggestionId, String habitId, String habitName) async {
+    await logEvent('apply_suggestion_updating_existing', {
+      'suggestion_id': suggestionId,
+      'habit_id': habitId,
+      'habit_name': habitName,
+    });
+  }
+
+  Future<void> trackApplySuggestionCreatingNew(
+      String suggestionId, String habitName) async {
+    await logEvent('apply_suggestion_creating_new', {
+      'suggestion_id': suggestionId,
+      'habit_name': habitName,
+    });
+  }
+
+  Future<void> trackApplySuggestionCreationFailed(
+      String suggestionId, String habitName) async {
+    await logEvent('apply_suggestion_creation_failed', {
+      'suggestion_id': suggestionId,
+      'habit_name': habitName,
+    });
+  }
+
+  Future<void> trackApplySuggestionUpdateFailed(
+      String suggestionId, String habitId) async {
+    await logEvent('apply_suggestion_update_failed', {
+      'suggestion_id': suggestionId,
+      'habit_id': habitId,
+    });
+  }
+
+  Future<void> trackApplySuggestionNoHabitData(
+      String suggestionId, String title) async {
+    await logEvent('apply_suggestion_no_habit_data', {
+      'suggestion_id': suggestionId,
+      'title': title,
+    });
+  }
+
+  Future<void> trackApplySuggestionsCompleted(
+      int totalSelected, int successfullyApplied) async {
+    await logEvent('apply_suggestions_completed', {
+      'total_selected': totalSelected,
+      'successfully_applied': successfullyApplied,
+      'success_rate': totalSelected == 0
+          ? 0
+          : (successfullyApplied / totalSelected * 100).round(),
+    });
+  }
+
+  Future<void> trackSuggestionsListUpdated(
+      int previousCount, int newCount) async {
+    await logEvent('suggestions_list_updated', {
+      'previous_count': previousCount,
+      'new_count': newCount,
+      'changed': previousCount != newCount,
+    });
+  }
+
+  // Applied Habits Summary Screen Events
+  Future<void> trackAppliedHabitsSummaryViewed(
+      int habitCount, String categories, int hasReminders) async {
+    await logEvent('applied_habits_summary_viewed', {
+      'habit_count': habitCount,
+      'categories': categories,
+      'has_reminders': hasReminders,
+    });
+  }
+
+  Future<void> trackAppliedHabitsGoHomeClicked(int habitCount) async {
+    await logEvent(
+        'applied_habits_go_home_clicked', {'habit_count': habitCount});
+  }
+
+  Future<void> trackAppliedHabitsBackToSuggestionsClicked(
+      int habitCount) async {
+    await logEvent('applied_habits_back_to_suggestions_clicked',
+        {'habit_count': habitCount});
+  }
+
+  Future<void> trackAppliedHabitViewDetailsClicked(
+      String habitId, String habitName, String category) async {
+    await logEvent('applied_habit_view_details_clicked', {
+      'habit_id': habitId,
+      'habit_name': habitName,
+      'category': category,
     });
   }
 }

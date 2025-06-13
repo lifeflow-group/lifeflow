@@ -140,5 +140,18 @@
   "themeSelectionTitle": "Aussehen",
   "themeModeLight": "Hell",
   "themeModeDark": "Dunkel",
-  "themeModeSystem": "Geräte-Einstellungen verwenden"
+  "themeModeSystem": "Geräte-Einstellungen verwenden",
+  "selectAll": "Alle auswählen",
+  "applySelected": "Ausgewählte übernehmen",
+  "habitsApplied": "Ausgewählte Vorschläge übernommen",
+  "habitAdded": "Gewohnheit erfolgreich hinzugefügt",
+  "habitAddError": "Gewohnheit konnte nicht hinzugefügt werden",
+  "applySuggestion": "Vorschlag übernehmen",
+  "appliedHabitsSuccessTitle": "Erfolg!",
+  "appliedHabitsCountMessage": "{count, plural, =0{Keine Gewohnheiten angewendet} =1{1 Gewohnheit erfolgreich angewendet} other{# Gewohnheiten erfolgreich angewendet}}",
+  "appliedHabitsDescription": "Diese Gewohnheiten sind jetzt Teil deiner Routine.",
+  "backToSuggestionsButton": "Zurück zu Vorschlägen",
+  "goToHomeButton": "Zur Startseite",
+  "viewDetailsButton": "Details ansehen",
+  "appliedHabitsSummaryTitle": "Angewendete Gewohnheiten"
 }

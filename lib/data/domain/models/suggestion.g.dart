@@ -18,6 +18,8 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
   Iterable<Object?> serialize(Serializers serializers, Suggestion object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object?>[
+      'id',
+      serializers.serialize(object.id, specifiedType: const FullType(String)),
       'title',
       serializers.serialize(object.title,
           specifiedType: const FullType(String)),
@@ -47,6 +49,10 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
       iterator.moveNext();
       final Object? value = iterator.current;
       switch (key) {
+        case 'id':
+          result.id = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
         case 'title':
           result.title = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
@@ -68,6 +74,8 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
 
 class _$Suggestion extends Suggestion {
   @override
+  final String id;
+  @override
   final String title;
   @override
   final String description;
@@ -78,8 +86,12 @@ class _$Suggestion extends Suggestion {
       (new SuggestionBuilder()..update(updates))._build();
 
   _$Suggestion._(
-      {required this.title, required this.description, this.habitData})
+      {required this.id,
+      required this.title,
+      required this.description,
+      this.habitData})
       : super._() {
+    BuiltValueNullFieldError.checkNotNull(id, r'Suggestion', 'id');
     BuiltValueNullFieldError.checkNotNull(title, r'Suggestion', 'title');
     BuiltValueNullFieldError.checkNotNull(
         description, r'Suggestion', 'description');
@@ -96,6 +108,7 @@ class _$Suggestion extends Suggestion {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is Suggestion &&
+        id == other.id &&
         title == other.title &&
         description == other.description &&
         habitData == other.habitData;
@@ -104,6 +117,7 @@ class _$Suggestion extends Suggestion {
   @override
   int get hashCode {
     var _$hash = 0;
+    _$hash = $jc(_$hash, id.hashCode);
     _$hash = $jc(_$hash, title.hashCode);
     _$hash = $jc(_$hash, description.hashCode);
     _$hash = $jc(_$hash, habitData.hashCode);
@@ -114,6 +128,7 @@ class _$Suggestion extends Suggestion {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'Suggestion')
+          ..add('id', id)
           ..add('title', title)
           ..add('description', description)
           ..add('habitData', habitData))
@@ -123,6 +138,10 @@ class _$Suggestion extends Suggestion {
 
 class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
   _$Suggestion? _$v;
+
+  String? _id;
+  String? get id => _$this._id;
+  set id(String? id) => _$this._id = id;
 
   String? _title;
   String? get title => _$this._title;
@@ -142,6 +161,7 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
   SuggestionBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
+      _id = $v.id;
       _title = $v.title;
       _description = $v.description;
       _habitData = $v.habitData?.toBuilder();
@@ -169,6 +189,7 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
     try {
       _$result = _$v ??
           new _$Suggestion._(
+            id: BuiltValueNullFieldError.checkNotNull(id, r'Suggestion', 'id'),
             title: BuiltValueNullFieldError.checkNotNull(
                 title, r'Suggestion', 'title'),
             description: BuiltValueNullFieldError.checkNotNull(

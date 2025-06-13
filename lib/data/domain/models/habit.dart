@@ -70,6 +70,8 @@ abstract class Habit implements Built<Habit, HabitBuilder> {
 
   String? get habitSeriesId;
 
+  RepeatFrequency? get repeatFrequency;
+
   bool get reminderEnabled;
 
   TrackingType get trackingType;

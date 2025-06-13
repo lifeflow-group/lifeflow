@@ -140,5 +140,18 @@
   "themeSelectionTitle": "外观",
   "themeModeLight": "浅色",
   "themeModeDark": "深色",
-  "themeModeSystem": "使用设备设置"
+  "themeModeSystem": "使用设备设置",
+  "selectAll": "全选",
+  "applySelected": "应用已选",
+  "habitsApplied": "已应用选定的建议",
+  "habitAdded": "习惯添加成功",
+  "habitAddError": "添加习惯失败",
+  "applySuggestion": "应用建议",
+  "appliedHabitsSuccessTitle": "成功！",
+  "appliedHabitsCountMessage": "{count, plural, =0{未应用任何习惯} =1{已成功应用1个习惯} other{已成功应用{count}个习惯}}",
+  "appliedHabitsDescription": "这些习惯现在已成为您日常生活的一部分。",
+  "backToSuggestionsButton": "返回建议",
+  "goToHomeButton": "去首页",
+  "viewDetailsButton": "查看详情",
+  "appliedHabitsSummaryTitle": "已应用的习惯"
 }

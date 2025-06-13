@@ -140,5 +140,18 @@
   "themeSelectionTitle": "रूप-रंग",
   "themeModeLight": "प्रकाश",
   "themeModeDark": "अंधकार",
-  "themeModeSystem": "डिवाइस सेटिंग्स का प्रयोग करें"
+  "themeModeSystem": "डिवाइस सेटिंग्स का प्रयोग करें",
+  "selectAll": "सभी का चयन करें",
+  "applySelected": "चयनित लागू करें",
+  "habitsApplied": "चयनित सुझाव लागू किए गए",
+  "habitAdded": "आदत सफलतापूर्वक जोड़ी गई",
+  "habitAddError": "आदत जोड़ने में विफल",
+  "applySuggestion": "सुझाव लागू करें",
+  "appliedHabitsSuccessTitle": "सफल!",
+  "appliedHabitsCountMessage": "{count, plural, =0{कोई आदत लागू नहीं की गई} =1{1 आदत सफलतापूर्वक लागू की गई} other{{count} आदतें सफलतापूर्वक लागू की गईं}}",
+  "appliedHabitsDescription": "ये आदतें अब आपकी दिनचर्या का हिस्सा हैं।",
+  "backToSuggestionsButton": "सुझावों पर वापस जाएँ",
+  "goToHomeButton": "होम पर जाएँ",
+  "viewDetailsButton": "विस्तृत जानकारी देखें",
+  "appliedHabitsSummaryTitle": "लागू आदतें"
 }

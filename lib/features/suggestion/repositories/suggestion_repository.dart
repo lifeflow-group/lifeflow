@@ -21,6 +21,10 @@ class SuggestionRepository {
   final ApiService apiService;
   final Repositories repositories;
 
+  Future<T> transaction<T>(Future<T> Function() action) {
+    return repositories.transaction(action);
+  }
+
   Future<List<Suggestion>> analyzeHabits(HabitAnalysisInput input) async {
     final jsonData = await apiService.generateAISuggestions(input);
     final suggestions =

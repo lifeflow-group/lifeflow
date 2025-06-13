@@ -18,6 +18,7 @@ class HabitDetailRepository {
     return _repos.transaction(action);
   }
 
+  Repositories get repos => _repos;
   HabitRepository get habit => _repos.habit;
   HabitExceptionRepository get habitException => _repos.habitException;
   HabitSeriesRepository get habitSeries => _repos.habitSeries;

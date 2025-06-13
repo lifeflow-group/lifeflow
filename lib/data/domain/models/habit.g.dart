@@ -129,6 +129,13 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.repeatFrequency;
+    if (value != null) {
+      result
+        ..add('repeatFrequency')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(RepeatFrequency)));
+    }
     value = object.targetValue;
     if (value != null) {
       result
@@ -193,6 +200,11 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
           result.habitSeriesId = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
+        case 'repeatFrequency':
+          result.repeatFrequency = serializers.deserialize(value,
+                  specifiedType: const FullType(RepeatFrequency))
+              as RepeatFrequency?;
+          break;
         case 'reminderEnabled':
           result.reminderEnabled = serializers.deserialize(value,
               specifiedType: const FullType(bool))! as bool;
@@ -238,6 +250,8 @@ class _$Habit extends Habit {
   @override
   final String? habitSeriesId;
   @override
+  final RepeatFrequency? repeatFrequency;
+  @override
   final bool reminderEnabled;
   @override
   final TrackingType trackingType;
@@ -260,6 +274,7 @@ class _$Habit extends Habit {
       required this.category,
       required this.startDate,
       this.habitSeriesId,
+      this.repeatFrequency,
       required this.reminderEnabled,
       required this.trackingType,
       this.targetValue,
@@ -295,6 +310,7 @@ class _$Habit extends Habit {
         category == other.category &&
         startDate == other.startDate &&
         habitSeriesId == other.habitSeriesId &&
+        repeatFrequency == other.repeatFrequency &&
         reminderEnabled == other.reminderEnabled &&
         trackingType == other.trackingType &&
         targetValue == other.targetValue &&
@@ -312,6 +328,7 @@ class _$Habit extends Habit {
     _$hash = $jc(_$hash, category.hashCode);
     _$hash = $jc(_$hash, startDate.hashCode);
     _$hash = $jc(_$hash, habitSeriesId.hashCode);
+    _$hash = $jc(_$hash, repeatFrequency.hashCode);
     _$hash = $jc(_$hash, reminderEnabled.hashCode);
     _$hash = $jc(_$hash, trackingType.hashCode);
     _$hash = $jc(_$hash, targetValue.hashCode);
@@ -331,6 +348,7 @@ class _$Habit extends Habit {
           ..add('category', category)
           ..add('startDate', startDate)
           ..add('habitSeriesId', habitSeriesId)
+          ..add('repeatFrequency', repeatFrequency)
           ..add('reminderEnabled', reminderEnabled)
           ..add('trackingType', trackingType)
           ..add('targetValue', targetValue)
@@ -369,6 +387,11 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
   String? get habitSeriesId => _$this._habitSeriesId;
   set habitSeriesId(String? habitSeriesId) =>
       _$this._habitSeriesId = habitSeriesId;
+
+  RepeatFrequency? _repeatFrequency;
+  RepeatFrequency? get repeatFrequency => _$this._repeatFrequency;
+  set repeatFrequency(RepeatFrequency? repeatFrequency) =>
+      _$this._repeatFrequency = repeatFrequency;
 
   bool? _reminderEnabled;
   bool? get reminderEnabled => _$this._reminderEnabled;
@@ -409,6 +432,7 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
       _category = $v.category.toBuilder();
       _startDate = $v.startDate;
       _habitSeriesId = $v.habitSeriesId;
+      _repeatFrequency = $v.repeatFrequency;
       _reminderEnabled = $v.reminderEnabled;
       _trackingType = $v.trackingType;
       _targetValue = $v.targetValue;
@@ -447,6 +471,7 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
             startDate: BuiltValueNullFieldError.checkNotNull(
                 startDate, r'Habit', 'startDate'),
             habitSeriesId: habitSeriesId,
+            repeatFrequency: repeatFrequency,
             reminderEnabled: BuiltValueNullFieldError.checkNotNull(
                 reminderEnabled, r'Habit', 'reminderEnabled'),
             trackingType: BuiltValueNullFieldError.checkNotNull(

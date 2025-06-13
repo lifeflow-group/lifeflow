@@ -23,6 +23,21 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     super.initState();
     _pageController =
         PageController(keepPage: true, initialPage: ref.read(indexTabProvider));
+
+    // Add a listener that runs after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Setup the listener to sync tab changes
+      ref.listenManual(indexTabProvider, _onTabChanged);
+    });
+  }
+
+  // This will be called whenever indexTabProvider changes
+  void _onTabChanged(int? previous, int current) {
+    // Only jump if the controller has clients and the page is different
+    if (_pageController.hasClients &&
+        _pageController.page?.round() != current) {
+      _pageController.jumpToPage(current);
+    }
   }
 
   @override
@@ -74,13 +89,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           unselectedItemColor: theme.colorScheme.onSecondary,
           showUnselectedLabels: true,
           currentIndex: indexTab,
-          onTap: (index) {
-            mainController.setTab(index);
-
-            if (index != indexTab) {
-              _pageController.jumpToPage(index);
-            }
-          },
+          onTap: (index) => mainController.setTab(index),
           items: [
             BottomNavigationBarItem(
                 icon: Icon(Icons.home), label: l10n.navHome),

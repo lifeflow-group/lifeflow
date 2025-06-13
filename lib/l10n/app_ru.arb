@@ -140,5 +140,18 @@
   "themeSelectionTitle": "Внешний вид",
   "themeModeLight": "Светлая",
   "themeModeDark": "Темная",
-  "themeModeSystem": "Использовать настройки устройства"
+  "themeModeSystem": "Использовать настройки устройства",
+  "selectAll": "Выбрать все",
+  "applySelected": "Применить выбранные",
+  "habitsApplied": "Выбранные предложения применены",
+  "habitAdded": "Привычка успешно добавлена",
+  "habitAddError": "Не удалось добавить привычку",
+  "applySuggestion": "Применить предложение",
+  "appliedHabitsSuccessTitle": "Успешно!",
+  "appliedHabitsCountMessage": "{count, plural, =0{Применено 0 привычек} =1{Применена 1 привычка} =2{Применено 2 привычки} few{Применено {count} привычки} many{Применено {count} привычек} other{Применено {count} привычек}}",
+  "appliedHabitsDescription": "Теперь эти привычки являются частью вашей рутины.",
+  "backToSuggestionsButton": "Назад к предложениям",
+  "goToHomeButton": "На главную",
+  "viewDetailsButton": "Посмотреть подробности",
+  "appliedHabitsSummaryTitle": "Применённые привычки"
 }

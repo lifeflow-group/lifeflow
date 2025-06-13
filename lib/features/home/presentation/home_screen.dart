@@ -4,9 +4,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../data/controllers/habit_controller.dart';
 import '../../../data/domain/models/habit_category.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../shared/actions/habit_actions.dart';
+import '../../habit_detail/controllers/habit_detail_controller.dart';
 import '../../habit_detail/presentation/widgets/category_bottom_sheet.dart';
 import '../controllers/home_controller.dart';
 import 'widgets/date_selector.dart';
@@ -171,15 +173,20 @@ class HomeScreen extends ConsumerWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            analyticsService.trackHomeAddHabitInitiated();
+            final result = await context.pushNamed('habit-detail');
 
-            final newHabit = await context.pushNamed('habit-detail');
-            if (newHabit == null) return;
+            if (result != null && result is HabitFormResult) {
+              // Save the new habit to the database
+              final savedHabit =
+                  await ref.read(habitControllerProvider).createHabit(result);
+              if (savedHabit != null) {
+                analyticsService.trackHabitCreated(
+                    savedHabit.id, savedHabit.name);
+              }
+            }
 
-            // Re-fetch the homeControllerProvider (auto triggers build())
+            // Refresh the habit list
             ref.invalidate(homeControllerProvider);
-
-            analyticsService.trackHomeHabitCreated();
           },
           child: const Icon(Icons.add),
         ),

@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lifeflow/core/utils/helpers.dart';
+import 'package:lifeflow/data/domain/models/habit.dart';
 import 'package:lifeflow/data/repositories/repositories.dart';
 import 'package:lifeflow/data/services/user_service.dart';
 import 'package:lifeflow/data/datasources/local/app_database.dart';
 import 'package:lifeflow/data/datasources/local/database_provider.dart';
+import 'package:lifeflow/features/habit_detail/controllers/habit_detail_controller.dart';
 import 'package:lifeflow/features/habit_detail/repositories/habit_detail_repository.dart';
 import 'package:lifeflow/data/controllers/habit_controller.dart';
+import 'package:lifeflow/shared/widgets/scope_dialog.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../services/notification_service_test.dart';
@@ -19,6 +22,7 @@ void main() {
   late AppDatabase db;
   late ProviderContainer container;
   late HabitController controller;
+  late HabitDetailController detailController;
   late HabitDetailRepository repository;
   final mockNotification = MockMobileNotificationService();
 
@@ -43,6 +47,7 @@ void main() {
     ]);
 
     controller = container.read(habitControllerProvider);
+    detailController = container.read(habitDetailControllerProvider);
     repository = container.read(habitDetailRepositoryProvider);
 
     await db.habitCategoriesTable.insertOne(
@@ -92,6 +97,128 @@ void main() {
   tearDown(() async {
     await db.close();
     container.dispose();
+  });
+
+  group('Update Habit', () {
+    test(
+        'updateHabit with ActionScope.onlyThis creates new habit, series and exception',
+        () async {
+      // Navigate to the habit detail screen
+      final habit = await repository.habit.getHabit(habitId);
+      await detailController.fromHabit(habit!);
+
+      // Change the habit name
+      detailController.updateHabitName('Read Manga');
+
+      when(() => mockNotification.cancelNotification(any()))
+          .thenAnswer((_) async {});
+
+      final result = await detailController.generateHabitFormResult(
+          habit, () async => ActionScope.onlyThis);
+      // Save the habit with ActionScope.onlyThis
+      final updatedHabit = await controller.updateHabit(result!);
+
+      final allHabits = await db.habitsTable.select().get();
+      final allExceptions = await db.habitExceptionsTable.select().get();
+      final allSeries = await db.habitSeriesTable.select().get();
+
+      // Expect: A new habit should be created (total habits = 2)
+      expect(allHabits.length, 2);
+      // Expect: One new exception should be created (total exceptions = 2)
+      expect(allExceptions.length, 2);
+      // Expect: One new series should be created (total series = 2)
+      expect(allSeries.length, 2);
+      // Expect: The exception should mark the original habit instance as skipped
+      expect(allExceptions[1].isSkipped, true);
+      // Expect: The new series should be linked to the new habit instance
+      expect(allSeries[1].habitId, updatedHabit!.id);
+      // Expect: The new habit ID should match the updated habit ID
+      expect(allHabits[1].id, updatedHabit.id);
+      // Expect: The new habit name should be 'Read Manga'
+      expect(allHabits[1].name, 'Read Manga');
+
+      debugPrint('Passed!');
+    });
+
+    test('updateHabit with ActionScope.all updates series and original habit',
+        () async {
+      // Navigate to the habit detail screen
+      final habit = await repository.habit.getHabit(habitId);
+      await detailController.fromHabit(habit!);
+
+      // Change the habit name and repeat frequency
+      detailController.updateHabitName('Read Manga');
+      detailController.updateHabitRepeatFrequency(RepeatFrequency.weekly);
+
+      when(() => mockNotification.cancelNotificationsByHabitSeriesId(any()))
+          .thenAnswer((_) async {});
+
+      final result = await detailController.generateHabitFormResult(
+          habit, () async => ActionScope.all);
+      // Act: Call updateHabit with ActionScope.all
+      final updatedHabit = await controller.updateHabit(result!);
+
+      // Assert: Fetch updated habit and its series from the database
+      final updated = await repository.habit.getHabit(habitId);
+      final updatedSeries =
+          await repository.habitSeries.getHabitSeries(seriesId);
+
+      // Expect: The habit was updated in-place (no new habit created)
+      expect(updatedHabit!.id, habitId);
+
+      // Expect: The original habit name was updated
+      expect(updated!.name, 'Read Manga');
+
+      // Expect: The original series was updated in-place
+      expect(updatedSeries!.repeatFrequency, RepeatFrequency.weekly);
+
+      debugPrint('Passed!');
+    });
+
+    test(
+        'updateHabit with ActionScope.thisAndFollowing creates trimmed old series and new series',
+        () async {
+      final selectDate = habitDate.add(Duration(days: 5));
+      // Navigate to the habit detail screen (Habit in selectDate)
+      Habit? habit = await repository.habit.getHabit(habitId);
+      habit = habit?.rebuild((p0) => p0..startDate = selectDate);
+      await detailController.fromHabit(habit!);
+
+      // Change the habit name
+      detailController.updateHabitName('Read Manga');
+
+      when(() => mockNotification.cancelFutureNotificationsByHabitSeriesId(
+          any(), any())).thenAnswer((_) async {});
+
+      final result = await detailController.generateHabitFormResult(
+          habit, () async => ActionScope.thisAndFollowing);
+      // Save the habit with ActionScope.thisAndFollowing
+      final updateHabit = await controller.updateHabit(result!);
+
+      final allHabits = await db.habitsTable.select().get();
+      final allSeries = await db.habitSeriesTable.select().get();
+      final allExceptions = await db.habitExceptionsTable.select().get();
+
+      expect(allHabits.length, 2);
+      expect(allSeries.length, 2);
+      expect(allExceptions.length, 1);
+
+      // Expect: The original habit instance should be updated
+      expect(allHabits[0].id, habitId);
+      expect(allSeries[0].untilDate!.toLocal(),
+          selectDate.subtract(Duration(days: 1)));
+
+      // Expect: A new habit should be created
+      expect(allHabits[1].id, updateHabit!.id);
+      expect(allHabits[1].name, 'Read Manga');
+      expect(allSeries[1].startDate, selectDate);
+
+      // Expect: Exception habit after the split date must have habitSeriesId as newSeries.Id
+      expect(allExceptions.first.id, exceptionId);
+      expect(allExceptions.first.habitSeriesId, allSeries[1].id);
+
+      debugPrint('Passed!');
+    });
   });
 
   group('Delete Habit', () {
@@ -225,7 +352,7 @@ void main() {
       final recordDate = habitDate.add(const Duration(days: 5));
 
       await controller.recordHabit(
-        habit: habit!,
+        habit: habit!.rebuild((p0) => p0.startDate = recordDate),
         currentValue: 3,
         isCompleted: true,
       );

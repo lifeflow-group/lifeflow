@@ -222,5 +222,27 @@
   "themeSelectionTitle": "Appearance",
   "themeModeLight": "Light",
   "themeModeDark": "Dark",
-  "themeModeSystem": "Use device settings"
+  "themeModeSystem": "Use device settings",
+  
+  "selectAll": "Select All",
+  "applySelected": "Apply Selected",
+  "habitsApplied": "Selected suggestions applied",
+  "habitAdded": "Habit successfully added",
+  "habitAddError": "Failed to add habit",
+  "applySuggestion": "Apply Suggestion",
+
+  "appliedHabitsSuccessTitle": "Success!",
+  "appliedHabitsCountMessage": "{count, plural, =0{No habits applied} =1{1 habit successfully applied} other{{count} habits successfully applied}}",
+  "@appliedHabitsCountMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "appliedHabitsDescription": "These habits are now part of your routine.",
+  "backToSuggestionsButton": "Back to Suggestions",
+  "goToHomeButton": "Go to Home",
+  "viewDetailsButton": "View Details",
+  "appliedHabitsSummaryTitle": "Applied Habits"
 }

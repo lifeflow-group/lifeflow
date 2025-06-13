@@ -99,7 +99,7 @@ class HabitRepository {
 
     // Convert Companion to Model
     if (habitData != null) {
-      final categoryData = await _categoryDao.getCategory(id);
+      final categoryData = await _categoryDao.getCategory(habitData.categoryId);
 
       return Habit.fromJson({
         ...habitData.toJson(),

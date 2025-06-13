@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/domain/models/habit.dart';
+import '../../data/domain/models/habit_analysis_input.dart';
 import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/scheduled_notification.dart';
 import '../../data/services/analytics/analytics_service.dart';
@@ -14,6 +15,7 @@ import '../../features/overview/presentation/screens/category_habit_analytics_sc
 import '../../features/settings/presentation/terms_of_use_screen.dart';
 import '../../features/settings/presentation/language_selection_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
+import '../../features/suggestion/presentation/applied_habits_summary_screen.dart';
 import '../constants/app_constants.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -58,8 +60,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'habit-detail',
         path: '/habit-detail',
         builder: (context, state) {
-          // Handle both cases - extra could be a Habit or null
-          final habit = state.extra is Habit ? state.extra as Habit : null;
+          if (state.extra is! Habit) return HabitDetailScreen();
+
+          final habit = state.extra as Habit?;
           return HabitDetailScreen(habit: habit);
         },
       ),
@@ -87,6 +90,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
 
           return CategoryHabitAnalyticsScreen(category: category, month: month);
+        },
+      ),
+      GoRoute(
+        name: 'applied-habits-summary',
+        path: '/applied-habits-summary',
+        builder: (context, state) {
+          final habits = (state.extra as Map<String, dynamic>)['habits']
+              as List<HabitData>;
+          return AppliedHabitsSummaryScreen(appliedHabits: habits);
         },
       ),
     ],

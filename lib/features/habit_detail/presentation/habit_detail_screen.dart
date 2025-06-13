@@ -14,6 +14,7 @@ import 'widgets/category_bottom_sheet.dart';
 
 class HabitDetailScreen extends ConsumerStatefulWidget {
   const HabitDetailScreen({super.key, this.habit});
+
   final Habit? habit;
 
   @override
@@ -56,6 +57,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
     final habitName = ref.watch(habitNameProvider);
     final habitCategory = ref.watch(habitCategoryProvider);
     final selectedDate = ref.watch(habitDateProvider);
+    final repeatFrequency = ref.watch(habitRepeatFrequencyProvider);
     final habitTrackingType = ref.watch(habitTrackingTypeProvider);
     final habitTargetValue = ref.watch(habitTargetValueProvider);
     final habitUnit = ref.watch(habitUnitProvider);
@@ -97,9 +99,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               /// Select Category
               InkWell(
                 onTap: () async {
-                  _analyticsService.trackCategorySelectorOpened(
-                    habitCategory?.name,
-                  );
+                  _analyticsService
+                      .trackCategorySelectorOpened(habitCategory?.name);
 
                   final category = await showCategoryBottomSheet(context,
                       initialCategory: habitCategory);
@@ -269,7 +270,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                       ref.read(habitRepeatFrequencyProvider)?.name);
 
                   final selectedFrequency =
-                      await _showRepeatFrequencyBottomSheet(context);
+                      await _showRepeatFrequencyBottomSheet(
+                          context, repeatFrequency);
 
                   if (selectedFrequency != null) {
                     // Use controller to track repeat frequency selected
@@ -300,8 +302,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        getRepeatFrequencyLabel(
-                            context, ref.watch(habitRepeatFrequencyProvider)),
+                        getRepeatFrequencyLabel(context, repeatFrequency),
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
@@ -439,40 +440,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 height: 42,
                 child: ElevatedButton(
                     onPressed: isFormValid
-                        ? () async {
-                            // Use controller to track habit save attempt
-                            _analyticsService.trackHabitSaveAttempt(
-                              isEditing,
-                              habitName,
-                              habitCategory.name,
-                              habitTrackingType.name,
-                              habitReminder,
-                            );
-
-                            final Habit? habitResult;
-                            if (isEditing) {
-                              habitResult = await controller.updateHabit(
-                                  habit!, () => showScopeDialog(context));
-
-                              if (habitResult != null) {
-                                // Use controller to track habit updated
-                                _analyticsService.trackHabitUpdated(
-                                    habitResult.id, habitResult.name);
-                              }
-                            } else {
-                              habitResult = await controller.createHabit();
-
-                              if (habitResult != null) {
-                                // Use controller to track habit created
-                                _analyticsService.trackHabitCreated(
-                                    habitResult.id, habitResult.name);
-                              }
-                            }
-
-                            if (context.mounted) {
-                              context.pop(habitResult);
-                            }
-                          }
+                        ? () => _finalizeAndPopResult(context)
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isFormValid
@@ -492,6 +460,17 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _finalizeAndPopResult(BuildContext context) async {
+    final result = await controller.generateHabitFormResult(
+        widget.habit, () => showScopeDialog(context));
+
+    if (result == null) return;
+
+    if (context.mounted) {
+      context.pop(result);
+    }
   }
 
   void _showProgressDialog(BuildContext context, WidgetRef ref) {
@@ -534,7 +513,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               onPressed: () {
                 // Use controller to track progress goal dialog canceled
                 _analyticsService.trackProgressGoalDialogCanceled();
-                Navigator.pop(context);
+                context.pop();
               },
               child: Text(l10n.cancelButton),
             ),
@@ -549,7 +528,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
 
                 controller.updateHabitTargetValue(targetValue);
                 controller.updateHabitUnit(unitValue);
-                Navigator.pop(context);
+                context.pop();
               },
               child: Text(l10n.saveButton),
             ),
@@ -560,10 +539,14 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
   }
 
   Future<RepeatFrequency?> _showRepeatFrequencyBottomSheet(
-      BuildContext context) async {
+      BuildContext context, RepeatFrequency? currentFrequency) async {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
-    return await showModalBottomSheet<RepeatFrequency>(
+    // Create a special result to indicate cancellation
+    final cancelResult = RepeatFrequency.values.length + 1;
+
+    final result = await showModalBottomSheet<dynamic>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -577,7 +560,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(width: 54),
+                  const SizedBox(width: 54),
                   Text(l10n.selectRepeatSheetTitle,
                       style: Theme.of(context)
                           .textTheme
@@ -587,12 +570,14 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     width: 54,
                     alignment: Alignment.centerLeft,
                     child: IconButton(
-                        icon: Icon(Icons.close, color: Colors.grey),
+                        icon: const Icon(Icons.close, color: Colors.grey),
                         onPressed: () {
                           // Use controller to track repeat frequency sheet dismissed
                           _analyticsService
                               .trackRepeatFrequencySheetDismissed();
-                          Navigator.pop(context);
+
+                          // Pop with cancelResult to indicate cancellation (no change)
+                          context.pop(cancelResult);
                         }),
                   ),
                 ],
@@ -603,9 +588,13 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 onTap: () {
                   // Use controller to track repeat frequency none selected
                   _analyticsService.trackRepeatFrequencyNoneSelected();
-                  Navigator.pop(context, null);
+                  context.pop(null);
                 },
-                contentPadding: EdgeInsets.only(left: 22.0),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 22.0),
+                // Show check icon if no frequency is currently selected
+                trailing: currentFrequency == null
+                    ? Icon(Icons.check, color: theme.colorScheme.primary)
+                    : null,
               ),
               ...RepeatFrequency.values.map((frequency) {
                 return ListTile(
@@ -615,9 +604,13 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     // Use controller to track repeat frequency option selected
                     _analyticsService
                         .trackRepeatFrequencyOptionSelected(frequency.name);
-                    Navigator.pop(context, frequency);
+                    context.pop(frequency);
                   },
-                  contentPadding: EdgeInsets.only(left: 22.0),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 22.0),
+                  // Show check icon if this frequency is currently selected
+                  trailing: currentFrequency == frequency
+                      ? Icon(Icons.check, color: theme.colorScheme.primary)
+                      : null,
                 );
               }),
             ],
@@ -625,5 +618,13 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
         );
       },
     );
+
+    // If user clicked the close button, return the current frequency (no change)
+    if (result == cancelResult) {
+      return currentFrequency;
+    }
+
+    // Otherwise return the selected result (either null for "No Repeat" or a RepeatFrequency)
+    return result as RepeatFrequency?;
   }
 }

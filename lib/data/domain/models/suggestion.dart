@@ -7,6 +7,8 @@ import 'habit_analysis_input.dart';
 part 'suggestion.g.dart';
 
 abstract class Suggestion implements Built<Suggestion, SuggestionBuilder> {
+  String get id;
+
   String get title;
 
   String get description;

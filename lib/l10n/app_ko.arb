@@ -140,5 +140,18 @@
   "themeSelectionTitle": "모양",
   "themeModeLight": "밝게",
   "themeModeDark": "어둡게",
-  "themeModeSystem": "기기 설정 사용"
+  "themeModeSystem": "기기 설정 사용",
+  "selectAll": "모두 선택",
+  "applySelected": "선택 적용",
+  "habitsApplied": "선택한 제안이 적용되었습니다.",
+  "habitAdded": "습관이 성공적으로 추가되었습니다.",
+  "habitAddError": "습관 추가에 실패했습니다.",
+  "applySuggestion": "제안 적용",
+  "appliedHabitsSuccessTitle": "성공!",
+  "appliedHabitsCountMessage": "{count, plural, =0{적용된 습관 없음} =1{습관 1개 성공적으로 적용됨} other{{count}개 습관 성공적으로 적용됨}}",
+  "appliedHabitsDescription": "이 습관들은 이제 당신의 일상의 일부입니다.",
+  "backToSuggestionsButton": "제안으로 돌아가기",
+  "goToHomeButton": "홈으로 이동",
+  "viewDetailsButton": "자세히 보기",
+  "appliedHabitsSummaryTitle": "적용된 습관"
 }

@@ -3,3 +3,4 @@ template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
 arb-translate-api-key: AIzaSyB2ZlruqiSqqokfj4ndVHNwk-YPOnbCVQQ
 arb-translate-model: gemini-1.5-flash
+# synthetic-package: false

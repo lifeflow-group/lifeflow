@@ -140,5 +140,18 @@
   "themeSelectionTitle": "見た目",
   "themeModeLight": "ライト",
   "themeModeDark": "ダーク",
-  "themeModeSystem": "デバイス設定を使用"
+  "themeModeSystem": "デバイス設定を使用",
+  "selectAll": "すべて選択",
+  "applySelected": "選択適用",
+  "habitsApplied": "選択した提案が適用されました",
+  "habitAdded": "習慣が正常に追加されました",
+  "habitAddError": "習慣の追加に失敗しました",
+  "applySuggestion": "提案を適用する",
+  "appliedHabitsSuccessTitle": "成功！",
+  "appliedHabitsCountMessage": "{count, plural, =0{適用された習慣はありません} =1{習慣が1つ適用されました} other{{count}個の習慣が適用されました}}",
+  "appliedHabitsDescription": "これらの習慣は、あなたのルーティンの一部になりました。",
+  "backToSuggestionsButton": "提案に戻る",
+  "goToHomeButton": "ホームへ",
+  "viewDetailsButton": "詳細を見る",
+  "appliedHabitsSummaryTitle": "適用された習慣"
 }

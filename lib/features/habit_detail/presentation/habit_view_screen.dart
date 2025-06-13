@@ -268,25 +268,20 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 12)),
                       onPressed: () async {
-                        // Use controller to track edit initiated
-                        _analyticsService.trackHabitEditInitiated(
-                            habit?.id ?? 'unknown', habitName);
-
-                        // Use named route instead of path
                         final result = await context.pushNamed('habit-detail',
                             extra: habit);
 
-                        if (context.mounted) {
-                          if (result != null) {
-                            _navigateBack(result, 'edit_completed', {
-                              'habitId': habit?.id ?? 'unknown',
-                              'habitName': habitName
-                            });
+                        if (result != null && result is HabitFormResult) {
+                          final updatedHabit = await ref
+                              .read(habitControllerProvider)
+                              .updateHabit(result);
+
+                          if (updatedHabit != null) {
+                            _analyticsService.trackHabitEditCompleted(
+                                updatedHabit.id, habitName);
                           } else {
-                            _navigateBack(null, 'edit_canceled', {
-                              'habitId': habit?.id ?? 'unknown',
-                              'habitName': habitName
-                            });
+                            _analyticsService.trackHabitEditCanceled(
+                                habit?.id ?? 'unknow', habitName);
                           }
                         }
                       },

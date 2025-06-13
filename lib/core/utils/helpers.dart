@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import '../../data/datasources/local/app_database.dart';
 import '../../data/domain/models/app_settings.dart';
 import '../../data/domain/models/habit.dart';
+import '../../data/domain/models/habit_analysis_input.dart';
 import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/habit_series.dart';
 import '../constants/app_languages.dart';
@@ -21,6 +22,7 @@ Habit newHabit({
   required HabitCategory category,
   DateTime? startDate,
   String? habitSeriesId,
+  RepeatFrequency? repeatFrequency,
   bool reminderEnabled = false,
   TrackingType trackingType = TrackingType.complete,
   int? targetValue,
@@ -33,6 +35,7 @@ Habit newHabit({
     ..category = category.toBuilder()
     ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()
     ..habitSeriesId = habitSeriesId
+    ..repeatFrequency = repeatFrequency
     ..reminderEnabled = reminderEnabled
     ..trackingType = trackingType
     ..targetValue = targetValue
@@ -226,4 +229,33 @@ String formatDateWithUserLanguage(
   return dateString.isNotEmpty
       ? dateString[0].toUpperCase() + dateString.substring(1)
       : dateString;
+}
+
+Habit habitDataToHabit(HabitData habitData, String userId) {
+  return Habit((b) => b
+    ..id = habitData.id
+    ..name = habitData.name
+    ..userId = userId
+    ..category = habitData.category.toBuilder()
+    ..startDate = habitData.startDate
+    ..repeatFrequency = habitData.repeatFrequency
+    ..reminderEnabled = habitData.reminderEnabled
+    ..trackingType = habitData.trackingType
+    ..targetValue = habitData.targetValue
+    ..currentValue = 0
+    ..unit = habitData.unit
+    ..isCompleted = false);
+}
+
+HabitData habitToHabitData(Habit result) {
+  return HabitData((b) => b
+    ..id = result.id
+    ..name = result.name
+    ..category = result.category.toBuilder()
+    ..trackingType = result.trackingType
+    ..targetValue = result.targetValue
+    ..unit = result.unit
+    ..reminderEnabled = result.reminderEnabled
+    ..repeatFrequency = result.repeatFrequency
+    ..startDate = result.startDate);
 }

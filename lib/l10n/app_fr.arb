@@ -140,5 +140,18 @@
   "themeSelectionTitle": "Apparence",
   "themeModeLight": "Clair",
   "themeModeDark": "Sombre",
-  "themeModeSystem": "Utiliser les paramètres de l'appareil"
+  "themeModeSystem": "Utiliser les paramètres de l'appareil",
+  "selectAll": "Sélectionner tout",
+  "applySelected": "Appliquer la sélection",
+  "habitsApplied": "Suggestions sélectionnées appliquées",
+  "habitAdded": "Habitude ajoutée avec succès",
+  "habitAddError": "Échec de l'ajout de l'habitude",
+  "applySuggestion": "Appliquer la suggestion",
+  "appliedHabitsSuccessTitle": "Succès !",
+  "appliedHabitsCountMessage": "{count, plural, =0{Aucune habitude appliquée} =1{1 habitude appliquée avec succès} other{# habitudes appliquées avec succès}}",
+  "appliedHabitsDescription": "Ces habitudes font désormais partie de votre routine.",
+  "backToSuggestionsButton": "Retour aux suggestions",
+  "goToHomeButton": "Aller à l’accueil",
+  "viewDetailsButton": "Voir les détails",
+  "appliedHabitsSummaryTitle": "Habitudes appliquées"
 }

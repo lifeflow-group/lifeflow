@@ -1,11 +1,11 @@
 import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lifeflow/core/utils/helpers.dart';
+import 'package:lifeflow/core/utils/logger.dart';
 import 'package:lifeflow/data/domain/models/habit.dart';
-import 'package:lifeflow/data/repositories/repositories.dart';
+import 'package:lifeflow/data/factories/model_factories.dart';
+import 'package:lifeflow/data/datasources/local/repositories/repositories.dart';
 import 'package:lifeflow/data/services/user_service.dart';
 import 'package:lifeflow/data/datasources/local/app_database.dart';
 import 'package:lifeflow/data/datasources/local/database_provider.dart';
@@ -17,6 +17,8 @@ import 'package:mocktail/mocktail.dart';
 
 import '../services/notification_service_test.dart';
 import 'home_controller_test.dart';
+
+final _testLogger = AppLogger('Test');
 
 void main() {
   late AppDatabase db;
@@ -64,7 +66,7 @@ void main() {
         id: habitId,
         name: 'Read Book',
         userId: testUserId,
-        startDate: habitDate.toUtc(),
+        date: habitDate.toUtc(),
         categoryId: categoryId,
         reminderEnabled: Value(false),
         trackingType: 'complete',
@@ -104,7 +106,7 @@ void main() {
         'updateHabit with ActionScope.onlyThis creates new habit, series and exception',
         () async {
       // Navigate to the habit detail screen
-      final habit = await repository.habit.getHabit(habitId);
+      final habit = await repository.habit.getHabitRecord(habitId);
       await detailController.fromHabit(habit!);
 
       // Change the habit name
@@ -137,13 +139,13 @@ void main() {
       // Expect: The new habit name should be 'Read Manga'
       expect(allHabits[1].name, 'Read Manga');
 
-      debugPrint('Passed!');
+      _testLogger.info('Test passed: updateHabit with ActionScope.onlyThis');
     });
 
     test('updateHabit with ActionScope.all updates series and original habit',
         () async {
       // Navigate to the habit detail screen
-      final habit = await repository.habit.getHabit(habitId);
+      final habit = await repository.habit.getHabitRecord(habitId);
       await detailController.fromHabit(habit!);
 
       // Change the habit name and repeat frequency
@@ -159,7 +161,7 @@ void main() {
       final updatedHabit = await controller.updateHabit(result!);
 
       // Assert: Fetch updated habit and its series from the database
-      final updated = await repository.habit.getHabit(habitId);
+      final updated = await repository.habit.getHabitRecord(habitId);
       final updatedSeries =
           await repository.habitSeries.getHabitSeries(seriesId);
 
@@ -172,7 +174,7 @@ void main() {
       // Expect: The original series was updated in-place
       expect(updatedSeries!.repeatFrequency, RepeatFrequency.weekly);
 
-      debugPrint('Passed!');
+      _testLogger.info('Test passed: updateHabit with ActionScope.all');
     });
 
     test(
@@ -180,8 +182,8 @@ void main() {
         () async {
       final selectDate = habitDate.add(Duration(days: 5));
       // Navigate to the habit detail screen (Habit in selectDate)
-      Habit? habit = await repository.habit.getHabit(habitId);
-      habit = habit?.rebuild((p0) => p0..startDate = selectDate);
+      Habit? habit = await repository.habit.getHabitRecord(habitId);
+      habit = habit?.rebuild((p0) => p0..date = selectDate);
       await detailController.fromHabit(habit!);
 
       // Change the habit name
@@ -217,7 +219,8 @@ void main() {
       expect(allExceptions.first.id, exceptionId);
       expect(allExceptions.first.habitSeriesId, allSeries[1].id);
 
-      debugPrint('Passed!');
+      _testLogger
+          .info('Test passed: updateHabit with ActionScope.thisAndFollowing');
     });
   });
 
@@ -230,7 +233,7 @@ void main() {
           id: habitIdAlone,
           name: 'Walk',
           userId: testUserId,
-          startDate: habitDate.toUtc(),
+          date: habitDate.toUtc(),
           categoryId: categoryId,
           reminderEnabled: Value(false),
           trackingType: 'complete',
@@ -238,25 +241,24 @@ void main() {
         ),
       );
 
-      final habit = await repository.habit.getHabit(habitIdAlone);
+      final habit = await repository.habit.getHabitRecord(habitIdAlone);
       when(() => mockNotification.cancelNotification(any()))
           .thenAnswer((_) async {});
-      final result =
-          await controller.deleteSingleHabit(habit!.id, habit.startDate);
+      final result = await controller.deleteSingleHabit(habit!.id, habit.date);
 
       final habits = await db.habitsTable.select().get();
       expect(result, true);
       expect(habits.any((h) => h.id == habitIdAlone), false);
 
-      debugPrint('Passed!');
+      _testLogger.info('Test passed: deleteHabit (not in series)');
     });
 
     test(
         'deleteHabit with ActionScope.onlyThis adds or updates skipped exception',
         () async {
-      final habit = await repository.habit.getHabit(habitId);
+      final habit = await repository.habit.getHabitRecord(habitId);
       final series =
-          await repository.habitSeries.getHabitSeries(habit!.habitSeriesId);
+          await repository.habitSeries.getHabitSeries(habit!.series!.id);
       final result = await controller.handleDeleteOnlyThis(habit, series!);
 
       final exceptions = await db.habitExceptionsTable.select().get();
@@ -266,7 +268,7 @@ void main() {
         true,
       );
 
-      debugPrint('Passed!');
+      _testLogger.info('Test passed: deleteHabit with ActionScope.onlyThis');
     });
 
     test(
@@ -286,15 +288,15 @@ void main() {
       expect(seriesList.any((s) => s.id == seriesId), false);
       expect(exceptions.any((e) => e.habitSeriesId == seriesId), false);
 
-      debugPrint('Passed!');
+      _testLogger.info('Test passed: deleteHabit with ActionScope.all');
     });
 
     test(
         'deleteHabit with ActionScope.thisAndFollowing trims series and deletes future exceptions',
         () async {
-      final habit = await repository.habit.getHabit(habitId);
+      final habit = await repository.habit.getHabitRecord(habitId);
       final series =
-          await repository.habitSeries.getHabitSeries(habit!.habitSeriesId);
+          await repository.habitSeries.getHabitSeries(habit!.series!.id);
       when(() => mockNotification.cancelFutureNotificationsByHabitSeriesId(
           any(), any())).thenAnswer((_) async {});
       final result =
@@ -311,7 +313,8 @@ void main() {
         false,
       );
 
-      debugPrint('Passed!');
+      _testLogger
+          .info('Test passed: deleteHabit with ActionScope.thisAndFollowing');
     });
   });
 
@@ -325,7 +328,7 @@ void main() {
           id: habitId,
           name: 'Drink Water',
           userId: testUserId,
-          startDate: habitDate.toUtc(),
+          date: habitDate.toUtc(),
           categoryId: categoryId,
           reminderEnabled: Value(true),
           trackingType: 'complete',
@@ -333,7 +336,7 @@ void main() {
         ),
       );
 
-      final habit = await repository.habit.getHabit(habitId);
+      final habit = await repository.habit.getHabitRecord(habitId);
       expect(habit, isNotNull);
 
       when(() => mockNotification.cancelNotification(any()))
@@ -342,17 +345,19 @@ void main() {
       await controller.recordHabit(
           habit: habit!, currentValue: null, isCompleted: true);
 
-      final updatedHabit = await repository.habit.getHabit(habitId);
+      final updatedHabit = await repository.habit.getHabitRecord(habitId);
       expect(updatedHabit!.isCompleted, true);
+
+      _testLogger.info('Test passed: recordHabit updates a non-series habit');
     });
     test('recordHabit inserts a new HabitException for series habit', () async {
-      final habit = await repository.habit.getHabit(habitId);
+      final habit = await repository.habit.getHabitRecord(habitId);
       expect(habit, isNotNull);
 
       final recordDate = habitDate.add(const Duration(days: 5));
 
       await controller.recordHabit(
-        habit: habit!.rebuild((p0) => p0.startDate = recordDate),
+        habit: habit!.rebuild((p0) => p0.date = recordDate),
         currentValue: 3,
         isCompleted: true,
       );
@@ -363,9 +368,11 @@ void main() {
       expect(exception, isNotNull);
       expect(exception!.currentValue, 3);
       expect(exception.isCompleted, true);
+
+      _testLogger.info('Test passed: recordHabit inserts a new HabitException');
     });
     test('recordHabit updates existing HabitException', () async {
-      final habit = await repository.habit.getHabit(habitId);
+      final habit = await repository.habit.getHabitRecord(habitId);
       expect(habit, isNotNull);
 
       final exceptionDate =
@@ -382,6 +389,9 @@ void main() {
 
       expect(updatedException, isNotNull);
       expect(updatedException!.isCompleted, true);
+
+      _testLogger
+          .info('Test passed: recordHabit updates existing HabitException');
     });
   });
 }

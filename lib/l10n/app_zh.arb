@@ -108,7 +108,8 @@
   "noHabitDataMonth": "本月没有习惯数据",
   "suggestionTitle": "优化建议",
   "noSuggestionsAvailable": "目前没有可用的建议。请稍后再查看以获取优化建议！",
-  "suggestionError": "错误：{error}",
+  "aiRecommendationsFailedMessage": "无法加载 AI 建议",
+  "tryAgainLaterMessage": "我们正在连接建议系统时遇到问题。请稍后再试或浏览可用方案。",
   "suggestionLoadingTitle": "看看建议",
   "suggestionLoadingDescription": "您的个性化习惯建议经过优化，涵盖健康、效率、正念、学习等多个类别。",
   "filterAll": "全部",
@@ -153,5 +154,16 @@
   "backToSuggestionsButton": "返回建议",
   "goToHomeButton": "去首页",
   "viewDetailsButton": "查看详情",
-  "appliedHabitsSummaryTitle": "已应用的习惯"
+  "appliedHabitsSummaryTitle": "已应用的习惯",
+  "aiPicksTab": "AI精选",
+  "habitPlansTab": "习惯计划",
+  "exploreHabitPlans": "浏览习惯计划",
+  "habitPlansError": "加载习惯计划时出错：{error}",
+  "aboutThisPlan": "关于此计划",
+  "includedHabits": "包含的习惯",
+  "habitsSelectedText": "{count, plural, =0{未选择任何习惯} =1{已选择1个习惯} other{已选择{count}个习惯}}",
+  "noInternetConnection": "无网络连接",
+  "noInternetConnectionDescription": "请检查您的网络连接，然后重试。某些功能可能无法离线使用。",
+  "retry": "重试",
+  "viewOfflineContent": "查看可用内容"
 }

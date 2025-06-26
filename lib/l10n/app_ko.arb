@@ -108,7 +108,8 @@
   "noHabitDataMonth": "이번 달의 습관 데이터가 없습니다",
   "suggestionTitle": "최적화 제안",
   "noSuggestionsAvailable": "현재 제안이 없습니다. 나중에 최적화 아이디어를 확인해 보세요!",
-  "suggestionError": "오류: {error}",
+  "aiRecommendationsFailedMessage": "AI 추천을 불러올 수 없습니다.",
+  "tryAgainLaterMessage": "추천 시스템 연결에 문제가 있습니다. 나중에 다시 시도하거나, 현재 이용 가능한 플랜을 살펴보세요.",
   "suggestionLoadingTitle": "추천을 확인해 보세요",
   "suggestionLoadingDescription": "건강, 생산성, 마음 챙김, 학습 등 여러 범주에 걸쳐 사용자에게 맞춤화된 최적의 습관 제안을 확인할 수 있습니다.",
   "filterAll": "전체",
@@ -153,5 +154,16 @@
   "backToSuggestionsButton": "제안으로 돌아가기",
   "goToHomeButton": "홈으로 이동",
   "viewDetailsButton": "자세히 보기",
-  "appliedHabitsSummaryTitle": "적용된 습관"
+  "appliedHabitsSummaryTitle": "적용된 습관",
+  "aiPicksTab": "AI 추천",
+  "habitPlansTab": "습관 계획",
+  "exploreHabitPlans": "습관 계획 찾아보기",
+  "habitPlansError": "습관 계획을 불러오는 중 오류가 발생했습니다: {error}",
+  "aboutThisPlan": "이 계획 정보",
+  "includedHabits": "포함된 습관",
+  "habitsSelectedText": "{count, plural, =0{선택된 습관 없음} =1{습관 1개 선택됨} other{#개의 습관 선택됨}}",
+  "noInternetConnection": "인터넷 연결이 없습니다",
+  "noInternetConnectionDescription": "인터넷 연결 상태를 확인하고 다시 시도해주세요. 일부 기능은 오프라인 상태에서는 사용할 수 없습니다.",
+  "retry": "다시 시도",
+  "viewOfflineContent": "사용 가능한 콘텐츠 보기"
 }

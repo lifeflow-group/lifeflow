@@ -1,4 +1,4 @@
-import '../../../../core/utils/helpers.dart';
+import '../../../factories/default_data.dart';
 import '../app_database.dart';
 
 Future<void> seedDatabase(AppDatabase db) async {

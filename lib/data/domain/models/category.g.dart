@@ -1,22 +1,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'habit_category.dart';
+part of 'category.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<HabitCategory> _$habitCategorySerializer =
-    new _$HabitCategorySerializer();
+Serializer<Category> _$categorySerializer = new _$CategorySerializer();
 
-class _$HabitCategorySerializer implements StructuredSerializer<HabitCategory> {
+class _$CategorySerializer implements StructuredSerializer<Category> {
   @override
-  final Iterable<Type> types = const [HabitCategory, _$HabitCategory];
+  final Iterable<Type> types = const [Category, _$Category];
   @override
-  final String wireName = 'HabitCategory';
+  final String wireName = 'Category';
 
   @override
-  Iterable<Object?> serialize(Serializers serializers, HabitCategory object,
+  Iterable<Object?> serialize(Serializers serializers, Category object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object?>[
       'id',
@@ -35,10 +34,9 @@ class _$HabitCategorySerializer implements StructuredSerializer<HabitCategory> {
   }
 
   @override
-  HabitCategory deserialize(
-      Serializers serializers, Iterable<Object?> serialized,
+  Category deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new HabitCategoryBuilder();
+    final result = new CategoryBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -69,7 +67,7 @@ class _$HabitCategorySerializer implements StructuredSerializer<HabitCategory> {
   }
 }
 
-class _$HabitCategory extends HabitCategory {
+class _$Category extends Category {
   @override
   final String id;
   @override
@@ -79,34 +77,32 @@ class _$HabitCategory extends HabitCategory {
   @override
   final String colorHex;
 
-  factory _$HabitCategory([void Function(HabitCategoryBuilder)? updates]) =>
-      (new HabitCategoryBuilder()..update(updates))._build();
+  factory _$Category([void Function(CategoryBuilder)? updates]) =>
+      (new CategoryBuilder()..update(updates))._build();
 
-  _$HabitCategory._(
+  _$Category._(
       {required this.id,
       required this.name,
       required this.iconPath,
       required this.colorHex})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'HabitCategory', 'id');
-    BuiltValueNullFieldError.checkNotNull(name, r'HabitCategory', 'name');
-    BuiltValueNullFieldError.checkNotNull(
-        iconPath, r'HabitCategory', 'iconPath');
-    BuiltValueNullFieldError.checkNotNull(
-        colorHex, r'HabitCategory', 'colorHex');
+    BuiltValueNullFieldError.checkNotNull(id, r'Category', 'id');
+    BuiltValueNullFieldError.checkNotNull(name, r'Category', 'name');
+    BuiltValueNullFieldError.checkNotNull(iconPath, r'Category', 'iconPath');
+    BuiltValueNullFieldError.checkNotNull(colorHex, r'Category', 'colorHex');
   }
 
   @override
-  HabitCategory rebuild(void Function(HabitCategoryBuilder) updates) =>
+  Category rebuild(void Function(CategoryBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  HabitCategoryBuilder toBuilder() => new HabitCategoryBuilder()..replace(this);
+  CategoryBuilder toBuilder() => new CategoryBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is HabitCategory &&
+    return other is Category &&
         id == other.id &&
         name == other.name &&
         iconPath == other.iconPath &&
@@ -126,7 +122,7 @@ class _$HabitCategory extends HabitCategory {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'HabitCategory')
+    return (newBuiltValueToStringHelper(r'Category')
           ..add('id', id)
           ..add('name', name)
           ..add('iconPath', iconPath)
@@ -135,9 +131,8 @@ class _$HabitCategory extends HabitCategory {
   }
 }
 
-class HabitCategoryBuilder
-    implements Builder<HabitCategory, HabitCategoryBuilder> {
-  _$HabitCategory? _$v;
+class CategoryBuilder implements Builder<Category, CategoryBuilder> {
+  _$Category? _$v;
 
   String? _id;
   String? get id => _$this._id;
@@ -155,9 +150,9 @@ class HabitCategoryBuilder
   String? get colorHex => _$this._colorHex;
   set colorHex(String? colorHex) => _$this._colorHex = colorHex;
 
-  HabitCategoryBuilder();
+  CategoryBuilder();
 
-  HabitCategoryBuilder get _$this {
+  CategoryBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _id = $v.id;
@@ -170,29 +165,29 @@ class HabitCategoryBuilder
   }
 
   @override
-  void replace(HabitCategory other) {
+  void replace(Category other) {
     ArgumentError.checkNotNull(other, 'other');
-    _$v = other as _$HabitCategory;
+    _$v = other as _$Category;
   }
 
   @override
-  void update(void Function(HabitCategoryBuilder)? updates) {
+  void update(void Function(CategoryBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  HabitCategory build() => _build();
+  Category build() => _build();
 
-  _$HabitCategory _build() {
+  _$Category _build() {
     final _$result = _$v ??
-        new _$HabitCategory._(
-          id: BuiltValueNullFieldError.checkNotNull(id, r'HabitCategory', 'id'),
-          name: BuiltValueNullFieldError.checkNotNull(
-              name, r'HabitCategory', 'name'),
+        new _$Category._(
+          id: BuiltValueNullFieldError.checkNotNull(id, r'Category', 'id'),
+          name:
+              BuiltValueNullFieldError.checkNotNull(name, r'Category', 'name'),
           iconPath: BuiltValueNullFieldError.checkNotNull(
-              iconPath, r'HabitCategory', 'iconPath'),
+              iconPath, r'Category', 'iconPath'),
           colorHex: BuiltValueNullFieldError.checkNotNull(
-              colorHex, r'HabitCategory', 'colorHex'),
+              colorHex, r'Category', 'colorHex'),
         );
     replace(_$result);
     return _$result;

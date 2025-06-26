@@ -22,8 +22,7 @@ Future<bool> handleDeleteHabit(
   );
 
   final deleteController = ref.read(habitControllerProvider);
-  final habitSeries =
-      await deleteController.getHabitSeries(habit.habitSeriesId);
+  final habitSeries = await deleteController.getHabitSeries(habit.series?.id);
 
   if (!context.mounted) return false;
 
@@ -41,8 +40,7 @@ Future<bool> handleDeleteHabit(
       return false;
     }
 
-    isDeleted =
-        await deleteController.deleteSingleHabit(habit.id, habit.startDate);
+    isDeleted = await deleteController.deleteSingleHabit(habit.id, habit.date);
   } else {
     // Track scope dialog shown
     analyticsService.trackHabitDeleteScopeDialog(habit.id, habitSeries.id);
@@ -109,11 +107,11 @@ Future<bool> recordHabitCompletion(WidgetRef ref, Habit habit) async {
     habit.id,
     habit.name,
     (habit.isCompleted ?? false) ? 'completed' : 'incomplete',
-    habit.startDate.toIso8601String().split('T')[0],
+    habit.date.toIso8601String().split('T')[0],
   );
 
   final controller = ref.read(habitControllerProvider);
-  final selectedDate = habit.startDate.toLocal();
+  final selectedDate = habit.date.toLocal();
 
   // Check if the date is valid
   if (!isValidDate(selectedDate)) {
@@ -169,7 +167,7 @@ Future<int?> recordHabitProgress(
     habit.targetValue?.toString() ?? 'null',
   );
 
-  final selectedDate = habit.startDate.toLocal();
+  final selectedDate = habit.date.toLocal();
   // Check if the date is valid
   if (!isValidDate(selectedDate)) {
     // Track invalid date

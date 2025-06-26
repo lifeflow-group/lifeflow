@@ -108,7 +108,8 @@
   "noHabitDataMonth": "Нет данных о привычках за этот месяц",
   "suggestionTitle": "Рекомендации по оптимизации",
   "noSuggestionsAvailable": "Сейчас нет доступных предложений. Загляните позже за новыми идеями по оптимизации!",
-  "suggestionError": "Ошибка: {error}",
+  "aiRecommendationsFailedMessage": "Не удалось загрузить рекомендации ИИ",
+  "tryAgainLaterMessage": "Возникли проблемы с подключением к системе рекомендаций. Пожалуйста, попробуйте позже или изучите доступные планы.",
   "suggestionLoadingTitle": "Подождите, ищем подходящие предложения",
   "suggestionLoadingDescription": "Мы подготовили для вас персонализированные рекомендации по полезным привычкам в категориях Здоровье, Продуктивность, Осознанность, Обучение и других.",
   "filterAll": "Все",
@@ -153,5 +154,16 @@
   "backToSuggestionsButton": "Назад к предложениям",
   "goToHomeButton": "На главную",
   "viewDetailsButton": "Посмотреть подробности",
-  "appliedHabitsSummaryTitle": "Применённые привычки"
+  "appliedHabitsSummaryTitle": "Применённые привычки",
+  "aiPicksTab": "Подборки от ИИ",
+  "habitPlansTab": "Планы привычек",
+  "exploreHabitPlans": "Просмотреть планы привычек",
+  "habitPlansError": "Ошибка загрузки планов привычек: {error}",
+  "aboutThisPlan": "Об этом плане",
+  "includedHabits": "Включенные привычки",
+  "habitsSelectedText": "{count, plural, =0{Не выбрано ни одной привычки} =1{Выбрана 1 привычка} few{Выбрано {count} привычки} many{Выбрано {count} привычек} other{Выбрано {count} привычек}}",
+  "noInternetConnection": "Нет интернет-соединения",
+  "noInternetConnectionDescription": "Пожалуйста, проверьте ваше интернет-соединение и попробуйте ещё раз. Некоторые функции могут быть недоступны в автономном режиме.",
+  "retry": "Повторить",
+  "viewOfflineContent": "Просмотреть доступный контент"
 }

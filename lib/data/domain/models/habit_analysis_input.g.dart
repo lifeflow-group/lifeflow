@@ -93,7 +93,7 @@ class _$HabitDataSerializer implements StructuredSerializer<HabitData> {
       serializers.serialize(object.name, specifiedType: const FullType(String)),
       'category',
       serializers.serialize(object.category,
-          specifiedType: const FullType(HabitCategory)),
+          specifiedType: const FullType(Category)),
       'trackingType',
       serializers.serialize(object.trackingType,
           specifiedType: const FullType(TrackingType)),
@@ -160,7 +160,7 @@ class _$HabitDataSerializer implements StructuredSerializer<HabitData> {
           break;
         case 'category':
           result.category.replace(serializers.deserialize(value,
-              specifiedType: const FullType(HabitCategory))! as HabitCategory);
+              specifiedType: const FullType(Category))! as Category);
           break;
         case 'trackingType':
           result.trackingType = serializers.deserialize(value,
@@ -359,7 +359,7 @@ class _$HabitData extends HabitData {
   @override
   final String name;
   @override
-  final HabitCategory category;
+  final Category category;
   @override
   final TrackingType trackingType;
   @override
@@ -476,10 +476,9 @@ class HabitDataBuilder implements Builder<HabitData, HabitDataBuilder> {
   String? get name => _$this._name;
   set name(String? name) => _$this._name = name;
 
-  HabitCategoryBuilder? _category;
-  HabitCategoryBuilder get category =>
-      _$this._category ??= new HabitCategoryBuilder();
-  set category(HabitCategoryBuilder? category) => _$this._category = category;
+  CategoryBuilder? _category;
+  CategoryBuilder get category => _$this._category ??= new CategoryBuilder();
+  set category(CategoryBuilder? category) => _$this._category = category;
 
   TrackingType? _trackingType;
   TrackingType? get trackingType => _$this._trackingType;

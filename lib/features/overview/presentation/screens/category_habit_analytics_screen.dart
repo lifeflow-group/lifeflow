@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/helpers.dart';
-import '../../../../data/domain/models/habit_category.dart';
+import '../../../../data/domain/models/category.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/category_habit_analytics_controller.dart';
@@ -21,7 +21,7 @@ enum CategoryDetailFilterType {
 }
 
 class CategoryHabitAnalyticsScreen extends ConsumerWidget {
-  final HabitCategory category;
+  final Category category;
   final DateTime month;
 
   const CategoryHabitAnalyticsScreen(

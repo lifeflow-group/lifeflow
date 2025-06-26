@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/utils/helpers.dart';
+import '../../../domain/models/habit_record.dart';
+import '../../../factories/default_data.dart';
+import '../../../factories/model_factories.dart';
 import '../app_database.dart';
 import '../tables/habit_categories_table.dart';
 import '../tables/habit_exceptions_table.dart';
@@ -42,8 +45,8 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
   Future<bool> updateHabit(HabitsTableCompanion habit) =>
       update(habitsTable).replace(habit);
 
-  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
-      getHabitsWithCategoriesByDate(DateTime dateLocal, String? userId) async {
+  Future<List<HabitRecord>> getHabitRecordsByDate(
+      DateTime dateLocal, String? userId) async {
     if (userId == null) return [];
 
     // 1. Get the list of recurring series for that day
@@ -69,15 +72,15 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
       final category = row.readTableOrNull(habitCategoriesTable) ??
           HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
 
-      final habitSeries = recurringSeries
+      HabitSeriesTableData? habitSeries = recurringSeries
           .firstWhereOrNull((series) => series.habitId == habit.id);
 
       if (habitSeries != null) {
-        final date = habit.startDate.toLocal();
+        final date = habit.date.toLocal();
         // This is an instance generated from a recurring habit
         final adjustedHabit = habit.copyWith(
             id: 'habit-${Uuid().v4()}',
-            startDate: dateLocal
+            date: dateLocal
                 .copyWith(
                     hour: date.hour, minute: date.minute, second: date.second)
                 .toUtc(),
@@ -85,12 +88,16 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
 
         final exception = exceptionsBySeriesId[habitSeries.id];
         if (exception != null) {
-          return (applyExceptionOverride(adjustedHabit, exception), category);
+          return HabitRecord(
+              habit: applyExceptionOverride(adjustedHabit, exception),
+              category: category,
+              series: habitSeries);
         }
-        return (adjustedHabit, category);
+        return HabitRecord(
+            habit: adjustedHabit, category: category, series: habitSeries);
       }
 
-      return (habit, category);
+      return HabitRecord(habit: habit, category: category, series: null);
     }).toList();
 
     return result;
@@ -164,7 +171,7 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
       // 1. Non-recurring habits on the selected day
       Expression.and([
         habitsTable.habitSeriesId.isNull(),
-        habitsTable.startDate.isBetween(Variable(from), Variable(to)),
+        habitsTable.date.isBetween(Variable(from), Variable(to)),
       ]),
 
       // 2. Recurring habits not skipped
@@ -193,21 +200,20 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
         .get();
   }
 
-  Future<List<HabitsTableData>> getHabitsDateRange(
+  Future<List<HabitRecord>> getHabitRecordsDateRange(
       DateTimeRange range, String userId) async {
-    return await (select(habitsTable)
-          ..where((habit) =>
-              habit.userId.equals(userId) &
-              (habit.startDate.isSmallerOrEqualValue(range.end) |
-                  isSameDateQuery(habit.startDate, range.end)) &
-              (habit.startDate.isBiggerOrEqualValue(range.start) |
-                  isSameDateQuery(habit.startDate, range.start))))
-        .get();
+    final records = await getHabitRecordsWithCondition(
+        habitsTable.userId.equals(userId) &
+            (habitsTable.date.isSmallerOrEqualValue(range.end) |
+                isSameDateQuery(habitsTable.date, range.end)) &
+            (habitsTable.date.isBiggerOrEqualValue(range.start) |
+                isSameDateQuery(habitsTable.date, range.start)));
+
+    return records;
   }
 
-  Future<(HabitsTableData, HabitCategoriesTableData)?>
-      getHabitWithCategoryBySeriesAndDate(
-          String seriesId, DateTime dateLocal) async {
+  Future<HabitRecord?> getHabitRecordsBySeriesAndDate(
+      String seriesId, DateTime dateLocal) async {
     // 1. Get HabitSeries and Habit
     final habitSeries = await (select(habitSeriesTable)
           ..where((tbl) => tbl.id.equals(seriesId)))
@@ -230,21 +236,23 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
         exception,
       );
       final category = await _getHabitCategory(habit.categoryId);
-      return (adjustedHabit, category);
+      return HabitRecord(
+          habit: adjustedHabit, category: category, series: habitSeries);
     }
 
     // 4. If there is no exception → create Habit from series
     final newHabit = _habitFromSeries(habit, habitSeries, dateLocal);
     final category = await _getHabitCategory(habit.categoryId);
-    return (newHabit, category);
+    return HabitRecord(
+        habit: newHabit, category: category, series: habitSeries);
   }
 
   HabitsTableData _habitFromSeries(
       HabitsTableData habit, HabitSeriesTableData series, DateTime dateLocal) {
-    final date = habit.startDate.toLocal();
+    final date = habit.date.toLocal();
     return habit.copyWith(
         id: generateNewId('habit'),
-        startDate: dateLocal
+        date: dateLocal
             .copyWith(hour: date.hour, minute: date.minute, second: date.second)
             .toUtc(),
         habitSeriesId: Value(series.id));
@@ -264,10 +272,10 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
   }
 
   // Base method that both specialized methods will use
-  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
-      getHabitsWithCategoriesForMonthBase(DateTime month, String? userId,
-          {String? categoryId} // Optional category filter
-          ) async {
+  Future<List<HabitRecord>> getHabitRecordsForMonthBase(
+      DateTime month, String? userId,
+      {String? categoryId} // Optional category filter
+      ) async {
     if (userId == null) return [];
 
     final from = DateTime(month.year, month.month, 1);
@@ -276,7 +284,7 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
     // 1. Build base conditions for non-recurring habits
     var nonRecurringCondition = habitsTable.habitSeriesId.isNull() &
         habitsTable.userId.equals(userId) &
-        habitsTable.startDate.isBetween(Variable(from), Variable(to));
+        habitsTable.date.isBetween(Variable(from), Variable(to));
 
     // Add category filter if provided
     if (categoryId != null) {
@@ -327,9 +335,8 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
       exceptionsBySeries.putIfAbsent(ex.habitSeriesId, () => []).add(ex);
     }
 
-    // 4. Generate virtual instances from recurring series (same for both methods)
-    final List<(HabitsTableData, HabitCategoriesTableData)> recurringHabits =
-        [];
+    // 4. Generate virtual instances from recurring series
+    final List<HabitRecord> recurringHabits = [];
 
     for (final series in recurringSeries) {
       final habit = await getHabit(series.habitId);
@@ -351,7 +358,7 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
 
         final virtualHabit = habit.copyWith(
           id: 'habit-${Uuid().v4()}',
-          startDate: date.toUtc(),
+          date: date.toUtc(),
           habitSeriesId: Value(series.id),
         );
 
@@ -359,7 +366,8 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
             ? applyExceptionOverride(virtualHabit, exception)
             : virtualHabit;
 
-        recurringHabits.add((finalHabit, category));
+        recurringHabits.add(
+            HabitRecord(habit: finalHabit, category: category, series: series));
       }
     }
 
@@ -368,22 +376,20 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
       final habit = row.readTable(habitsTable);
       final category = row.readTableOrNull(habitCategoriesTable) ??
           HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
-      return (habit, category);
+      return HabitRecord(habit: habit, category: category, series: null);
     }).toList();
 
     return [...directHabits, ...recurringHabits];
   }
 
-  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
-      getHabitsWithCategoriesForMonth(DateTime month, String? userId) {
-    return getHabitsWithCategoriesForMonthBase(month, userId);
+  Future<List<HabitRecord>> getHabitRecordsForMonth(
+      DateTime month, String? userId) {
+    return getHabitRecordsForMonthBase(month, userId);
   }
 
-  Future<List<(HabitsTableData, HabitCategoriesTableData)>>
-      getHabitsWithCategoriesForMonthAndCategory(
-          DateTime month, String categoryId, String? userId) {
-    return getHabitsWithCategoriesForMonthBase(month, userId,
-        categoryId: categoryId);
+  Future<List<HabitRecord>> getHabitRecordsForMonthAndCategory(
+      DateTime month, String categoryId, String? userId) {
+    return getHabitRecordsForMonthBase(month, userId, categoryId: categoryId);
   }
 
   List<DateTime> getRepeatDatesForMonth(
@@ -424,5 +430,47 @@ class HabitDao extends DatabaseAccessor<AppDatabase> with _$HabitDaoMixin {
 
   bool isSameDate(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  /// Get a habit by id with its category and series
+  Future<HabitRecord?> getHabitRecord(String id) async {
+    final records =
+        await getHabitRecordsWithCondition(habitsTable.id.equals(id));
+    if (records.isEmpty) return null;
+
+    return records.first;
+  }
+
+  // Helper method to convert a list of rows to a list of HabitRecords
+  List<HabitRecord> mapRowsToHabitRecords(List<TypedResult> rows) {
+    if (rows.isEmpty) return [];
+    return rows.map((row) {
+      final habit = row.readTable(habitsTable);
+      final category = row.readTableOrNull(habitCategoriesTable) ??
+          HabitCategoriesTableData.fromJson(defaultCategories[0].toJson());
+      final series = row.readTableOrNull(habitSeriesTable);
+
+      return HabitRecord(habit: habit, category: category, series: series);
+    }).toList();
+  }
+
+  Future<List<HabitRecord>> getHabitRecordsWithCondition(
+      Expression<bool> condition) async {
+    final query = select(habitsTable).join([
+      leftOuterJoin(
+        habitCategoriesTable,
+        habitCategoriesTable.id.equalsExp(habitsTable.categoryId),
+      ),
+      leftOuterJoin(
+        habitSeriesTable,
+        habitSeriesTable.id.equalsExp(habitsTable.habitSeriesId),
+      ),
+    ]);
+
+    query.where(condition);
+
+    final rows = await query.get();
+
+    return mapRowsToHabitRecords(rows);
   }
 }

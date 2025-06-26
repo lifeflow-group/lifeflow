@@ -1055,7 +1055,7 @@ class AnalyticsService {
         {'error': error, 'error_type': errorType});
   }
 
-  Future<void> trackSuggestionControllerRefreshCalled() async {
+  Future<void> trackAIPicksControllerRefreshCalled() async {
     await logEvent('suggestion_controller_refresh_called', {});
   }
 
@@ -1346,17 +1346,6 @@ class AnalyticsService {
     });
   }
 
-  // Suggestion Controller Events
-  Future<void> trackApplySuggestionsStarted(int selectionCount) async {
-    await logEvent('apply_suggestions_started', {
-      'selection_count': selectionCount,
-    });
-  }
-
-  Future<void> trackApplySuggestionsEmptySelection() async {
-    await logEvent('apply_suggestions_empty_selection', {});
-  }
-
   Future<void> trackApplySuggestionsProcessing(
       int foundSuggestions, int withHabitData) async {
     await logEvent('apply_suggestions_processing', {
@@ -1367,24 +1356,6 @@ class AnalyticsService {
 
   Future<void> trackApplySuggestionsNoUser() async {
     await logEvent('apply_suggestions_no_user', {});
-  }
-
-  Future<void> trackApplySuggestionAttempt(
-      String suggestionId, String habitName, String categoryName) async {
-    await logEvent('apply_suggestion_attempt', {
-      'suggestion_id': suggestionId,
-      'habit_name': habitName,
-      'category': categoryName,
-    });
-  }
-
-  Future<void> trackApplySuggestionUpdatingExisting(
-      String suggestionId, String habitId, String habitName) async {
-    await logEvent('apply_suggestion_updating_existing', {
-      'suggestion_id': suggestionId,
-      'habit_id': habitId,
-      'habit_name': habitName,
-    });
   }
 
   Future<void> trackApplySuggestionCreatingNew(
@@ -1466,6 +1437,130 @@ class AnalyticsService {
       'habit_id': habitId,
       'habit_name': habitName,
       'category': category,
+    });
+  }
+
+  // Add these methods to the AnalyticsService class
+  Future<void> trackHabitPlansLoading() async {
+    await logEvent('habit_plans_loading', null);
+  }
+
+  Future<void> trackHabitPlansLoaded(int count) async {
+    await logEvent('habit_plans_loaded', {'count': count});
+  }
+
+  Future<void> trackHabitPlansLoadError(String error) async {
+    await logEvent('habit_plans_load_error', {'error': error});
+  }
+
+  Future<void> trackHabitPlansRetryButtonTapped() async {
+    await logEvent('habit_plans_retry_button_tapped', null);
+  }
+
+  Future<void> trackHabitPlansSwitchedFromEmpty() async {
+    await logEvent('habit_plans_switched_from_empty_suggestions', null);
+  }
+
+  Future<void> trackHabitPlansSwitchedFromError() async {
+    await logEvent('habit_plans_switched_from_error', null);
+  }
+
+  Future<void> trackHabitPlanSelected(String planId, String planTitle) async {
+    await logEvent('habit_plan_selected', {
+      'plan_id': planId,
+      'plan_title': planTitle,
+    });
+  }
+
+  Future<void> trackHabitPlanHabitsSelected(String planId, String planTitle,
+      int selectedCount, int totalCount) async {
+    await logEvent('habit_plan_habits_selected', {
+      'plan_id': planId,
+      'plan_title': planTitle,
+      'selected_count': selectedCount,
+      'total_count': totalCount,
+      'selection_percentage': (selectedCount / totalCount) * 100,
+    });
+  }
+
+  Future<void> trackHabitPlanHabitsApplied(
+      String planId, int selectedCount, int appliedCount) async {
+    await logEvent('habit_plan_habits_applied', {
+      'plan_id': planId,
+      'selected_count': selectedCount,
+      'applied_count': appliedCount,
+      'success_rate': (appliedCount / selectedCount) * 100,
+    });
+  }
+
+  Future<void> trackHabitPlanApplyEmptyResult(
+      String planId, int selectedCount) async {
+    await logEvent('habit_plan_apply_empty_result', {
+      'plan_id': planId,
+      'selected_count': selectedCount,
+    });
+  }
+
+  Future<void> trackHabitPlansCategoryFiltered(String category) async {
+    await logEvent('habit_plans_category_filtered', {
+      'category': category,
+    });
+  }
+
+  Future<void> trackHabitPlansCategoryChanged(
+      String? previousCategory, String? newCategory) async {
+    await logEvent('habit_plans_category_changed', {
+      'previous_category': previousCategory ?? 'none',
+      'new_category': newCategory ?? 'none',
+    });
+  }
+
+  Future<void> trackHabitPlansCategoryFilterApplied(String categoryName) async {
+    await logEvent('habit_plans_category_filter_applied', {
+      'category_name': categoryName,
+    });
+  }
+
+  Future<void> trackHabitPlansCategoryFilterCleared(
+      String? previousCategory) async {
+    await logEvent('habit_plans_category_filter_cleared', {
+      'previous_category': previousCategory ?? 'none',
+    });
+  }
+
+  Future<void> trackHabitPlansCategoryFilterOpened(String? categoryName) async {
+    await logEvent('habit_plans_category_filter_opened', {
+      'category_name': categoryName ?? 'none',
+    });
+  }
+
+  Future<void> trackHabitPlansEmptyStateAllPlansClicked() async {
+    await logEvent('habit_plans_empty_state_all_plans_clicked', {});
+  }
+
+  void trackNoInternetConnectionForAIPicks() {
+    _backend.logEvent('ai_picks_no_internet_connection', null);
+  }
+
+  void trackHabitPlanItemTapped(
+      String planId, String habitName, String category) {
+    _backend.logEvent('habit_plan_item_tapped', {
+      'plan_id': planId,
+      'habit_name': habitName,
+      'category': category,
+    });
+  }
+
+  void trackHabitPlansUpdated(int count) {
+    _backend.logEvent('habit_plans_updated', {'count': count});
+  }
+
+  void trackHabitPlanSuggestionUpdated(
+      String planId, String suggestionId, String habitName) {
+    _backend.logEvent('habit_plan_suggestion_updated', {
+      'plan_id': planId,
+      'suggestion_id': suggestionId,
+      'habit_name': habitName,
     });
   }
 }

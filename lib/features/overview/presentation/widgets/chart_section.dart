@@ -5,7 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/helpers.dart';
-import '../../../../data/domain/models/habit_category.dart';
+import '../../../../data/domain/models/category.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/overview_controller.dart';
@@ -135,7 +135,7 @@ class _ChartSectionState extends ConsumerState<ChartSection> {
                             if (hasOthers)
                               LegendItem(
                                 categoryStats: CategoryStats(
-                                  category: HabitCategory((p0) => p0
+                                  category: Category((p0) => p0
                                     ..id = 'others'
                                     ..name = l10n.othersLabel
                                     ..iconPath = 'assets/icons/others.png'
@@ -302,7 +302,7 @@ class _ChartSectionState extends ConsumerState<ChartSection> {
 
   Future<void> _navigateToDetail(
     BuildContext context,
-    HabitCategory category,
+    Category category,
     DateTime month,
     OverviewController overviewNotifier,
   ) async {

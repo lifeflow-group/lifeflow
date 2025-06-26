@@ -1,7 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifeflow/data/domain/models/habit_category.dart';
+import 'package:lifeflow/data/providers/filter_providers.dart';
+import 'package:lifeflow/data/domain/models/category.dart';
 import 'package:lifeflow/data/services/user_service.dart';
 import 'package:lifeflow/data/services/analytics/analytics_service.dart';
 import 'package:lifeflow/data/datasources/local/app_database.dart';
@@ -75,7 +76,7 @@ void main() {
         id: habitId,
         name: 'Drink Water',
         userId: testUserId,
-        startDate: testDate.toUtc(),
+        date: testDate.toUtc(),
         categoryId: 'health',
         trackingType: 'progress',
         targetValue: Value(10),
@@ -135,7 +136,7 @@ void main() {
         id: 'habit-0',
         name: 'Write Report',
         userId: testUserId,
-        startDate: selectDate.toUtc(),
+        date: selectDate.toUtc(),
         categoryId: 'work',
         trackingType: 'complete',
       ),
@@ -143,7 +144,7 @@ void main() {
         id: 'habit-1',
         name: 'Morning Run',
         userId: testUserId,
-        startDate: selectDate.toUtc(),
+        date: selectDate.toUtc(),
         categoryId: 'work',
         trackingType: 'complete',
       ),
@@ -151,7 +152,7 @@ void main() {
         id: 'habit-2',
         name: 'Evening Walk',
         userId: testUserId,
-        startDate: testDate.toUtc(),
+        date: testDate.toUtc(),
         categoryId: 'work',
         trackingType: 'complete',
       ),
@@ -191,7 +192,7 @@ void main() {
         id: habitId,
         name: 'Morning Run',
         userId: testUserId,
-        startDate: testDate.toUtc(),
+        date: testDate.toUtc(),
         categoryId: 'cat-3',
         trackingType: 'complete',
         habitSeriesId: Value(seriesId),
@@ -253,7 +254,7 @@ void main() {
         id: 'habit-work-1',
         name: 'Work Task 1',
         userId: testUserId,
-        startDate: testDate.toUtc(),
+        date: testDate.toUtc(),
         categoryId: 'work',
         trackingType: 'complete',
       ),
@@ -261,7 +262,7 @@ void main() {
         id: 'habit-fitness-1',
         name: 'Workout',
         userId: testUserId,
-        startDate: testDate.toUtc(),
+        date: testDate.toUtc(),
         categoryId: 'fitness',
         trackingType: 'complete',
       ),
@@ -273,7 +274,7 @@ void main() {
 
     // Set the selected category
     container.read(selectedCategoryProvider.notifier).updateSelectedCategory(
-          HabitCategory.fromJson({
+          Category.fromJson({
             'id': workCategory.id,
             'name': workCategory.name,
             'iconPath': workCategory.iconPath,

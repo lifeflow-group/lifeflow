@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/controllers/habit_controller.dart';
 import '../../../data/domain/models/habit_series.dart';
 import '../../../data/domain/models/scheduled_notification.dart';
+import '../../../data/factories/model_factories.dart';
 import '../../../data/services/user_service.dart';
-import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
-import '../../../data/domain/models/habit_category.dart';
+import '../../../data/domain/models/category.dart';
 import '../../../shared/widgets/scope_dialog.dart';
 import '../repositories/habit_detail_repository.dart';
 import '../../../data/services/notifications/mobile_notification_service.dart';
@@ -32,7 +32,7 @@ class HabitFormResult {
 final habitNameProvider = StateProvider<String>((ref) => '');
 
 // Provider for managing the habit category.
-final habitCategoryProvider = StateProvider<HabitCategory?>((ref) => null);
+final habitCategoryProvider = StateProvider<Category?>((ref) => null);
 
 // Provider for managing the habit start date.
 final habitDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
@@ -88,10 +88,10 @@ class HabitDetailController {
 
     Habit? habit;
     if (payload.habitId != null) {
-      habit = await _repo.habit.getHabit(payload.habitId!);
+      habit = await _repo.habit.getHabitRecord(payload.habitId!);
     } else if (payload.seriesId != null) {
-      habit = await _repo.habit.getHabitWithCategoryBySeriesAndDate(
-          payload.seriesId!, payload.scheduledDate);
+      habit = await _repo.habit
+          .getHabitBySeriesAndDate(payload.seriesId!, payload.scheduledDate);
     }
     if (habit == null) return null;
 
@@ -102,15 +102,15 @@ class HabitDetailController {
   Future<void> fromHabit(Habit habit) async {
     updateHabitProvider(habit);
     updateHabitName(habit.name);
-    updateHabitCategory(habit.category);
-    updateHabitDate(habit.startDate.toLocal());
-    updateHabitTime(TimeOfDay.fromDateTime(habit.startDate.toLocal()));
+    updateCategory(habit.category);
+    updateHabitDate(habit.date.toLocal());
+    updateHabitTime(TimeOfDay.fromDateTime(habit.date.toLocal()));
     updateTrackingType(habit.trackingType);
     updateHabitUnit(habit.unit ?? '');
     final habitSeries =
-        await _repo.habitSeries.getHabitSeries(habit.habitSeriesId);
+        await _repo.habitSeries.getHabitSeries(habit.series?.id);
     updateHabitRepeatFrequency(
-        habitSeries?.repeatFrequency ?? habit.repeatFrequency);
+        habitSeries?.repeatFrequency ?? habit.series?.repeatFrequency);
 
     if (habit.trackingType == TrackingType.progress) {
       updateHabitCurrentValue(habit.currentValue ?? 0);
@@ -127,7 +127,7 @@ class HabitDetailController {
     ref.read(habitNameProvider.notifier).state = name;
   }
 
-  void updateHabitCategory(HabitCategory? category) {
+  void updateCategory(Category? category) {
     ref.read(habitCategoryProvider.notifier).state = category;
   }
 
@@ -186,7 +186,7 @@ class HabitDetailController {
     final targetValue = ref.read(habitTargetValueProvider);
     final unit = ref.read(habitUnitProvider);
     final reminder = ref.read(habitReminderProvider);
-    final repeatFrequency = ref.read(habitRepeatFrequencyProvider);
+
     // Read userServiceProvider to get userId
     final userId = await ref.read(userServiceProvider).getCurrentUserId();
 
@@ -197,8 +197,7 @@ class HabitDetailController {
       userId: userId,
       name: name,
       category: category,
-      startDate: date.toUtc(),
-      repeatFrequency: repeatFrequency,
+      date: date.toUtc(),
       trackingType: trackingType,
       targetValue: trackingType == TrackingType.progress ? targetValue : null,
       unit: trackingType == TrackingType.progress ? unit : null,
@@ -209,8 +208,8 @@ class HabitDetailController {
   }
 
   HabitSeries? buildHabitSeries(Habit habitModel, {HabitSeries? oldSeries}) {
-    final repeatFrequency = habitModel.repeatFrequency;
-    if (repeatFrequency == null && habitModel.habitSeriesId == null) {
+    final repeatFrequency = ref.read(habitRepeatFrequencyProvider);
+    if (repeatFrequency == null && habitModel.series?.id == null) {
       return null;
     }
 
@@ -220,7 +219,7 @@ class HabitDetailController {
           : null,
       userId: habitModel.userId,
       habitId: habitModel.id,
-      startDate: habitModel.startDate,
+      startDate: habitModel.date,
       repeatFrequency: repeatFrequency,
     );
   }
@@ -233,9 +232,9 @@ class HabitDetailController {
     ActionScope? actionScope;
 
     if (newHabit != null) {
-      oldSeries = await habitController.getHabitSeries(oldHabit?.habitSeriesId);
+      oldSeries = await habitController.getHabitSeries(oldHabit?.series?.id);
       newSeries = buildHabitSeries(newHabit, oldSeries: oldSeries);
-      newHabit = newHabit.rebuild((b) => b..habitSeriesId = newSeries?.id);
+      newHabit = newHabit.rebuild((b) => b..series = newSeries?.toBuilder());
 
       if (oldSeries != null && newHabit != oldHabit) {
         actionScope = await pickScope();

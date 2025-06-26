@@ -20,13 +20,13 @@ class HabitListWithDateHeaders extends StatelessWidget {
 
     // Sort habits by date
     final sortedHabits = List<Habit>.from(habits)
-      ..sort((a, b) => b.startDate.compareTo(a.startDate));
+      ..sort((a, b) => b.date.compareTo(a.date));
 
     // Group habits by date (using DD/MM/YYYY format as key)
     final Map<String, List<Habit>> habitsByDate = {};
 
     for (final habit in sortedHabits) {
-      final dateKey = DateFormat('dd/MM/yyyy').format(habit.startDate);
+      final dateKey = DateFormat('dd/MM/yyyy').format(habit.date);
       if (!habitsByDate.containsKey(dateKey)) {
         habitsByDate[dateKey] = [];
       }

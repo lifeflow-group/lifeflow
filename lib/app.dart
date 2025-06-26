@@ -19,7 +19,7 @@ class LifeFlowApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
-      title: 'LifeFlow',
+      title: AppConstants.appName,
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLanguages.supportedLocales,

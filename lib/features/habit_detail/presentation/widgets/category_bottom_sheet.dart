@@ -3,17 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../../../core/utils/helpers.dart';
-import '../../../../data/domain/models/habit_category.dart';
+import '../../../../data/domain/models/category.dart';
+import '../../../../data/factories/default_data.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
 
 Future<dynamic> showCategoryBottomSheet(
   BuildContext context, {
-  HabitCategory? initialCategory,
+  Category? initialCategory,
+  List<Category>? categories,
 }) async {
   // Create provider container and store analytics service reference
   final container = ProviderContainer();
   final analyticsService = container.read(analyticsServiceProvider);
+  final categoryList = categories ?? defaultCategories;
 
   // Track bottom sheet opening
   analyticsService.trackCategorySheetOpened(initialCategory?.name);
@@ -23,7 +25,8 @@ Future<dynamic> showCategoryBottomSheet(
     shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     builder: (context) {
-      return CategoryBottomSheet(initialCategory: initialCategory);
+      return CategoryBottomSheet(
+          initialCategory: initialCategory, categories: categoryList);
     },
   );
 
@@ -33,7 +36,7 @@ Future<dynamic> showCategoryBottomSheet(
         .trackCategorySheetDismissedWithoutSelection(initialCategory?.name);
   } else if (result == "clear") {
     analyticsService.trackCategoryClearedFromSheet(initialCategory?.name);
-  } else if (result is HabitCategory) {
+  } else if (result is Category) {
     analyticsService.trackCategorySelectedFromSheet(
         result.name, initialCategory?.name, result.id != initialCategory?.id);
   }
@@ -45,9 +48,11 @@ Future<dynamic> showCategoryBottomSheet(
 }
 
 class CategoryBottomSheet extends ConsumerStatefulWidget {
-  const CategoryBottomSheet({super.key, this.initialCategory});
+  const CategoryBottomSheet(
+      {super.key, this.initialCategory, required this.categories});
 
-  final HabitCategory? initialCategory;
+  final Category? initialCategory;
+  final List<Category> categories;
 
   @override
   ConsumerState<CategoryBottomSheet> createState() =>
@@ -55,7 +60,7 @@ class CategoryBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _CategoryBottomSheetState extends ConsumerState<CategoryBottomSheet> {
-  HabitCategory? selectedCategory;
+  Category? selectedCategory;
   late final AnalyticsService _analyticsService;
 
   @override
@@ -111,9 +116,9 @@ class _CategoryBottomSheetState extends ConsumerState<CategoryBottomSheet> {
                 mainAxisSpacing: 12,
                 childAspectRatio: 0.9,
               ),
-              itemCount: defaultCategories.length,
+              itemCount: widget.categories.length,
               itemBuilder: (context, index) {
-                final category = defaultCategories[index];
+                final category = widget.categories[index];
                 final isSelected = selectedCategory?.id == category.id;
 
                 return GestureDetector(

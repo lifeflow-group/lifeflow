@@ -108,7 +108,8 @@
   "noHabitDataMonth": "Keine Gewohnheitsdaten für diesen Monat verfügbar",
   "suggestionTitle": "Optimierungsvorschläge",
   "noSuggestionsAvailable": "Derzeit sind keine Vorschläge verfügbar. Schauen Sie später noch einmal nach, um Optimierungsideen zu erhalten!",
-  "suggestionError": "Fehler: {error}",
+  "aiRecommendationsFailedMessage": "Konnte KI-Empfehlungen nicht laden",
+  "tryAgainLaterMessage": "Wir haben derzeit Probleme mit der Verbindung zu unserem Vorschlagssystem. Bitte versuche es später noch einmal oder sieh dir die verfügbaren Pläne an.",
   "suggestionLoadingTitle": "Lass uns Vorschläge ansehen",
   "suggestionLoadingDescription": "Deine optimierten Gewohnheitsvorschläge sind auf dich zugeschnitten und umfassen Kategorien wie Gesundheit, Produktivität, Achtsamkeit, Lernen und mehr.",
   "filterAll": "Alle",
@@ -153,5 +154,16 @@
   "backToSuggestionsButton": "Zurück zu Vorschlägen",
   "goToHomeButton": "Zur Startseite",
   "viewDetailsButton": "Details ansehen",
-  "appliedHabitsSummaryTitle": "Angewendete Gewohnheiten"
+  "appliedHabitsSummaryTitle": "Angewendete Gewohnheiten",
+  "aiPicksTab": "KI-Tipps",
+  "habitPlansTab": "Habit-Pläne",
+  "exploreHabitPlans": "Habit-Pläne durchsuchen",
+  "habitPlansError": "Fehler beim Laden der Habit-Pläne: {error}",
+  "aboutThisPlan": "Über diesen Plan",
+  "includedHabits": "Enthaltene Habits",
+  "habitsSelectedText": "{count, plural, =0{Keine Gewohnheiten ausgewählt} =1{1 Gewohnheit ausgewählt} other{# Gewohnheiten ausgewählt}}",
+  "noInternetConnection": "Keine Internetverbindung",
+  "noInternetConnectionDescription": "Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut. Einige Funktionen sind offline möglicherweise nicht verfügbar.",
+  "retry": "Erneut versuchen",
+  "viewOfflineContent": "Verfügbare Inhalte anzeigen"
 }

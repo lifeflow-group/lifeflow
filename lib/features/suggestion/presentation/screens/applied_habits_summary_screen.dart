@@ -4,15 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../../data/domain/models/habit_analysis_input.dart';
-import '../../../data/services/analytics/analytics_service.dart';
-import '../../main/controllers/main_controller.dart';
-import 'widgets/suggested_habit_card.dart';
+import '../../../../data/domain/models/habit.dart';
+import '../../../../data/services/analytics/analytics_service.dart';
+import '../../../main/controllers/main_controller.dart';
+import '../widgets/suggested_habit_card.dart';
 
 class AppliedHabitsSummaryScreen extends ConsumerStatefulWidget {
   const AppliedHabitsSummaryScreen({super.key, required this.appliedHabits});
 
-  final List<HabitData> appliedHabits;
+  final List<Habit> appliedHabits;
 
   @override
   ConsumerState<AppliedHabitsSummaryScreen> createState() =>

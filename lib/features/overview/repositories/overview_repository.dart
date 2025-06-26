@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/repositories/habit_exception_repository.dart';
-import '../../../data/repositories/habit_repository.dart';
+import '../../../data/datasources/local/repositories/habit_exception_repository.dart';
+import '../../../data/datasources/local/repositories/habit_repository.dart';
 
 final overviewRepositoryProvider = Provider<OverviewRepository>((ref) {
   final habitRepo = ref.watch(habitRepositoryProvider);

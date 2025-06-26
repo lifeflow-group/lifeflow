@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/domain/models/habit.dart';
-import '../../data/domain/models/habit_analysis_input.dart';
-import '../../data/domain/models/habit_category.dart';
+import '../../data/domain/models/category.dart';
+import '../../data/domain/models/habit_plan.dart';
 import '../../data/domain/models/scheduled_notification.dart';
 import '../../data/services/analytics/analytics_service.dart';
 import '../../features/habit_detail/presentation/habit_detail_screen.dart';
@@ -15,7 +15,8 @@ import '../../features/overview/presentation/screens/category_habit_analytics_sc
 import '../../features/settings/presentation/terms_of_use_screen.dart';
 import '../../features/settings/presentation/language_selection_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
-import '../../features/suggestion/presentation/applied_habits_summary_screen.dart';
+import '../../features/suggestion/presentation/screens/applied_habits_summary_screen.dart';
+import '../../features/suggestion/presentation/screens/habit_plan_detail_screen.dart';
 import '../constants/app_constants.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -82,7 +83,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
 
-          final category = extra?['category'] as HabitCategory?;
+          final category = extra?['category'] as Category?;
           final month = extra?['month'] as DateTime?;
 
           if (category == null || month == null) {
@@ -96,9 +97,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'applied-habits-summary',
         path: '/applied-habits-summary',
         builder: (context, state) {
-          final habits = (state.extra as Map<String, dynamic>)['habits']
-              as List<HabitData>;
+          final habits =
+              (state.extra as Map<String, dynamic>)['habits'] as List<Habit>;
           return AppliedHabitsSummaryScreen(appliedHabits: habits);
+        },
+      ),
+      GoRoute(
+        path: '/habit-plan-details',
+        name: 'habit-plan-details',
+        builder: (context, state) {
+          final Map<String, dynamic> extra =
+              state.extra as Map<String, dynamic>;
+          final HabitPlan plan = extra['plan'] as HabitPlan;
+          return HabitPlanDetailScreen(plan: plan);
         },
       ),
     ],
@@ -233,7 +244,7 @@ class AnalyticsNavigatorObserver extends NavigatorObserver {
   void _addCategoryAnalyticsContext(dynamic arguments,
       Map<String, dynamic>? extraData, Map<String, Object> eventParams) {
     final Map<String, dynamic>? extra = extraData;
-    final category = extra?['category'] as HabitCategory?;
+    final category = extra?['category'] as Category?;
     final month = extra?['month'] as DateTime?;
 
     if (category != null) {

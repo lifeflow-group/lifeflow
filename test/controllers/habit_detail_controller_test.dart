@@ -4,10 +4,10 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lifeflow/core/utils/helpers.dart';
 import 'package:lifeflow/data/controllers/habit_controller.dart';
-import 'package:lifeflow/data/domain/models/habit_category.dart';
+import 'package:lifeflow/data/domain/models/category.dart';
 import 'package:lifeflow/data/domain/models/scheduled_notification.dart';
+import 'package:lifeflow/data/factories/model_factories.dart';
 import 'package:lifeflow/data/services/user_service.dart';
 import 'package:lifeflow/data/datasources/local/app_database.dart';
 import 'package:lifeflow/data/datasources/local/database_provider.dart';
@@ -35,8 +35,8 @@ void main() {
   final exceptionId = generateNewId('habit');
 
   setUpAll(() {
-    // Create a valid HabitCategory first
-    final mockCategory = HabitCategory((b) => b
+    // Create a valid Category first
+    final mockCategory = Category((b) => b
       ..id = 'mock-category-id'
       ..name = 'Mock Category'
       ..iconPath = 'assets/icons/mock.png'
@@ -48,7 +48,7 @@ void main() {
       ..name = 'Mock Habit'
       ..userId = 'mock-user-id'
       ..category = mockCategory.toBuilder()
-      ..startDate = DateTime(2025, 1, 1)
+      ..date = DateTime(2025, 1, 1)
       ..trackingType = TrackingType.complete
       ..isCompleted = false
       ..reminderEnabled = false
@@ -90,7 +90,7 @@ void main() {
         id: habitId,
         name: 'Read Book',
         userId: testUserId,
-        startDate: habitDate.toUtc(),
+        date: habitDate.toUtc(),
         categoryId: categoryId,
         reminderEnabled: Value(false),
         trackingType: 'complete',
@@ -119,7 +119,7 @@ void main() {
       ),
     );
 
-    when(() => mockNotification.scheduleRecurringReminders(any(), any()))
+    when(() => mockNotification.scheduleRecurringReminders(any()))
         .thenAnswer((_) async {});
 
     when(() => mockNotification.requestPermission())
@@ -140,13 +140,12 @@ void main() {
       expect(container.read(habitNameProvider), 'New Habit Name');
     });
 
-    test('updateHabitCategory should update habitCategoryProvider state',
-        () async {
+    test('updateCategory should update habitCategoryProvider state', () async {
       // Arrange
       final category = await repository.repos.category.getCategory(categoryId);
 
       // Act
-      controller.updateHabitCategory(category);
+      controller.updateCategory(category);
 
       // Assert
       expect(container.read(habitCategoryProvider), category);
@@ -226,7 +225,7 @@ void main() {
   group('HabitDetailController - Loading Habit Data', () {
     test('fromHabit should populate all providers with habit data', () async {
       // Arrange
-      final habit = await repository.habit.getHabit(habitId);
+      final habit = await repository.habit.getHabitRecord(habitId);
 
       // Act
       await controller.fromHabit(habit!);
@@ -297,7 +296,7 @@ void main() {
       // Arrange
       final category = await repository.repos.category.getCategory(categoryId);
       controller.updateHabitName('New Test Habit');
-      controller.updateHabitCategory(category);
+      controller.updateCategory(category);
       controller.updateHabitDate(DateTime(2025, 5, 20));
       controller.updateHabitTime(TimeOfDay(hour: 9, minute: 0));
       controller.updateTrackingType(TrackingType.progress);
@@ -315,7 +314,7 @@ void main() {
       expect(result.trackingType, TrackingType.progress);
       expect(result.targetValue, 5);
       expect(result.unit, 'glasses');
-      expect(result.repeatFrequency, RepeatFrequency.weekly);
+      expect(result.series?.repeatFrequency, RepeatFrequency.weekly);
     });
 
     test(
@@ -336,7 +335,7 @@ void main() {
       // Arrange
       final category = await repository.repos.category.getCategory(categoryId);
       controller.updateHabitName('New Test Habit');
-      controller.updateHabitCategory(category);
+      controller.updateCategory(category);
       controller.updateHabitRepeatFrequency(RepeatFrequency.daily);
       final habit = await controller.buildHabitFromForm();
 
@@ -354,7 +353,7 @@ void main() {
       // Arrange
       final category = await repository.repos.category.getCategory(categoryId);
       controller.updateHabitName('New Test Habit');
-      controller.updateHabitCategory(category);
+      controller.updateCategory(category);
       controller.updateHabitRepeatFrequency(null); // No repeat frequency
       final habit = await controller.buildHabitFromForm();
 
@@ -369,7 +368,7 @@ void main() {
         () async {
       // Arrange
       final oldSeries = await repository.habitSeries.getHabitSeries(seriesId);
-      Habit? habit = await repository.habit.getHabit(habitId);
+      Habit? habit = await repository.habit.getHabitRecord(habitId);
 
       // Act - Create with same frequency (daily)
       await controller.fromHabit(habit!);
@@ -385,7 +384,7 @@ void main() {
         'generateHabitFormResult should create result with scope for existing habit',
         () async {
       // Arrange
-      final oldHabit = await repository.habit.getHabit(habitId);
+      final oldHabit = await repository.habit.getHabitRecord(habitId);
       await controller.fromHabit(oldHabit!);
       controller.updateHabitName('Modified Habit');
 
@@ -412,7 +411,7 @@ void main() {
       // Arrange
       final category = await repository.repos.category.getCategory(categoryId);
       controller.updateHabitName('Brand New Habit');
-      controller.updateHabitCategory(category);
+      controller.updateCategory(category);
 
       bool pickScopeCalled = false;
       Future<ActionScope?> mockPickScope() async {
@@ -449,7 +448,7 @@ void main() {
         'generateHabitFormResult should return null if user cancels scope selection',
         () async {
       // Arrange
-      final oldHabit = await repository.habit.getHabit(habitId);
+      final oldHabit = await repository.habit.getHabitRecord(habitId);
       await controller.fromHabit(oldHabit!);
       controller.updateHabitName('Modified Habit');
 

@@ -108,7 +108,8 @@
   "noHabitDataMonth": "この月の習慣データがありません",
   "suggestionTitle": "最適化に関する提案",
   "noSuggestionsAvailable": "現在、候補がありません。最適化のアイデアについては、後で確認してください！",
-  "suggestionError": "エラー: {error}",
+  "aiRecommendationsFailedMessage": "AIのおすすめを読み込めませんでした",
+  "tryAgainLaterMessage": "提案システムとの接続に問題が発生しています。後で再試行するか、利用可能なプランをご覧ください。",
   "suggestionLoadingTitle": "おすすめの習慣を見てみましょう",
   "suggestionLoadingDescription": "最適化された習慣の提案は、あなたに合わせて調整されており、健康、生産性、マインドフルネス、学習など、さまざまなカテゴリにわたります。",
   "filterAll": "すべて",
@@ -153,5 +154,16 @@
   "backToSuggestionsButton": "提案に戻る",
   "goToHomeButton": "ホームへ",
   "viewDetailsButton": "詳細を見る",
-  "appliedHabitsSummaryTitle": "適用された習慣"
+  "appliedHabitsSummaryTitle": "適用された習慣",
+  "aiPicksTab": "AIピック",
+  "habitPlansTab": "習慣プラン",
+  "exploreHabitPlans": "習慣プランを見る",
+  "habitPlansError": "習慣プランの読み込み中にエラーが発生しました: {error}",
+  "aboutThisPlan": "このプランについて",
+  "includedHabits": "含まれる習慣",
+  "habitsSelectedText": "{count, plural, =0{習慣を選択していません} =1{習慣を1つ選択しました} other{#個の習慣を選択しました}}",
+  "noInternetConnection": "インターネット接続がありません",
+  "noInternetConnectionDescription": "インターネット接続を確認して、もう一度お試しください。オフラインでは一部の機能を利用できない場合があります。",
+  "retry": "再試行",
+  "viewOfflineContent": "利用可能なコンテンツを表示"
 }

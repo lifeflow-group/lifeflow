@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AppConstants {
-  static const String baseUrl = "https://lfl-backend.onrender.com";
-  // static const String baseUrl = "http://192.168.1.109:8000";
+  static const String appName = 'LifeFlow';
+  static const String apiVersion = 'v1';
 }
 
 final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();

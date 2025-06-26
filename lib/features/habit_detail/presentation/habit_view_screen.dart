@@ -100,6 +100,7 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
     final habit = ref.watch(habitProvider);
     final repeat = getRepeatFrequencyLabel(
         context, ref.watch(habitRepeatFrequencyProvider));
+
     final date = DateFormat('dd/MM/yyyy').format(ref.watch(habitDateProvider));
     final time = ref.watch(habitTimeProvider).format(context);
     final isCompleted = ref.watch(habitIsCompletedProvider);

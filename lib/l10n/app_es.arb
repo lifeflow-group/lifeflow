@@ -108,7 +108,8 @@
   "noHabitDataMonth": "No hay datos de hábitos disponibles para este mes",
   "suggestionTitle": "Sugerencias de optimización",
   "noSuggestionsAvailable": "No hay sugerencias disponibles por el momento. ¡Vuelve a consultar más tarde para obtener ideas de optimización!",
-  "suggestionError": "Error: {error}",
+  "aiRecommendationsFailedMessage": "No se pudieron cargar las recomendaciones de IA",
+  "tryAgainLaterMessage": "Estamos experimentando problemas para conectarnos a nuestro sistema de sugerencias. Inténtalo de nuevo más tarde o explora los planes disponibles.",
   "suggestionLoadingTitle": "Veamos sugerencias",
   "suggestionLoadingDescription": "Tus sugerencias de hábitos optimizadas están diseñadas para ti y abarcan categorías como Salud, Productividad, Atención plena, Aprendizaje y más.",
   "filterAll": "Todos",
@@ -153,5 +154,16 @@
   "backToSuggestionsButton": "Volver a Sugerencias",
   "goToHomeButton": "Ir a Inicio",
   "viewDetailsButton": "Ver detalles",
-  "appliedHabitsSummaryTitle": "Hábitos Aplicados"
+  "appliedHabitsSummaryTitle": "Hábitos Aplicados",
+  "aiPicksTab": "Recomendaciones de IA",
+  "habitPlansTab": "Planes de hábitos",
+  "exploreHabitPlans": "Explorar planes de hábitos",
+  "habitPlansError": "Error al cargar los planes de hábitos: {error}",
+  "aboutThisPlan": "Acerca de este plan",
+  "includedHabits": "Hábitos incluidos",
+  "habitsSelectedText": "{count, plural, =0{No se ha seleccionado ningún hábito} =1{1 hábito seleccionado} other{# hábitos seleccionados}}",
+  "noInternetConnection": "Sin conexión a internet",
+  "noInternetConnectionDescription": "Por favor, revisa tu conexión a internet e inténtalo de nuevo. Algunas funciones pueden no estar disponibles sin conexión.",
+  "retry": "Reintentar",
+  "viewOfflineContent": "Ver contenido disponible"
 }

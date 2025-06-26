@@ -6,8 +6,9 @@ import 'flexible_datetime_serializer.dart';
 import 'models/app_settings.dart';
 import 'models/habit.dart';
 import 'models/habit_analysis_input.dart';
-import 'models/habit_category.dart';
+import 'models/category.dart';
 import 'models/habit_exception.dart';
+import 'models/habit_plan.dart';
 import 'models/habit_series.dart';
 import 'models/language.dart';
 import 'models/suggestion.dart';
@@ -16,7 +17,7 @@ part 'serializers.g.dart';
 
 @SerializersFor([
   Habit,
-  HabitCategory,
+  Category,
   TrackingType,
   RepeatFrequency,
   Suggestion,
@@ -28,6 +29,7 @@ part 'serializers.g.dart';
   ThemeModeSetting,
   AppSettings,
   Language,
+  HabitPlan,
 ])
 final Serializers serializers = (_$serializers.toBuilder()
       ..add(FlexibleDateTimeSerializer())

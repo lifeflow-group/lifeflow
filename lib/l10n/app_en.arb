@@ -170,14 +170,8 @@
 
   "suggestionTitle": "Optimization Suggestions",
   "noSuggestionsAvailable": "No suggestions available at the moment. Check back later for optimization ideas!",
-  "suggestionError": "Error: {error}",
-  "@suggestionError": {
-    "placeholders": {
-      "error": {
-        "type": "Object"
-      }
-    }
-  },
+  "aiRecommendationsFailedMessage": "Unable to load AI recommendations",
+  "tryAgainLaterMessage": "We're experiencing issues connecting to our suggestion system. Please try again later or explore available plans.",
   "suggestionLoadingTitle": "Let's see suggestions",
   "suggestionLoadingDescription": "Your optimized habit suggestions are tailored to you and span categories like Health, Productivity, Mindfulness, Learning, and more.",
 
@@ -244,5 +238,31 @@
   "backToSuggestionsButton": "Back to Suggestions",
   "goToHomeButton": "Go to Home",
   "viewDetailsButton": "View Details",
-  "appliedHabitsSummaryTitle": "Applied Habits"
+  "appliedHabitsSummaryTitle": "Applied Habits",
+
+  "aiPicksTab": "AI Picks",
+  "habitPlansTab": "Habit Plans",
+  "exploreHabitPlans": "Browse Habit Plans",
+  "habitPlansError": "Error loading habit plans: {error}",
+  "@habitPlansError": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "aboutThisPlan": "About This Plan",
+  "includedHabits": "Included Habits",
+  "habitsSelectedText": "{count, plural, =0{No habits selected} =1{1 habit selected} other{{count} habits selected}}",
+  "@habitsSelectedText": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noInternetConnection": "No internet connection",
+  "noInternetConnectionDescription": "Please check your internet connection and try again. Some features may not be available offline.",
+  "retry": "Retry",
+  "viewOfflineContent": "View Available Content"
 }

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/config/environment.dart';
+import 'core/utils/logger.dart';
 import 'data/controllers/notification_handler.dart';
 import 'data/datasources/local/app_database.dart';
 import 'data/datasources/local/database_provider.dart';
@@ -29,6 +31,12 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+
+  if (Environment.debugMode) {
+    final logger = AppLogger('Main');
+    logger.info("Running in debug mode");
+    logger.info("API URL: ${Environment.apiBaseUrl}");
+  }
 
   runApp(ProviderScope(
     overrides: [appDatabaseProvider.overrideWithValue(database)],

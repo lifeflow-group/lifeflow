@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../data/providers/filter_providers.dart';
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/domain/models/app_settings.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../settings/controllers/settings_controller.dart';
-import '../../controllers/home_controller.dart';
 
 class DateSelector extends ConsumerStatefulWidget {
   const DateSelector({super.key});

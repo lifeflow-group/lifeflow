@@ -1,7 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/logger.dart';
 import 'analytics_service_backend.dart';
 
 final analyticsServiceBackendProvider =
@@ -11,6 +11,7 @@ final analyticsServiceBackendProvider =
 
 class FirebaseAnalyticsServiceBackend implements AnalyticsServiceBackend {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  final AppLogger _logger = AppLogger('FirebaseAnalytics');
 
   @override
   Future<void> logEvent(String name, Map<String, dynamic>? parameters) async {
@@ -18,7 +19,7 @@ class FirebaseAnalyticsServiceBackend implements AnalyticsServiceBackend {
       final sanitizedParams = _sanitizeParams(parameters);
       await _analytics.logEvent(name: name, parameters: sanitizedParams);
     } catch (e) {
-      debugPrint('Analytics error (logEvent) for event "$name": $e');
+      _logger.error('Analytics error (logEvent) for event "$name"', e);
     }
   }
 
@@ -27,8 +28,8 @@ class FirebaseAnalyticsServiceBackend implements AnalyticsServiceBackend {
     try {
       await _analytics.logScreenView(screenName: screenName);
     } catch (e) {
-      debugPrint(
-          'Analytics error (logScreenView) for screen "$screenName": $e');
+      _logger.error(
+          'Analytics error (logScreenView) for screen "$screenName"', e);
     }
   }
 
@@ -37,7 +38,7 @@ class FirebaseAnalyticsServiceBackend implements AnalyticsServiceBackend {
     try {
       await _analytics.setUserId(id: userId);
     } catch (e) {
-      debugPrint('Analytics error (setUserId) for user "$userId": $e');
+      _logger.error('Analytics error (setUserId) for user "$userId"', e);
     }
   }
 
@@ -46,8 +47,9 @@ class FirebaseAnalyticsServiceBackend implements AnalyticsServiceBackend {
     try {
       await _analytics.setUserProperty(name: name, value: value);
     } catch (e) {
-      debugPrint(
-          'Analytics error (setUserProperty) for property "$name" with value "$value": $e');
+      _logger.error(
+          'Analytics error (setUserProperty) for property "$name" with value "$value"',
+          e);
     }
   }
 

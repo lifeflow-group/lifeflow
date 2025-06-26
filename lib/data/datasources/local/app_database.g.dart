@@ -305,11 +305,10 @@ class $HabitsTableTable extends HabitsTable
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES habit_categories_table (id)'));
-  static const VerificationMeta _startDateMeta =
-      const VerificationMeta('startDate');
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
-  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
-      'start_date', aliasedName, false,
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _habitSeriesIdMeta =
       const VerificationMeta('habitSeriesId');
@@ -365,7 +364,7 @@ class $HabitsTableTable extends HabitsTable
         userId,
         name,
         categoryId,
-        startDate,
+        date,
         habitSeriesId,
         reminderEnabled,
         trackingType,
@@ -409,11 +408,11 @@ class $HabitsTableTable extends HabitsTable
     } else if (isInserting) {
       context.missing(_categoryIdMeta);
     }
-    if (data.containsKey('start_date')) {
-      context.handle(_startDateMeta,
-          startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta));
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
     } else if (isInserting) {
-      context.missing(_startDateMeta);
+      context.missing(_dateMeta);
     }
     if (data.containsKey('habit_series_id')) {
       context.handle(
@@ -474,8 +473,8 @@ class $HabitsTableTable extends HabitsTable
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       categoryId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}category_id'])!,
-      startDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_date'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
       habitSeriesId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}habit_series_id']),
       reminderEnabled: attachedDatabase.typeMapping
@@ -504,7 +503,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
   final String userId;
   final String name;
   final String categoryId;
-  final DateTime startDate;
+  final DateTime date;
   final String? habitSeriesId;
   final bool reminderEnabled;
   final String trackingType;
@@ -517,7 +516,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
       required this.userId,
       required this.name,
       required this.categoryId,
-      required this.startDate,
+      required this.date,
       this.habitSeriesId,
       required this.reminderEnabled,
       required this.trackingType,
@@ -532,7 +531,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
     map['user_id'] = Variable<String>(userId);
     map['name'] = Variable<String>(name);
     map['category_id'] = Variable<String>(categoryId);
-    map['start_date'] = Variable<DateTime>(startDate);
+    map['date'] = Variable<DateTime>(date);
     if (!nullToAbsent || habitSeriesId != null) {
       map['habit_series_id'] = Variable<String>(habitSeriesId);
     }
@@ -559,7 +558,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
       userId: Value(userId),
       name: Value(name),
       categoryId: Value(categoryId),
-      startDate: Value(startDate),
+      date: Value(date),
       habitSeriesId: habitSeriesId == null && nullToAbsent
           ? const Value.absent()
           : Value(habitSeriesId),
@@ -586,7 +585,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
       userId: serializer.fromJson<String>(json['userId']),
       name: serializer.fromJson<String>(json['name']),
       categoryId: serializer.fromJson<String>(json['categoryId']),
-      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      date: serializer.fromJson<DateTime>(json['date']),
       habitSeriesId: serializer.fromJson<String?>(json['habitSeriesId']),
       reminderEnabled: serializer.fromJson<bool>(json['reminderEnabled']),
       trackingType: serializer.fromJson<String>(json['trackingType']),
@@ -604,7 +603,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
       'userId': serializer.toJson<String>(userId),
       'name': serializer.toJson<String>(name),
       'categoryId': serializer.toJson<String>(categoryId),
-      'startDate': serializer.toJson<DateTime>(startDate),
+      'date': serializer.toJson<DateTime>(date),
       'habitSeriesId': serializer.toJson<String?>(habitSeriesId),
       'reminderEnabled': serializer.toJson<bool>(reminderEnabled),
       'trackingType': serializer.toJson<String>(trackingType),
@@ -620,7 +619,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
           String? userId,
           String? name,
           String? categoryId,
-          DateTime? startDate,
+          DateTime? date,
           Value<String?> habitSeriesId = const Value.absent(),
           bool? reminderEnabled,
           String? trackingType,
@@ -633,7 +632,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
         userId: userId ?? this.userId,
         name: name ?? this.name,
         categoryId: categoryId ?? this.categoryId,
-        startDate: startDate ?? this.startDate,
+        date: date ?? this.date,
         habitSeriesId:
             habitSeriesId.present ? habitSeriesId.value : this.habitSeriesId,
         reminderEnabled: reminderEnabled ?? this.reminderEnabled,
@@ -651,7 +650,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
       name: data.name.present ? data.name.value : this.name,
       categoryId:
           data.categoryId.present ? data.categoryId.value : this.categoryId,
-      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      date: data.date.present ? data.date.value : this.date,
       habitSeriesId: data.habitSeriesId.present
           ? data.habitSeriesId.value
           : this.habitSeriesId,
@@ -679,7 +678,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
           ..write('userId: $userId, ')
           ..write('name: $name, ')
           ..write('categoryId: $categoryId, ')
-          ..write('startDate: $startDate, ')
+          ..write('date: $date, ')
           ..write('habitSeriesId: $habitSeriesId, ')
           ..write('reminderEnabled: $reminderEnabled, ')
           ..write('trackingType: $trackingType, ')
@@ -697,7 +696,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
       userId,
       name,
       categoryId,
-      startDate,
+      date,
       habitSeriesId,
       reminderEnabled,
       trackingType,
@@ -713,7 +712,7 @@ class HabitsTableData extends DataClass implements Insertable<HabitsTableData> {
           other.userId == this.userId &&
           other.name == this.name &&
           other.categoryId == this.categoryId &&
-          other.startDate == this.startDate &&
+          other.date == this.date &&
           other.habitSeriesId == this.habitSeriesId &&
           other.reminderEnabled == this.reminderEnabled &&
           other.trackingType == this.trackingType &&
@@ -728,7 +727,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
   final Value<String> userId;
   final Value<String> name;
   final Value<String> categoryId;
-  final Value<DateTime> startDate;
+  final Value<DateTime> date;
   final Value<String?> habitSeriesId;
   final Value<bool> reminderEnabled;
   final Value<String> trackingType;
@@ -742,7 +741,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
     this.userId = const Value.absent(),
     this.name = const Value.absent(),
     this.categoryId = const Value.absent(),
-    this.startDate = const Value.absent(),
+    this.date = const Value.absent(),
     this.habitSeriesId = const Value.absent(),
     this.reminderEnabled = const Value.absent(),
     this.trackingType = const Value.absent(),
@@ -757,7 +756,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
     required String userId,
     required String name,
     required String categoryId,
-    required DateTime startDate,
+    required DateTime date,
     this.habitSeriesId = const Value.absent(),
     this.reminderEnabled = const Value.absent(),
     required String trackingType,
@@ -770,14 +769,14 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
         userId = Value(userId),
         name = Value(name),
         categoryId = Value(categoryId),
-        startDate = Value(startDate),
+        date = Value(date),
         trackingType = Value(trackingType);
   static Insertable<HabitsTableData> custom({
     Expression<String>? id,
     Expression<String>? userId,
     Expression<String>? name,
     Expression<String>? categoryId,
-    Expression<DateTime>? startDate,
+    Expression<DateTime>? date,
     Expression<String>? habitSeriesId,
     Expression<bool>? reminderEnabled,
     Expression<String>? trackingType,
@@ -792,7 +791,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
       if (userId != null) 'user_id': userId,
       if (name != null) 'name': name,
       if (categoryId != null) 'category_id': categoryId,
-      if (startDate != null) 'start_date': startDate,
+      if (date != null) 'date': date,
       if (habitSeriesId != null) 'habit_series_id': habitSeriesId,
       if (reminderEnabled != null) 'reminder_enabled': reminderEnabled,
       if (trackingType != null) 'tracking_type': trackingType,
@@ -809,7 +808,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
       Value<String>? userId,
       Value<String>? name,
       Value<String>? categoryId,
-      Value<DateTime>? startDate,
+      Value<DateTime>? date,
       Value<String?>? habitSeriesId,
       Value<bool>? reminderEnabled,
       Value<String>? trackingType,
@@ -823,7 +822,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
       userId: userId ?? this.userId,
       name: name ?? this.name,
       categoryId: categoryId ?? this.categoryId,
-      startDate: startDate ?? this.startDate,
+      date: date ?? this.date,
       habitSeriesId: habitSeriesId ?? this.habitSeriesId,
       reminderEnabled: reminderEnabled ?? this.reminderEnabled,
       trackingType: trackingType ?? this.trackingType,
@@ -850,8 +849,8 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
     if (categoryId.present) {
       map['category_id'] = Variable<String>(categoryId.value);
     }
-    if (startDate.present) {
-      map['start_date'] = Variable<DateTime>(startDate.value);
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
     }
     if (habitSeriesId.present) {
       map['habit_series_id'] = Variable<String>(habitSeriesId.value);
@@ -887,7 +886,7 @@ class HabitsTableCompanion extends UpdateCompanion<HabitsTableData> {
           ..write('userId: $userId, ')
           ..write('name: $name, ')
           ..write('categoryId: $categoryId, ')
-          ..write('startDate: $startDate, ')
+          ..write('date: $date, ')
           ..write('habitSeriesId: $habitSeriesId, ')
           ..write('reminderEnabled: $reminderEnabled, ')
           ..write('trackingType: $trackingType, ')
@@ -1996,7 +1995,7 @@ typedef $$HabitsTableTableCreateCompanionBuilder = HabitsTableCompanion
   required String userId,
   required String name,
   required String categoryId,
-  required DateTime startDate,
+  required DateTime date,
   Value<String?> habitSeriesId,
   Value<bool> reminderEnabled,
   required String trackingType,
@@ -2012,7 +2011,7 @@ typedef $$HabitsTableTableUpdateCompanionBuilder = HabitsTableCompanion
   Value<String> userId,
   Value<String> name,
   Value<String> categoryId,
-  Value<DateTime> startDate,
+  Value<DateTime> date,
   Value<String?> habitSeriesId,
   Value<bool> reminderEnabled,
   Value<String> trackingType,
@@ -2062,8 +2061,8 @@ class $$HabitsTableTableFilterComposer
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get startDate => $composableBuilder(
-      column: $table.startDate, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get habitSeriesId => $composableBuilder(
       column: $table.habitSeriesId, builder: (column) => ColumnFilters(column));
@@ -2126,8 +2125,8 @@ class $$HabitsTableTableOrderingComposer
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get startDate => $composableBuilder(
-      column: $table.startDate, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get habitSeriesId => $composableBuilder(
       column: $table.habitSeriesId,
@@ -2194,8 +2193,8 @@ class $$HabitsTableTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get startDate =>
-      $composableBuilder(column: $table.startDate, builder: (column) => column);
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
 
   GeneratedColumn<String> get habitSeriesId => $composableBuilder(
       column: $table.habitSeriesId, builder: (column) => column);
@@ -2267,7 +2266,7 @@ class $$HabitsTableTableTableManager extends RootTableManager<
             Value<String> userId = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String> categoryId = const Value.absent(),
-            Value<DateTime> startDate = const Value.absent(),
+            Value<DateTime> date = const Value.absent(),
             Value<String?> habitSeriesId = const Value.absent(),
             Value<bool> reminderEnabled = const Value.absent(),
             Value<String> trackingType = const Value.absent(),
@@ -2282,7 +2281,7 @@ class $$HabitsTableTableTableManager extends RootTableManager<
             userId: userId,
             name: name,
             categoryId: categoryId,
-            startDate: startDate,
+            date: date,
             habitSeriesId: habitSeriesId,
             reminderEnabled: reminderEnabled,
             trackingType: trackingType,
@@ -2297,7 +2296,7 @@ class $$HabitsTableTableTableManager extends RootTableManager<
             required String userId,
             required String name,
             required String categoryId,
-            required DateTime startDate,
+            required DateTime date,
             Value<String?> habitSeriesId = const Value.absent(),
             Value<bool> reminderEnabled = const Value.absent(),
             required String trackingType,
@@ -2312,7 +2311,7 @@ class $$HabitsTableTableTableManager extends RootTableManager<
             userId: userId,
             name: name,
             categoryId: categoryId,
-            startDate: startDate,
+            date: date,
             habitSeriesId: habitSeriesId,
             reminderEnabled: reminderEnabled,
             trackingType: trackingType,

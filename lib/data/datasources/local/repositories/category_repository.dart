@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../datasources/local/dao/category_dao.dart';
-import '../datasources/local/database_provider.dart';
-import '../domain/models/habit_category.dart';
+import '../dao/category_dao.dart';
+import '../database_provider.dart';
+import '../../../domain/models/category.dart';
 
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
   final categoryDao = ref.read(appDatabaseProvider).categoryDao;
@@ -20,11 +20,11 @@ class CategoryRepository {
   }
 
   /// Gets all categories
-  Future<List<HabitCategory>> getAllCategories() async {
+  Future<List<Category>> getAllCategories() async {
     final categoriesData = await _categoryDao.getAllCategories();
 
     return categoriesData
-        .map((data) => HabitCategory.fromJson({
+        .map((data) => Category.fromJson({
               'id': data.id,
               'name': data.name,
               'iconPath': data.iconPath,
@@ -34,12 +34,12 @@ class CategoryRepository {
   }
 
   /// Gets a category by its ID
-  Future<HabitCategory?> getCategory(String id) async {
+  Future<Category?> getCategory(String id) async {
     final categoryData = await _categoryDao.getCategory(id);
 
     if (categoryData == null) return null;
 
-    return HabitCategory.fromJson({
+    return Category.fromJson({
       'id': categoryData.id,
       'name': categoryData.name,
       'iconPath': categoryData.iconPath,

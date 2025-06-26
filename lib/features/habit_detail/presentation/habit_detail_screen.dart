@@ -6,7 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
-import '../../../data/domain/models/habit_category.dart';
+import '../../../data/domain/models/category.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../shared/widgets/scope_dialog.dart';
 import '../controllers/habit_detail_controller.dart';
@@ -108,10 +108,10 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                   if (category == null) return;
                   if (category is String && category == "clear") {
                     _analyticsService.trackCategoryCleared(habitCategory?.name);
-                    controller.updateHabitCategory(null);
-                  } else if (category is HabitCategory) {
+                    controller.updateCategory(null);
+                  } else if (category is Category) {
                     _analyticsService.trackCategorySelected(category.name);
-                    controller.updateHabitCategory(category);
+                    controller.updateCategory(category);
                   }
                 },
                 child: InputDecorator(

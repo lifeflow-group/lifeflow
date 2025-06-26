@@ -53,7 +53,7 @@ class HabitItem extends ConsumerWidget {
         title: Text(habit.name),
         subtitle: Text(
           habit.trackingType == TrackingType.complete
-              ? DateFormat('HH:mm').format(habit.startDate.toLocal())
+              ? DateFormat('HH:mm').format(habit.date.toLocal())
               : '${habit.currentValue ?? 0}/${habit.targetValue} ${habit.unit}',
         ),
         contentPadding: const EdgeInsets.only(left: 14, right: 12.0),

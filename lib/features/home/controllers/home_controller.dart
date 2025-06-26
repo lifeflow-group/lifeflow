@@ -2,40 +2,12 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/providers/filter_providers.dart';
 import '../../../data/domain/models/habit.dart';
-import '../../../data/domain/models/habit_category.dart';
+import '../../../data/domain/models/category.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../data/services/user_service.dart';
 import '../repositories/home_repository.dart';
-
-final selectedDateProvider =
-    StateNotifierProvider<SelectedDateNotifier, DateTime>(
-        (ref) => SelectedDateNotifier());
-
-class SelectedDateNotifier extends StateNotifier<DateTime> {
-  SelectedDateNotifier([DateTime? initialDate])
-      : super(initialDate ?? DateTime.now());
-
-  void updateSelectedDate(DateTime newDate) {
-    state = newDate;
-  }
-}
-
-final selectedCategoryProvider =
-    StateNotifierProvider<SelectedCategoryNotifier, HabitCategory?>(
-        (ref) => SelectedCategoryNotifier());
-
-class SelectedCategoryNotifier extends StateNotifier<HabitCategory?> {
-  SelectedCategoryNotifier() : super(null);
-
-  void updateSelectedCategory(HabitCategory? category) {
-    state = category;
-  }
-
-  void clearCategory() {
-    state = null;
-  }
-}
 
 final homeControllerProvider =
     AsyncNotifierProvider.autoDispose<HomeController, List<Habit>>(
@@ -55,7 +27,7 @@ class HomeController extends AutoDisposeAsyncNotifier<List<Habit>> {
       ref.invalidateSelf(); // Re-fetch when selected date changes
     });
 
-    ref.listen<HabitCategory?>(selectedCategoryProvider, (previous, next) {
+    ref.listen<Category?>(selectedCategoryProvider, (previous, next) {
       if (previous != next) {
         _analyticsService.trackHomeCategoryChanged(previous?.name, next?.name);
       }
@@ -104,7 +76,7 @@ class HomeController extends AutoDisposeAsyncNotifier<List<Habit>> {
     }
   }
 
-  void filterByCategory(HabitCategory category) {
+  void filterByCategory(Category category) {
     _analyticsService.trackHomeCategoryFilterApplied(category.name);
 
     ref

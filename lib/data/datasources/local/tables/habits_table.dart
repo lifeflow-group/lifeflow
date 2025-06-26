@@ -12,7 +12,7 @@ class HabitsTable extends Table {
   // Only store categoryId, FK to HabitCategories.id
   TextColumn get categoryId => text().references(HabitCategoriesTable, #id)();
 
-  DateTimeColumn get startDate => dateTime()();
+  DateTimeColumn get date => dateTime()();
 
   TextColumn get habitSeriesId => text().nullable()();
 

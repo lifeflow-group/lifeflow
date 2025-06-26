@@ -58,6 +58,7 @@ dependencies:
   firebase_analytics: ^11.4.6
   web: ^1.1.1
   confetti: ^0.8.0
+  connectivity_plus: ^6.1.4
 
 dev_dependencies:
   flutter_test:
@@ -98,6 +99,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/plans/
     - assets/icons/
     - assets/logos/
     - assets/terms/

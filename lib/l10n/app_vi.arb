@@ -108,7 +108,8 @@
   "noHabitDataMonth": "Không có dữ liệu thói quen nào cho tháng này",
   "suggestionTitle": "Gợi ý tối ưu hóa",
   "noSuggestionsAvailable": "Hiện tại không có gợi ý nào. Vui lòng quay lại sau để xem các ý tưởng tối ưu hóa!",
-  "suggestionError": "Lỗi: {error}",
+  "aiRecommendationsFailedMessage": "Không thể tải đề xuất AI",
+  "tryAgainLaterMessage": "Chúng tôi đang gặp sự cố khi kết nối với hệ thống đề xuất. Vui lòng thử lại sau hoặc khám phá các gói có sẵn.",
   "suggestionLoadingTitle": "Xem gợi ý nào",
   "suggestionLoadingDescription": "Gợi ý thói quen được tối ưu hóa của bạn được thiết kế riêng cho bạn và trải rộng nhiều danh mục như Sức khỏe, Năng suất, Chánh niệm, Học tập và hơn thế nữa.",
   "filterAll": "Tất cả",
@@ -153,5 +154,16 @@
   "backToSuggestionsButton": "Trở lại gợi ý",
   "goToHomeButton": "Về Trang chủ",
   "viewDetailsButton": "Xem chi tiết",
-  "appliedHabitsSummaryTitle": "Thói quen đã áp dụng"
+  "appliedHabitsSummaryTitle": "Thói quen đã áp dụng",
+  "aiPicksTab": "Lựa chọn của AI",
+  "habitPlansTab": "Kế hoạch hình thành thói quen",
+  "exploreHabitPlans": "Duyệt Kế hoạch hình thành thói quen",
+  "habitPlansError": "Lỗi khi tải kế hoạch hình thành thói quen: {error}",
+  "aboutThisPlan": "Về kế hoạch này",
+  "includedHabits": "Các thói quen được bao gồm",
+  "habitsSelectedText": "{count, plural, =0{Chưa chọn thói quen nào} =1{Đã chọn 1 thói quen} other{Đã chọn {count} thói quen}}",
+  "noInternetConnection": "Không có kết nối internet",
+  "noInternetConnectionDescription": "Vui lòng kiểm tra kết nối internet của bạn và thử lại. Một số tính năng có thể không khả dụng khi ngoại tuyến.",
+  "retry": "Thử lại",
+  "viewOfflineContent": "Xem nội dung khả dụng"
 }

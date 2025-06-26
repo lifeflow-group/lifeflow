@@ -1,0 +1,35 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "LifeFlow (Development)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define=API_BASE_URL=https://lfl-backend.onrender.com",
+                "--dart-define=DEVELOPMENT=true",
+                "--dart-define=DEBUG_MODE=true"
+            ]
+        },
+        {
+            "name": "LifeFlow (Staging)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define=API_BASE_URL=https://lfl-staging.onrender.com",
+                "--dart-define=DEVELOPMENT=false",
+                "--dart-define=DEBUG_MODE=true"
+            ]
+        },
+        {
+            "name": "LifeFlow (Production)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define=API_BASE_URL=https://api.lifeflow.app/v1",
+                "--dart-define=PRODUCTION=true",
+                "--dart-define=DEBUG_MODE=false"
+            ]
+        }
+    ]
+}

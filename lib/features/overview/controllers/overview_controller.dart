@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
-import '../../../data/domain/models/habit_category.dart';
+import '../../../data/domain/models/category.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../data/services/user_service.dart';
 import '../../../features/settings/controllers/settings_controller.dart';
@@ -37,7 +37,7 @@ class SelectedMonthNotifier extends StateNotifier<DateTime> {
 
 // CategoryStats class to represent category distribution
 class CategoryStats {
-  final HabitCategory category;
+  final Category category;
   final int habitCount;
   final double percentage;
 
@@ -123,7 +123,7 @@ class OverviewController extends AutoDisposeAsyncNotifier<OverviewStats> {
 
       // Count habits by category
       final categoryCountMap = <String, int>{};
-      final categoryDetailsMap = <String, HabitCategory>{};
+      final categoryDetailsMap = <String, Category>{};
 
       for (var habit in monthHabits) {
         // Count by tracking type

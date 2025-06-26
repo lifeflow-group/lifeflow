@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/utils/logger.dart';
 import 'shared_preferences_service.dart';
 
 // This provider is used to access the UserService instance throughout the app.
@@ -13,6 +13,7 @@ final userServiceProvider = Provider((ref) {
 class UserService {
   static const _userIdKey = 'user_id';
   final SharedPreferencesService _prefsService;
+  final AppLogger _logger = AppLogger('UserService');
 
   UserService(this._prefsService);
 
@@ -24,7 +25,7 @@ class UserService {
   Future<String> loginAsGuest() async {
     final userId = "user_${const Uuid().v4()}";
     await _prefsService.setString(_userIdKey, userId);
-    debugPrint("New Guest User ID created: $userId");
+    _logger.info("New Guest User ID created: $userId");
     return userId;
   }
 

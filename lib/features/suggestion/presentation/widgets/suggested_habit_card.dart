@@ -4,10 +4,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:lifeflow/core/utils/helpers.dart';
 
 import '../../../../data/domain/models/habit.dart';
-import '../../../../data/domain/models/habit_analysis_input.dart';
 
 class SuggestedHabitCard extends StatelessWidget {
-  final HabitData habit;
+  final Habit habit;
 
   const SuggestedHabitCard({super.key, required this.habit});
 
@@ -46,8 +45,7 @@ class SuggestedHabitCard extends StatelessWidget {
                       SizedBox(height: 4.0),
                       Text(
                         habit.trackingType == TrackingType.complete
-                            ? DateFormat('HH:mm')
-                                .format(habit.startDate.toLocal())
+                            ? DateFormat('HH:mm').format(habit.date.toLocal())
                             : '${habit.targetValue} ${habit.unit}',
                         style: Theme.of(context)
                             .textTheme
@@ -94,10 +92,11 @@ class SuggestedHabitCard extends StatelessWidget {
   }
 
   // Function to build subtitle text dynamically
-  String _buildSubtitle(BuildContext context, HabitData habit) {
+  String _buildSubtitle(BuildContext context, Habit habit) {
     final l10n = AppLocalizations.of(context)!;
 
-    String frequency = getRepeatFrequencyLabel(context, habit.repeatFrequency);
+    String frequency =
+        getRepeatFrequencyLabel(context, habit.series?.repeatFrequency);
 
     String repeatText = l10n.repeatsEvery(frequency);
     String reminderText =

@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
-import '../../../data/domain/models/habit_category.dart';
+import '../../../data/domain/models/category.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../data/services/user_service.dart';
 import '../../../features/settings/controllers/settings_controller.dart';
@@ -46,7 +46,7 @@ final categoryHabitAnalyticsControllerProvider =
     StateNotifierProvider.autoDispose.family<
         CategoryHabitAnalyticsController, // StateNotifier type
         CategoryHabitAnalyticsState, // State type
-        ({HabitCategory category, DateTime initialMonth}) // Parameter type
+        ({Category category, DateTime initialMonth}) // Parameter type
         >((ref, params) {
   final repository = ref.watch(overviewRepositoryProvider);
   final userService = ref.watch(userServiceProvider);
@@ -65,7 +65,7 @@ final categoryHabitAnalyticsControllerProvider =
 class CategoryHabitAnalyticsController
     extends StateNotifier<CategoryHabitAnalyticsState> {
   final OverviewRepository _repository;
-  final HabitCategory _category;
+  final Category _category;
   final UserService _userService;
   final AnalyticsService _analyticsService;
   final Ref _ref;
@@ -122,7 +122,7 @@ class CategoryHabitAnalyticsController
           .getHabitsForMonthAndCategory(month, _category.id, userId);
 
       // Apply current filter
-      categoryHabits.sort((a, b) => a.startDate.compareTo(b.startDate));
+      categoryHabits.sort((a, b) => a.date.compareTo(b.date));
 
       // Calculate completion rate for analytics
       double completionRate = _calculateCompletionRate(categoryHabits);
@@ -269,7 +269,7 @@ class CategoryHabitAnalyticsController
     final Map<String, List<Habit>> habitsByGroup = {};
     for (var habit in state.habits) {
       // Create a composite key from name and habitSeriesId
-      final groupKey = '${habit.name}_${habit.habitSeriesId}';
+      final groupKey = '${habit.name}_${habit.series?.id}';
 
       if (!habitsByGroup.containsKey(groupKey)) {
         habitsByGroup[groupKey] = [];
@@ -312,7 +312,7 @@ class CategoryHabitAnalyticsController
     final Map<String, List<Habit>> habitsByGroup = {};
     for (var habit in state.habits) {
       // Create a composite key from name and habitSeriesId
-      final groupKey = '${habit.name}_${habit.habitSeriesId}';
+      final groupKey = '${habit.name}_${habit.series?.id}';
 
       if (!habitsByGroup.containsKey(groupKey)) {
         habitsByGroup[groupKey] = [];

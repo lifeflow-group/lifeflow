@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../datasources/local/app_database.dart';
-import '../datasources/local/database_provider.dart';
+import '../app_database.dart';
+import '../database_provider.dart';
 import 'category_repository.dart';
 import 'habit_exception_repository.dart';
 import 'habit_repository.dart';

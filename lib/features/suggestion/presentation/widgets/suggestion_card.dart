@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:lifeflow/features/suggestion/presentation/widgets/suggested_habit_card.dart';
-import 'package:lifeflow/features/suggestion/controllers/suggestion_controller.dart';
 
-import '../../../../core/utils/helpers.dart';
+import '../../../../data/domain/models/habit.dart';
 import '../../../../data/domain/models/suggestion.dart';
-import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../../data/services/user_service.dart';
-import '../../../../shared/actions/habit_actions.dart';
 import '../../../habit_detail/controllers/habit_detail_controller.dart';
 
 class SuggestionCard extends ConsumerWidget {
@@ -18,11 +14,13 @@ class SuggestionCard extends ConsumerWidget {
     required this.suggestion,
     required this.isSelected,
     required this.onToggleSelection,
+    this.onHabitTap,
   });
 
   final Suggestion suggestion;
   final bool isSelected;
   final VoidCallback onToggleSelection;
+  final void Function(Habit habit)? onHabitTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,11 +69,11 @@ class SuggestionCard extends ConsumerWidget {
               ],
             ),
             SizedBox(height: 4.0),
-            if (suggestion.habitData != null)
+            if (suggestion.habit != null)
               InkWell(
                   onTap: () =>
                       handleTapSuggestionHabit(ref, suggestion, context),
-                  child: SuggestedHabitCard(habit: suggestion.habitData!)),
+                  child: SuggestedHabitCard(habit: suggestion.habit!)),
             SizedBox(height: 4.0),
             Text(
               suggestion.description,
@@ -90,52 +88,20 @@ class SuggestionCard extends ConsumerWidget {
 
   Future<void> handleTapSuggestionHabit(
       WidgetRef ref, Suggestion suggestion, BuildContext context) async {
-    final analyticsService = ref.read(analyticsServiceProvider);
-    final l10n = AppLocalizations.of(context)!;
-
-    // Track suggestion habit tap
-    analyticsService.trackSuggestionCardTapped(int.tryParse(suggestion.id) ?? 0,
-        suggestion.title, suggestion.habitData?.category.name ?? 'unknown');
-
     final userId = await ref.read(userServiceProvider).getCurrentUserId();
-    if (suggestion.habitData == null || userId == null) {
+    if (suggestion.habit == null || userId == null) {
       return;
     }
-
-    final habit = habitDataToHabit(suggestion.habitData!, userId);
 
     if (!context.mounted) return;
 
     // Navigate to habit detail screen and await the result
-    final result = await context.pushNamed('habit-detail', extra: habit);
+    final result =
+        await context.pushNamed('habit-detail', extra: suggestion.habit);
 
     // If no result or invalid type, return early
     if (result == null || result is! HabitFormResult) return;
 
-    // Get the current suggestion controller and state
-    final suggestionController =
-        ref.read(suggestionControllerProvider.notifier);
-    final suggestions =
-        ref.read(suggestionControllerProvider).value?.suggestions ?? [];
-
-    // Find and update the modified suggestion
-    final updatedSuggestions = suggestions.map((s) {
-      // If this is the suggestion we modified
-      if (s.id == suggestion.id && s.habitData != null) {
-        // Create updated habitData from the returned habit
-        final updatedHabitData = habitToHabitData(result.newHabit);
-
-        // Return an updated suggestion with the new habit data
-        return s.rebuild((b) => b..habitData = updatedHabitData.toBuilder());
-      }
-      // Return unchanged suggestions
-      return s;
-    }).toList();
-
-    // Update the state with the modified suggestions
-    suggestionController.updateSuggestions(updatedSuggestions);
-
-    // Show a snackbar confirming the update
-    showSnackbar(l10n.habitAdded);
+    onHabitTap?.call(result.newHabit);
   }
 }

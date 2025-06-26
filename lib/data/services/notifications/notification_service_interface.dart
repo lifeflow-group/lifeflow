@@ -1,6 +1,5 @@
 import '../../datasources/local/app_database.dart';
 import '../../domain/models/habit.dart';
-import '../../domain/models/habit_series.dart';
 import '../../domain/models/scheduled_notification.dart';
 
 abstract class NotificationServiceInterface {
@@ -12,7 +11,7 @@ abstract class NotificationServiceInterface {
       int id, String title, String body, DateTime dateTime,
       {String? payload});
 
-  Future<void> scheduleRecurringReminders(Habit habit, HabitSeries? habitSeries,
+  Future<void> scheduleRecurringReminders(Habit habit,
       {Set<DateTime>? excludedDatesUtc});
 
   Future<void> cancelNotification(int id);

@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lifeflow/core/utils/helpers.dart';
 import 'package:lifeflow/data/datasources/local/app_database.dart';
 import 'package:lifeflow/data/datasources/local/dao/habit_dao.dart';
 import 'package:lifeflow/data/datasources/local/dao/habit_series_dao.dart';
 import 'package:lifeflow/data/domain/models/habit.dart';
-import 'package:lifeflow/data/domain/models/habit_category.dart';
+import 'package:lifeflow/data/domain/models/category.dart';
+import 'package:lifeflow/data/factories/model_factories.dart';
 import 'package:lifeflow/data/services/notifications/mobile_notification_service.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -226,24 +226,15 @@ void main() {
     final habit = newHabit(
       id: habitId,
       userId: 'user-1',
-      habitSeriesId: habitSeriesId,
       name: 'Drink Water',
-      startDate: startDate,
+      date: startDate,
+      repeatFrequency: RepeatFrequency.daily,
       reminderEnabled: true,
-      category: HabitCategory((p0) => p0
+      category: Category((p0) => p0
         ..id = 'category-1'
         ..name = 'Health'
         ..iconPath = 'assets/icons/health.png'
         ..colorHex = '#FF5733'),
-    );
-
-    final habitSeries = newHabitSeries(
-      id: habitSeriesId,
-      userId: 'user-1',
-      habitId: habitId,
-      startDate: startDate,
-      repeatFrequency: RepeatFrequency.daily,
-      untilDate: startDate.add(Duration(days: 9)),
     );
 
     final excludedDatesUtc = {
@@ -278,7 +269,7 @@ void main() {
           androidScheduleMode: any(named: 'androidScheduleMode'),
         )).thenAnswer((_) async => {});
 
-    await service.scheduleRecurringReminders(habit, habitSeries,
+    await service.scheduleRecurringReminders(habit,
         excludedDatesUtc: excludedDatesUtc);
 
     // Verify that scheduleNotification is called exactly 8 times
@@ -309,7 +300,7 @@ void main() {
         userId: userId,
         habitSeriesId: seriesId,
         name: 'Morning Run',
-        startDate: startDate,
+        date: startDate,
         reminderEnabled: true,
         categoryId: 'category-1',
         trackingType: 'complete');

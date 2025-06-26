@@ -5,7 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../overview/presentation/screens/overview_screen.dart';
 import '../../settings/presentation/settings_screen.dart';
-import '../../suggestion/presentation/suggestion_screen.dart';
+import '../../suggestion/presentation/screens/suggestion_screen.dart';
 import '../controllers/main_controller.dart';
 
 class MainScreen extends ConsumerStatefulWidget {

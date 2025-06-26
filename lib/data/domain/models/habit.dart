@@ -3,7 +3,8 @@ import 'package:built_value/serializer.dart';
 import 'package:built_collection/built_collection.dart';
 
 import '../serializers.dart';
-import 'habit_category.dart';
+import 'category.dart';
+import 'habit_series.dart';
 
 part 'habit.g.dart';
 
@@ -55,7 +56,7 @@ class TrackingType extends EnumClass {
 abstract class Habit implements Built<Habit, HabitBuilder> {
   @BuiltValueHook(initializeBuilder: true)
   static void _setDefaults(HabitBuilder b) => b
-    ..startDate = DateTime.now().toUtc()
+    ..date = DateTime.now().toUtc()
     ..trackingType = TrackingType.complete;
 
   String get id;
@@ -64,13 +65,11 @@ abstract class Habit implements Built<Habit, HabitBuilder> {
 
   String get userId;
 
-  HabitCategory get category;
+  Category get category;
 
-  DateTime get startDate; // use time in startDate
+  DateTime get date; // use time in startDate
 
-  String? get habitSeriesId;
-
-  RepeatFrequency? get repeatFrequency;
+  HabitSeries? get series;
 
   bool get reminderEnabled;
 

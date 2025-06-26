@@ -108,7 +108,8 @@
   "noHabitDataMonth": "इस महीने के लिए कोई आदत डेटा उपलब्ध नहीं है",
   "suggestionTitle": "ऑप्टिमाइज़ेशन सुझाव",
   "noSuggestionsAvailable": "इस समय कोई सुझाव उपलब्ध नहीं हैं। अनुकूलन विचारों के लिए बाद में फिर से देखें!",
-  "suggestionError": "त्रुटि: {error}",
+  "aiRecommendationsFailedMessage": "AI अनुशंसाएँ लोड नहीं हो सकीं",
+  "tryAgainLaterMessage": "हमारे सुझाव सिस्टम से कनेक्ट करने में समस्या आ रही है। कृपया बाद में फिर से कोशिश करें या उपलब्ध प्लान देखें।",
   "suggestionLoadingTitle": "आइए सुझाव देखें",
   "suggestionLoadingDescription": "आपके अनुकूलित आदत सुझाव आपके लिए तैयार किए गए हैं और स्वास्थ्य, उत्पादकता, दिमाग़ की शांति, सीखने और बहुत कुछ जैसी श्रेणियों में फैले हुए हैं।",
   "filterAll": "सभी",
@@ -153,5 +154,16 @@
   "backToSuggestionsButton": "सुझावों पर वापस जाएँ",
   "goToHomeButton": "होम पर जाएँ",
   "viewDetailsButton": "विस्तृत जानकारी देखें",
-  "appliedHabitsSummaryTitle": "लागू आदतें"
+  "appliedHabitsSummaryTitle": "लागू आदतें",
+  "aiPicksTab": "AI Picks",
+  "habitPlansTab": "अभ्यस्त योजनाएँ",
+  "exploreHabitPlans": "अभ्यस्त योजनाएँ ब्राउज़ करें",
+  "habitPlansError": "अभ्यस्त योजनाएँ लोड करने में त्रुटि: {error}",
+  "aboutThisPlan": "इस योजना के बारे में",
+  "includedHabits": "शामिल आदतें",
+  "habitsSelectedText": "{count, plural, =0{कोई आदत नहीं चुनी गई} =1{1 आदत चुनी गई} other{{count} आदतें चुनी गईं}}",
+  "noInternetConnection": "इंटरनेट कनेक्शन नहीं है",
+  "noInternetConnectionDescription": "कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें। कुछ सुविधाएँ ऑफ़लाइन उपलब्ध नहीं हो सकती हैं।",
+  "retry": "पुनः प्रयास करें",
+  "viewOfflineContent": "उपलब्ध सामग्री देखें"
 }

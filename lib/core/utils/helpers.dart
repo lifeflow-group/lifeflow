@@ -3,119 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 
-import '../../data/datasources/local/app_database.dart';
 import '../../data/domain/models/app_settings.dart';
 import '../../data/domain/models/habit.dart';
-import '../../data/domain/models/habit_analysis_input.dart';
-import '../../data/domain/models/habit_category.dart';
 import '../../data/domain/models/habit_series.dart';
 import '../constants/app_languages.dart';
-
-String generateNewId(String prefix) => '$prefix-${Uuid().v4()}';
-
-Habit newHabit({
-  String? id,
-  required String userId,
-  required String name,
-  required HabitCategory category,
-  DateTime? startDate,
-  String? habitSeriesId,
-  RepeatFrequency? repeatFrequency,
-  bool reminderEnabled = false,
-  TrackingType trackingType = TrackingType.complete,
-  int? targetValue,
-  String? unit,
-}) {
-  return Habit((b) => b
-    ..id = id ?? generateNewId('habit')
-    ..userId = userId
-    ..name = name
-    ..category = category.toBuilder()
-    ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()
-    ..habitSeriesId = habitSeriesId
-    ..repeatFrequency = repeatFrequency
-    ..reminderEnabled = reminderEnabled
-    ..trackingType = trackingType
-    ..targetValue = targetValue
-    ..unit = unit
-    ..currentValue = 0
-    ..isCompleted = false);
-}
-
-HabitSeries newHabitSeries({
-  String? id,
-  required String userId,
-  required String habitId,
-  DateTime? startDate,
-  DateTime? untilDate,
-  RepeatFrequency? repeatFrequency,
-}) {
-  return HabitSeries((b) => b
-    ..id = id ?? generateNewId('series')
-    ..userId = userId
-    ..habitId = habitId
-    ..startDate = startDate?.toUtc() ?? DateTime.now().toUtc()
-    ..untilDate = untilDate?.toUtc()
-    ..repeatFrequency = repeatFrequency);
-}
-
-HabitCategory? getHabitCategoryById(String id) {
-  try {
-    return defaultCategories.firstWhere((category) => category.id == id);
-  } catch (e) {
-    return null;
-  }
-}
-
-final List<HabitCategory> defaultCategories = [
-  HabitCategory((b) => b
-    ..id = "health"
-    ..name = "Health"
-    ..iconPath = "assets/icons/health.png"
-    ..colorHex = "#FF5733"), // Reddish orange
-  HabitCategory((b) => b
-    ..id = "work"
-    ..name = "Work"
-    ..iconPath = "assets/icons/work.png"
-    ..colorHex = "#3498DB"), // Blue
-  HabitCategory((b) => b
-    ..id = "personal_growth"
-    ..name = "Personal Growth"
-    ..iconPath = "assets/icons/personal_growth.png"
-    ..colorHex = "#9B59B6"), // Purple
-  HabitCategory((b) => b
-    ..id = "hobby"
-    ..name = "Hobby"
-    ..iconPath = "assets/icons/hobby.png"
-    ..colorHex = "#F1C40F"), // Yellow
-  HabitCategory((b) => b
-    ..id = "fitness"
-    ..name = "Fitness"
-    ..iconPath = "assets/icons/fitness.png"
-    ..colorHex = "#2ECC71"), // Green
-  HabitCategory((b) => b
-    ..id = "education"
-    ..name = "Education"
-    ..iconPath = "assets/icons/education.png"
-    ..colorHex = "#E67E22"), // Orange
-  HabitCategory((b) => b
-    ..id = "finance"
-    ..name = "Finance"
-    ..iconPath = "assets/icons/finance.png"
-    ..colorHex = "#27AE60"), // Dark Green
-  HabitCategory((b) => b
-    ..id = "social"
-    ..name = "Social"
-    ..iconPath = "assets/icons/social.png"
-    ..colorHex = "#E74C3C"), // Red
-  HabitCategory((b) => b
-    ..id = "spiritual"
-    ..name = "Spiritual"
-    ..iconPath = "assets/icons/spiritual.png"
-    ..colorHex = "#8E44AD"), // Dark Purple
-];
 
 Color hexToColor(String hexString) {
   final buffer = StringBuffer();
@@ -202,18 +94,6 @@ int generateNotificationId(DateTime dateTime,
   return rawId % 2147483647; // Ensure 32-bit signed int
 }
 
-// Override habit from exception (if there is an override)
-HabitsTableData applyExceptionOverride(
-    HabitsTableData habit, HabitExceptionsTableData exception) {
-  return habit.copyWith(
-    id: exception.id,
-    reminderEnabled: exception.reminderEnabled,
-    targetValue: Value(exception.targetValue ?? habit.targetValue),
-    currentValue: Value(exception.currentValue ?? habit.currentValue),
-    isCompleted: Value(exception.isCompleted ?? habit.isCompleted),
-  );
-}
-
 // Helper function to format dates according to user's language preference
 String formatDateWithUserLanguage(
     AsyncValue<AppSettings> settingsState, DateTime date, String pattern) {
@@ -229,33 +109,4 @@ String formatDateWithUserLanguage(
   return dateString.isNotEmpty
       ? dateString[0].toUpperCase() + dateString.substring(1)
       : dateString;
-}
-
-Habit habitDataToHabit(HabitData habitData, String userId) {
-  return Habit((b) => b
-    ..id = habitData.id
-    ..name = habitData.name
-    ..userId = userId
-    ..category = habitData.category.toBuilder()
-    ..startDate = habitData.startDate
-    ..repeatFrequency = habitData.repeatFrequency
-    ..reminderEnabled = habitData.reminderEnabled
-    ..trackingType = habitData.trackingType
-    ..targetValue = habitData.targetValue
-    ..currentValue = 0
-    ..unit = habitData.unit
-    ..isCompleted = false);
-}
-
-HabitData habitToHabitData(Habit result) {
-  return HabitData((b) => b
-    ..id = result.id
-    ..name = result.name
-    ..category = result.category.toBuilder()
-    ..trackingType = result.trackingType
-    ..targetValue = result.targetValue
-    ..unit = result.unit
-    ..reminderEnabled = result.reminderEnabled
-    ..repeatFrequency = result.repeatFrequency
-    ..startDate = result.startDate);
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart' show DateTimeRange;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../datasources/local/app_database.dart';
-import '../datasources/local/dao/habit_series_dao.dart';
-import '../datasources/local/database_provider.dart';
-import '../domain/models/habit_series.dart';
+import '../app_database.dart';
+import '../dao/habit_series_dao.dart';
+import '../database_provider.dart';
+import '../../../domain/models/habit_series.dart';
 
 final habitSeriesRepositoryProvider = Provider<HabitSeriesRepository>((ref) {
   final dao = ref.read(appDatabaseProvider).habitSeriesDao;

@@ -1,36 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/datasources/remote/api_service.dart';
-import '../../../data/domain/models/habit_analysis_input.dart';
-import '../../../data/domain/models/suggestion.dart';
-import '../../../data/repositories/habit_exception_repository.dart';
-import '../../../data/repositories/habit_repository.dart';
-import '../../../data/repositories/habit_series_repository.dart';
-import '../../../data/repositories/repositories.dart';
+import '../../../data/datasources/remote/repositories/remote_suggestion_repository.dart';
+import '../../../data/datasources/local/repositories/habit_exception_repository.dart';
+import '../../../data/datasources/local/repositories/habit_repository.dart';
+import '../../../data/datasources/local/repositories/habit_series_repository.dart';
+import '../../../data/datasources/local/repositories/repositories.dart';
 
 final suggestionRepositoryProvider = Provider((ref) {
-  final apiService = ref.read(apiServiceProvider);
+  final remoteSuggestion = ref.read(remoteSuggestionRepositoryProvider);
   final repositories = ref.read(repositoriesProvider);
   return SuggestionRepository(
-      apiService: apiService, repositories: repositories);
+      remoteSuggestion: remoteSuggestion, repositories: repositories);
 });
 
 class SuggestionRepository {
-  SuggestionRepository({required this.apiService, required this.repositories});
+  SuggestionRepository(
+      {required this.remoteSuggestion, required this.repositories});
 
-  final ApiService apiService;
+  final RemoteSuggestionRepository remoteSuggestion;
   final Repositories repositories;
 
   Future<T> transaction<T>(Future<T> Function() action) {
     return repositories.transaction(action);
-  }
-
-  Future<List<Suggestion>> analyzeHabits(HabitAnalysisInput input) async {
-    final jsonData = await apiService.generateAISuggestions(input);
-    final suggestions =
-        jsonData.map((data) => Suggestion.fromJson(data)).toList();
-
-    return suggestions;
   }
 
   HabitRepository get habit => repositories.habit;

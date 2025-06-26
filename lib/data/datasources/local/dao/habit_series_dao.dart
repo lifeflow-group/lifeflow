@@ -21,8 +21,9 @@ class HabitSeriesDao extends DatabaseAccessor<AppDatabase>
       select(habitSeriesTable).get();
 
   /// Get a single habit series by ID
-  Future<HabitSeriesTableData?> getHabitSeries(String id) {
-    return (select(habitSeriesTable)..where((tbl) => tbl.id.equals(id)))
+  Future<HabitSeriesTableData?> getHabitSeries(String? id) async {
+    if (id == null) return null;
+    return await (select(habitSeriesTable)..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull();
   }
 

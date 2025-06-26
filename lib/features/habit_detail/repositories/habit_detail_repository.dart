@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/repositories/habit_exception_repository.dart';
-import '../../../data/repositories/habit_repository.dart';
-import '../../../data/repositories/habit_series_repository.dart';
-import '../../../data/repositories/repositories.dart';
+import '../../../data/datasources/local/repositories/habit_exception_repository.dart';
+import '../../../data/datasources/local/repositories/habit_repository.dart';
+import '../../../data/datasources/local/repositories/habit_series_repository.dart';
+import '../../../data/datasources/local/repositories/repositories.dart';
 
 final habitDetailRepositoryProvider = Provider<HabitDetailRepository>((ref) {
   final repos = ref.read(repositoriesProvider);

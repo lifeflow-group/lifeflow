@@ -4,8 +4,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../data/providers/filter_providers.dart';
 import '../../../data/controllers/habit_controller.dart';
-import '../../../data/domain/models/habit_category.dart';
+import '../../../data/domain/models/category.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../shared/actions/habit_actions.dart';
 import '../../habit_detail/controllers/habit_detail_controller.dart';
@@ -209,7 +210,7 @@ class HomeScreen extends ConsumerWidget {
     if (result is String && result == "clear") {
       // Clear category filter
       controller.clearCategoryFilter();
-    } else if (result is HabitCategory) {
+    } else if (result is Category) {
       // Apply category filter
       controller.filterByCategory(result);
     }

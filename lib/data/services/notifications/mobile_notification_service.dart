@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../../core/utils/helpers.dart';
+import '../../../core/utils/logger.dart';
 import '../../datasources/local/app_database.dart';
 import '../../domain/models/habit.dart';
 import '../../domain/models/habit_series.dart';
@@ -14,6 +14,7 @@ import 'notification_service_interface.dart';
 
 class MobileNotificationService implements NotificationServiceInterface {
   final FlutterLocalNotificationsPlugin _notificationsPlugin;
+  final AppLogger _logger = AppLogger('MobileNotificationService');
 
   MobileNotificationService({FlutterLocalNotificationsPlugin? plugin})
       : _notificationsPlugin = plugin ?? FlutterLocalNotificationsPlugin();
@@ -113,7 +114,7 @@ class MobileNotificationService implements NotificationServiceInterface {
       final bool? androidGranted =
           await androidImplementation?.requestNotificationsPermission();
 
-      debugPrint('Android notification permission granted: $androidGranted');
+      _logger.info('Android notification permission granted: $androidGranted');
 
       // Request iOS permissions
       final iosImplementation =
@@ -126,9 +127,9 @@ class MobileNotificationService implements NotificationServiceInterface {
         sound: true,
       );
 
-      debugPrint('iOS notification permission granted: $iosGranted');
+      _logger.info('iOS notification permission granted: $iosGranted');
     } catch (e) {
-      debugPrint('Error requesting notification permissions: $e');
+      _logger.error('Error requesting notification permissions', e);
     }
   }
 
@@ -138,7 +139,7 @@ class MobileNotificationService implements NotificationServiceInterface {
       int id, String title, String body, DateTime dateTime,
       {String? payload}) async {
     if (dateTime.isBefore(DateTime.now())) {
-      debugPrint("⚠️ Error: Cannot schedule notification in the past.");
+      _logger.warning("Cannot schedule notification in the past.");
       return;
     }
 
@@ -166,18 +167,19 @@ class MobileNotificationService implements NotificationServiceInterface {
 
   // Schedules reminders for recurring habits
   @override
-  Future<void> scheduleRecurringReminders(Habit habit, HabitSeries? habitSeries,
+  Future<void> scheduleRecurringReminders(Habit habit,
       {Set<DateTime>? excludedDatesUtc}) async {
+    final habitSeries = habit.series;
     if (habitSeries == null) {
       // One-time habit
       await scheduleNotification(
-        generateNotificationId(habit.startDate, habitId: habit.id),
+        generateNotificationId(habit.date, habitId: habit.id),
         "Habit: ${habit.name}",
         "Time to complete your habit!",
-        habit.startDate.toLocal(),
+        habit.date.toLocal(),
         payload: jsonEncode({
           'habitId': habit.id,
-          'scheduledDate': habit.startDate.toUtc().toIso8601String()
+          'scheduledDate': habit.date.toUtc().toIso8601String()
         }),
       );
       return;
@@ -203,15 +205,15 @@ class MobileNotificationService implements NotificationServiceInterface {
       );
     }
 
-    debugPrint(
-        '✅ Scheduled ${recurringDates.length} recurring reminders for "${habit.name}", seriesId: ${habitSeries.id}.');
+    _logger.info(
+        'Scheduled ${recurringDates.length} recurring reminders for "${habit.name}", seriesId: ${habitSeries.id}.');
   }
 
   /// **Cancel a notification by ID**
   @override
   Future<void> cancelNotification(int id) async {
     await _notificationsPlugin.cancel(id);
-    debugPrint('Cancelled notification $id');
+    _logger.info('Cancelled notification $id');
   }
 
   /// **Cancel all notifications**
@@ -228,7 +230,7 @@ class MobileNotificationService implements NotificationServiceInterface {
     for (final notification in scheduledNotifications) {
       if (notification.seriesId == seriesId) {
         await cancelNotification(notification.id);
-        debugPrint(
+        _logger.info(
             'Cancelled notification ${notification.id} for habitSeries $seriesId');
       }
     }
@@ -252,7 +254,7 @@ class MobileNotificationService implements NotificationServiceInterface {
                   notificationDate.day == dateLocal.day))) {
         // Cancel the notification if it meets the conditions
         await cancelNotification(notification.id);
-        debugPrint(
+        _logger.info(
             'Cancelled notification ${notification.id} for habitSeries $seriesId');
       }
     }
@@ -289,14 +291,15 @@ class MobileNotificationService implements NotificationServiceInterface {
         if (existingDates.contains(date)) continue;
 
         if (existingLength > 500) {
-          debugPrint(
-              "⚠️ Maximum notification limit reached ($existingLength/500)");
+          _logger.warning(
+              "Maximum notification limit reached ($existingLength/500)");
           return;
         } else {
           existingLength++;
         }
 
-        debugPrint("Scheduling notification for habit ${habit.name} on $date");
+        _logger
+            .info("Scheduling notification for habit ${habit.name} on $date");
         await scheduleNotification(
             generateNotificationId(date,
                 habitId: habit.id, seriesId: series.id),
@@ -328,7 +331,7 @@ class MobileNotificationService implements NotificationServiceInterface {
 
   Map<String, String?> _parseNotificationPayload(String? payload) {
     if (payload == null || payload.trim().isEmpty) {
-      debugPrint('Empty or null payload received.');
+      _logger.warning('Empty or null payload received.');
       return {};
     }
 
@@ -340,7 +343,7 @@ class MobileNotificationService implements NotificationServiceInterface {
         'scheduledDate': data['scheduledDate']
       };
     } catch (e) {
-      debugPrint('Failed to parse payload: $e\nPayload: $payload');
+      _logger.error('Failed to parse payload', e);
       return {};
     }
   }

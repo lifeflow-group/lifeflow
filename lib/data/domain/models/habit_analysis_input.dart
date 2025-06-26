@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../serializers.dart';
 import 'habit.dart';
-import 'habit_category.dart';
+import 'category.dart';
 import 'habit_exception.dart';
 
 part 'habit_analysis_input.g.dart';
@@ -46,7 +46,7 @@ abstract class HabitData implements Built<HabitData, HabitDataBuilder> {
 
   String get id;
   String get name;
-  HabitCategory get category;
+  Category get category;
   TrackingType get trackingType;
   bool get reminderEnabled;
 

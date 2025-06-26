@@ -28,12 +28,12 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
           specifiedType: const FullType(String)),
     ];
     Object? value;
-    value = object.habitData;
+    value = object.habit;
     if (value != null) {
       result
-        ..add('habitData')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(HabitData)));
+        ..add('habit')
+        ..add(
+            serializers.serialize(value, specifiedType: const FullType(Habit)));
     }
     return result;
   }
@@ -61,9 +61,9 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
           result.description = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
-        case 'habitData':
-          result.habitData.replace(serializers.deserialize(value,
-              specifiedType: const FullType(HabitData))! as HabitData);
+        case 'habit':
+          result.habit.replace(serializers.deserialize(value,
+              specifiedType: const FullType(Habit))! as Habit);
           break;
       }
     }
@@ -80,7 +80,7 @@ class _$Suggestion extends Suggestion {
   @override
   final String description;
   @override
-  final HabitData? habitData;
+  final Habit? habit;
 
   factory _$Suggestion([void Function(SuggestionBuilder)? updates]) =>
       (new SuggestionBuilder()..update(updates))._build();
@@ -89,7 +89,7 @@ class _$Suggestion extends Suggestion {
       {required this.id,
       required this.title,
       required this.description,
-      this.habitData})
+      this.habit})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(id, r'Suggestion', 'id');
     BuiltValueNullFieldError.checkNotNull(title, r'Suggestion', 'title');
@@ -111,7 +111,7 @@ class _$Suggestion extends Suggestion {
         id == other.id &&
         title == other.title &&
         description == other.description &&
-        habitData == other.habitData;
+        habit == other.habit;
   }
 
   @override
@@ -120,7 +120,7 @@ class _$Suggestion extends Suggestion {
     _$hash = $jc(_$hash, id.hashCode);
     _$hash = $jc(_$hash, title.hashCode);
     _$hash = $jc(_$hash, description.hashCode);
-    _$hash = $jc(_$hash, habitData.hashCode);
+    _$hash = $jc(_$hash, habit.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -131,7 +131,7 @@ class _$Suggestion extends Suggestion {
           ..add('id', id)
           ..add('title', title)
           ..add('description', description)
-          ..add('habitData', habitData))
+          ..add('habit', habit))
         .toString();
   }
 }
@@ -151,10 +151,9 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
   String? get description => _$this._description;
   set description(String? description) => _$this._description = description;
 
-  HabitDataBuilder? _habitData;
-  HabitDataBuilder get habitData =>
-      _$this._habitData ??= new HabitDataBuilder();
-  set habitData(HabitDataBuilder? habitData) => _$this._habitData = habitData;
+  HabitBuilder? _habit;
+  HabitBuilder get habit => _$this._habit ??= new HabitBuilder();
+  set habit(HabitBuilder? habit) => _$this._habit = habit;
 
   SuggestionBuilder();
 
@@ -164,7 +163,7 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
       _id = $v.id;
       _title = $v.title;
       _description = $v.description;
-      _habitData = $v.habitData?.toBuilder();
+      _habit = $v.habit?.toBuilder();
       _$v = null;
     }
     return this;
@@ -194,13 +193,13 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
                 title, r'Suggestion', 'title'),
             description: BuiltValueNullFieldError.checkNotNull(
                 description, r'Suggestion', 'description'),
-            habitData: _habitData?.build(),
+            habit: _habit?.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
-        _$failedField = 'habitData';
-        _habitData?.build();
+        _$failedField = 'habit';
+        _habit?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             r'Suggestion', _$failedField, e.toString());

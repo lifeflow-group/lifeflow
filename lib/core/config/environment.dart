@@ -2,8 +2,8 @@ class Environment {
   /// Base URL for API endpoints
   static String get apiBaseUrl => String.fromEnvironment(
         'API_BASE_URL',
-        defaultValue: 'https://lfl-backend.onrender.com',
-        // defaultValue: 'http://192.168.1.10:8000',
+        defaultValue: 'https://lfl-backend-gl.onrender.com',
+        // defaultValue: 'http://192.168.9.91:8000',
       );
 
   /// Checks if current environment is development

@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -60,22 +59,6 @@ Expression<bool> isSameDateQuery(
   return date1.year.equals(date2.year) &
       date1.month.equals(date2.month) &
       date1.day.equals(date2.day);
-}
-
-String getRepeatFrequencyLabel(
-    BuildContext context, RepeatFrequency? frequency) {
-  final l10n = AppLocalizations.of(context)!;
-  if (frequency == null) return l10n.noRepeatLabel;
-  switch (frequency) {
-    case RepeatFrequency.daily:
-      return l10n.repeatDaily;
-    case RepeatFrequency.weekly:
-      return l10n.repeatWeekly;
-    case RepeatFrequency.monthly:
-      return l10n.repeatMonthly;
-    default:
-      return l10n.noRepeatLabel;
-  }
 }
 
 // dt is utc

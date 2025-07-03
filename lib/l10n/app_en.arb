@@ -264,5 +264,40 @@
   "noInternetConnection": "No internet connection",
   "noInternetConnectionDescription": "Please check your internet connection and try again. Some features may not be available offline.",
   "retry": "Retry",
-  "viewOfflineContent": "View Available Content"
+  "viewOfflineContent": "View Available Content",
+
+  "personalizedSuggestionsWelcome": "Personalized AI Habit Suggestions",
+  "goalsHint": "Tell me about your goals...",
+
+  "personalityLabel": "Personality",
+  "availableTimeLabel": "Available Time",
+  "guidanceLevelLabel": "Guidance Level",
+  "selectPersonalityTitle": "Select Personality",
+  "selectAvailableTimeTitle": "Select Available Time",
+  "selectGuidanceLevelTitle": "Select Guidance Level",
+  "selectDataSourceTitle": "Select Data Source",
+
+  "personalityIntroverted": "Introverted",
+  "personalityExtroverted": "Extroverted",
+  "personalityDisciplined": "Disciplined",
+  "personalityCreative": "Creative",
+  "personalityAnalytical": "Analytical",
+
+  "timeMorning": "Morning",
+  "timeNoon": "Noon",
+  "timeAfternoon": "Afternoon",
+  "timeEvening": "Evening",
+  "timeFlexible": "Flexible",
+
+  "guidanceSimple": "Simple",
+  "guidanceIntermediate": "Intermediate",
+  "guidanceAdvanced": "Advanced",
+
+  "dataSourcePersonalizationOnly": "Personalization Only",
+  "dataSourceHabitsOnly": "Habits Only",
+  "dataSourceBoth": "Both",
+
+  "repeatDaily": "Daily",
+  "repeatWeekly": "Weekly",
+  "repeatMonthly": "Monthly"
 }

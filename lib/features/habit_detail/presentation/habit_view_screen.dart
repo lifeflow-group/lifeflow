@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../../core/utils/helpers.dart';
 import '../../../data/controllers/habit_controller.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/scheduled_notification.dart';
@@ -98,8 +97,9 @@ class _HabitViewScreenState extends ConsumerState<HabitViewScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final habit = ref.watch(habitProvider);
-    final repeat = getRepeatFrequencyLabel(
-        context, ref.watch(habitRepeatFrequencyProvider));
+    final repeat =
+        ref.watch(habitRepeatFrequencyProvider)?.getLocalizedName(context) ??
+            l10n.noRepeatLabel;
 
     final date = DateFormat('dd/MM/yyyy').format(ref.watch(habitDateProvider));
     final time = ref.watch(habitTimeProvider).format(context);

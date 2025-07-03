@@ -8,8 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/logger.dart';
 import '../../../data/controllers/apply_suggestion_controller.dart';
 import '../../../data/domain/models/habit.dart';
-import '../../../data/domain/models/habit_analysis_input.dart';
+import '../../../data/domain/models/habit_analysis.dart';
 import '../../../data/domain/models/habit_exception.dart';
+import '../../../data/domain/models/ai_suggestion_request_input.dart';
+import '../../../data/domain/models/personalization_context.dart';
+import '../../../data/factories/model_factories.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../data/services/network_connectivity_service.dart';
 import '../../../data/services/user_service.dart';
@@ -21,11 +24,15 @@ class AIPicksState {
   final List<Suggestion> suggestions;
   final Set<String> selectedIds;
   final bool? hasConnectivity;
+  final bool submitted;
+  final AISuggestionRequestInput? aiSuggestionRequestInput;
 
   const AIPicksState({
     required this.suggestions,
     required this.selectedIds,
     this.hasConnectivity,
+    this.aiSuggestionRequestInput,
+    this.submitted = false, // default
   });
 
   bool get hasSelections => selectedIds.isNotEmpty;
@@ -40,11 +47,16 @@ class AIPicksState {
     List<Suggestion>? suggestions,
     Set<String>? selectedIds,
     bool? hasConnectivity,
+    AISuggestionRequestInput? aiSuggestionRequestInput,
+    bool? submitted,
   }) {
     return AIPicksState(
       suggestions: suggestions ?? this.suggestions,
       selectedIds: selectedIds ?? this.selectedIds,
       hasConnectivity: hasConnectivity ?? this.hasConnectivity,
+      aiSuggestionRequestInput:
+          aiSuggestionRequestInput ?? this.aiSuggestionRequestInput,
+      submitted: submitted ?? this.submitted,
     );
   }
 }
@@ -68,17 +80,38 @@ class AIPicksController extends AsyncNotifier<AIPicksState> {
 
   @override
   FutureOr<AIPicksState> build() async {
-    // Check connection before loading data
-    final hasConnectivity = await checkConnectivity();
+    try {
+      final userId = await _userService.getCurrentUserId();
+      if (userId == null) {
+        _analytics.trackSuggestionDataLoadNoUser();
+        throw Exception("User not logged in. Please log in to continue.");
+      }
 
-    if (!hasConnectivity) {
+      // Check connection before loading data
+      final hasConnectivity = await checkConnectivity();
+
+      final habitAnalysis = await _getHabitAnalysis(
+        DateTimeRange(
+            start: DateTime.now().subtract(const Duration(days: 30)),
+            end: DateTime.now()),
+        userId,
+      );
+
+      final aiSuggestionRequestInput =
+          newAISuggestionRequestInput(habitAnalysis: habitAnalysis);
+
+      // At this point, there's no need to load suggestions yet, just initialize the initial state
       return AIPicksState(
-          suggestions: [], selectedIds: {}, hasConnectivity: false);
+          suggestions: [],
+          selectedIds: {},
+          hasConnectivity: hasConnectivity,
+          aiSuggestionRequestInput: aiSuggestionRequestInput,
+          submitted: false);
+    } catch (e, stack) {
+      _logger.error("Error initializing AI Picks", e);
+      state = AsyncValue.error(e, stack);
+      rethrow;
     }
-
-    final suggestions = await loadSuggestions();
-    return AIPicksState(
-        suggestions: suggestions, selectedIds: {}, hasConnectivity: true);
   }
 
   // Add connection checking method
@@ -150,54 +183,19 @@ class AIPicksController extends AsyncNotifier<AIPicksState> {
 
   // Rest of your methods
   Future<List<Suggestion>> loadSuggestions() async {
-    _analytics.trackSuggestionDataLoadingStarted();
-
     try {
-      // Check connection before loading data
-      final hasConnectivity = await checkConnectivity();
-      if (!hasConnectivity) return [];
-
-      // Get habit analysis input
-      final time = DateTime.now();
-      final userId = await _userService.getCurrentUserId();
-      if (userId == null) {
-        _analytics.trackSuggestionDataLoadNoUser();
-        return [];
-      }
-
-      final input = await _getHabitAnalysisInput(
-          DateTimeRange(start: time.subtract(Duration(days: 30)), end: time),
-          userId);
-
-      if (input == null) {
-        _analytics.trackSuggestionDataLoadEmptyInput();
-        return [];
-      }
-
-      _analytics.trackSuggestionAnalysisInputLoaded(input.habits.length, 30);
-
-      // Send data for analysis and generate suggestions
-      final suggestions =
-          await _repo.remoteSuggestion.generateAISuggestions(input);
-
-      // Clear selections when loading new suggestions
-      if (state.value != null) {
-        state = AsyncData(state.value!.copyWith(
-          suggestions: suggestions,
-          selectedIds: {},
-          hasConnectivity: true,
-        ));
-      }
+      final suggestions = await _repo.remoteSuggestion
+          .generateAISuggestions(state.value!.aiSuggestionRequestInput!);
 
       _analytics.trackSuggestionDataLoaded(
           suggestions.length, suggestions.isNotEmpty, true);
 
       return suggestions;
     } catch (e) {
-      // Log errors in controller
       _analytics.trackSuggestionDataLoadError(
           e.toString(), e.runtimeType.toString());
-      rethrow;
+      _logger.error("Error loading AI suggestions", e);
+      return [];
     }
   }
 
@@ -222,7 +220,7 @@ class AIPicksController extends AsyncNotifier<AIPicksState> {
     return appliedHabits;
   }
 
-  Future<HabitAnalysisInput?> _getHabitAnalysisInput(
+  Future<HabitAnalysis?> _getHabitAnalysis(
       DateTimeRange range, String userId) async {
     // Fetch data from HabitsService
     final habits = await _repo.habit.getHabitsDateRange(range, userId);
@@ -253,8 +251,7 @@ class AIPicksController extends AsyncNotifier<AIPicksState> {
         ..exceptions = ListBuilder<HabitException>(exceptions));
     }).toList());
 
-    return HabitAnalysisInput((b) => b
-      ..userId = userId
+    return HabitAnalysis((b) => b
       ..startDate = range.start
       ..endDate = range.end
       ..habits.replace(habitDataList));
@@ -263,6 +260,11 @@ class AIPicksController extends AsyncNotifier<AIPicksState> {
   Future<void> refresh() async {
     _analytics.trackAIPicksControllerRefreshCalled();
 
+    final currentState = state.value;
+    if (currentState == null || currentState.aiSuggestionRequestInput == null) {
+      return;
+    }
+
     state = const AsyncValue.loading();
     try {
       // Check connection when refreshing
@@ -270,7 +272,7 @@ class AIPicksController extends AsyncNotifier<AIPicksState> {
 
       if (!hasConnectivity) {
         // If no connection, return state with empty list and hasConnectivity = false
-        state = AsyncValue.data(AIPicksState(
+        state = AsyncValue.data(currentState.copyWith(
           suggestions: [],
           selectedIds: {},
           hasConnectivity: false,
@@ -279,7 +281,7 @@ class AIPicksController extends AsyncNotifier<AIPicksState> {
       }
 
       final suggestions = await loadSuggestions();
-      state = AsyncValue.data(AIPicksState(
+      state = AsyncValue.data(currentState.copyWith(
         suggestions: suggestions,
         selectedIds: {},
         hasConnectivity: true,
@@ -303,5 +305,47 @@ class AIPicksController extends AsyncNotifier<AIPicksState> {
       suggestions: updatedSuggestions,
       // Keep the same selections
     ));
+  }
+
+  void invalidateSelf() {
+    ref.invalidateSelf();
+  }
+
+  void setSubmitted(bool value) {
+    final currentState = state.value;
+    if (currentState == null) return;
+    state = AsyncData(currentState.copyWith(submitted: value));
+  }
+
+  void updatePersonalization({
+    String? goals,
+    PersonalityType? personalityType,
+    TimePreference? timePreference,
+    GuidanceLevel? guidanceLevel,
+    DataSourceType? dataSourceType,
+  }) {
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    final builder = currentState.aiSuggestionRequestInput?.toBuilder() ??
+        newAISuggestionRequestInput().toBuilder();
+
+    // Update dataSourceType at the AISuggestionRequestInput level
+    if (dataSourceType != null) builder.dataSourceType = dataSourceType;
+
+    // Update fields in PersonalizationContext
+    builder.personalizationContext.update((contextBuilder) {
+      if (goals != null) contextBuilder.goals = goals;
+      if (personalityType != null) {
+        contextBuilder.personalityType = personalityType;
+      }
+      if (timePreference != null) {
+        contextBuilder.timePreference = timePreference;
+      }
+      if (guidanceLevel != null) contextBuilder.guidanceLevel = guidanceLevel;
+    });
+
+    state = AsyncData(
+        currentState.copyWith(aiSuggestionRequestInput: builder.build()));
   }
 }

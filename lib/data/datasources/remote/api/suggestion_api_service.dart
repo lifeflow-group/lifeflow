@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/logger.dart';
-import '../../../domain/models/habit_analysis_input.dart';
+import '../../../domain/models/ai_suggestion_request_input.dart'; // Thay thế import
 import 'api_client.dart';
 
 final suggestionApiServiceProvider = Provider<SuggestionApiService>((ref) {
@@ -15,7 +15,8 @@ class SuggestionApiService {
 
   SuggestionApiService(this._client);
 
-  Future<List<dynamic>> generateAISuggestions(HabitAnalysisInput input) async {
+  Future<List<dynamic>> generateAISuggestions(
+      AISuggestionRequestInput input) async {
     // Call endpoint to generate AI suggestions based on user preferences
     final response =
         await _client.post('/suggestions/analyze', body: input.toJson());
@@ -25,6 +26,5 @@ class SuggestionApiService {
         .info('Generated ${suggestionsJson.length} AI suggestions (raw JSON)');
 
     return suggestionsJson;
-    // return [];
   }
 }

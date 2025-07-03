@@ -1,30 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'habit_analysis_input.dart';
+part of 'habit_analysis.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<HabitAnalysisInput> _$habitAnalysisInputSerializer =
-    new _$HabitAnalysisInputSerializer();
+Serializer<HabitAnalysis> _$habitAnalysisSerializer =
+    new _$HabitAnalysisSerializer();
 Serializer<HabitData> _$habitDataSerializer = new _$HabitDataSerializer();
 
-class _$HabitAnalysisInputSerializer
-    implements StructuredSerializer<HabitAnalysisInput> {
+class _$HabitAnalysisSerializer implements StructuredSerializer<HabitAnalysis> {
   @override
-  final Iterable<Type> types = const [HabitAnalysisInput, _$HabitAnalysisInput];
+  final Iterable<Type> types = const [HabitAnalysis, _$HabitAnalysis];
   @override
-  final String wireName = 'HabitAnalysisInput';
+  final String wireName = 'HabitAnalysis';
 
   @override
-  Iterable<Object?> serialize(
-      Serializers serializers, HabitAnalysisInput object,
+  Iterable<Object?> serialize(Serializers serializers, HabitAnalysis object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object?>[
-      'userId',
-      serializers.serialize(object.userId,
-          specifiedType: const FullType(String)),
       'startDate',
       serializers.serialize(object.startDate,
           specifiedType: const FullType(DateTime)),
@@ -41,10 +36,10 @@ class _$HabitAnalysisInputSerializer
   }
 
   @override
-  HabitAnalysisInput deserialize(
+  HabitAnalysis deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new HabitAnalysisInputBuilder();
+    final result = new HabitAnalysisBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -52,10 +47,6 @@ class _$HabitAnalysisInputSerializer
       iterator.moveNext();
       final Object? value = iterator.current;
       switch (key) {
-        case 'userId':
-          result.userId = serializers.deserialize(value,
-              specifiedType: const FullType(String))! as String;
-          break;
         case 'startDate':
           result.startDate = serializers.deserialize(value,
               specifiedType: const FullType(DateTime))! as DateTime;
@@ -204,9 +195,7 @@ class _$HabitDataSerializer implements StructuredSerializer<HabitData> {
   }
 }
 
-class _$HabitAnalysisInput extends HabitAnalysisInput {
-  @override
-  final String userId;
+class _$HabitAnalysis extends HabitAnalysis {
   @override
   final DateTime startDate;
   @override
@@ -214,40 +203,29 @@ class _$HabitAnalysisInput extends HabitAnalysisInput {
   @override
   final BuiltList<HabitData> habits;
 
-  factory _$HabitAnalysisInput(
-          [void Function(HabitAnalysisInputBuilder)? updates]) =>
-      (new HabitAnalysisInputBuilder()..update(updates))._build();
+  factory _$HabitAnalysis([void Function(HabitAnalysisBuilder)? updates]) =>
+      (new HabitAnalysisBuilder()..update(updates))._build();
 
-  _$HabitAnalysisInput._(
-      {required this.userId,
-      required this.startDate,
-      required this.endDate,
-      required this.habits})
+  _$HabitAnalysis._(
+      {required this.startDate, required this.endDate, required this.habits})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        userId, r'HabitAnalysisInput', 'userId');
-    BuiltValueNullFieldError.checkNotNull(
-        startDate, r'HabitAnalysisInput', 'startDate');
-    BuiltValueNullFieldError.checkNotNull(
-        endDate, r'HabitAnalysisInput', 'endDate');
-    BuiltValueNullFieldError.checkNotNull(
-        habits, r'HabitAnalysisInput', 'habits');
+        startDate, r'HabitAnalysis', 'startDate');
+    BuiltValueNullFieldError.checkNotNull(endDate, r'HabitAnalysis', 'endDate');
+    BuiltValueNullFieldError.checkNotNull(habits, r'HabitAnalysis', 'habits');
   }
 
   @override
-  HabitAnalysisInput rebuild(
-          void Function(HabitAnalysisInputBuilder) updates) =>
+  HabitAnalysis rebuild(void Function(HabitAnalysisBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  HabitAnalysisInputBuilder toBuilder() =>
-      new HabitAnalysisInputBuilder()..replace(this);
+  HabitAnalysisBuilder toBuilder() => new HabitAnalysisBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is HabitAnalysisInput &&
-        userId == other.userId &&
+    return other is HabitAnalysis &&
         startDate == other.startDate &&
         endDate == other.endDate &&
         habits == other.habits;
@@ -256,7 +234,6 @@ class _$HabitAnalysisInput extends HabitAnalysisInput {
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, userId.hashCode);
     _$hash = $jc(_$hash, startDate.hashCode);
     _$hash = $jc(_$hash, endDate.hashCode);
     _$hash = $jc(_$hash, habits.hashCode);
@@ -266,8 +243,7 @@ class _$HabitAnalysisInput extends HabitAnalysisInput {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'HabitAnalysisInput')
-          ..add('userId', userId)
+    return (newBuiltValueToStringHelper(r'HabitAnalysis')
           ..add('startDate', startDate)
           ..add('endDate', endDate)
           ..add('habits', habits))
@@ -275,13 +251,9 @@ class _$HabitAnalysisInput extends HabitAnalysisInput {
   }
 }
 
-class HabitAnalysisInputBuilder
-    implements Builder<HabitAnalysisInput, HabitAnalysisInputBuilder> {
-  _$HabitAnalysisInput? _$v;
-
-  String? _userId;
-  String? get userId => _$this._userId;
-  set userId(String? userId) => _$this._userId = userId;
+class HabitAnalysisBuilder
+    implements Builder<HabitAnalysis, HabitAnalysisBuilder> {
+  _$HabitAnalysis? _$v;
 
   DateTime? _startDate;
   DateTime? get startDate => _$this._startDate;
@@ -296,12 +268,11 @@ class HabitAnalysisInputBuilder
       _$this._habits ??= new ListBuilder<HabitData>();
   set habits(ListBuilder<HabitData>? habits) => _$this._habits = habits;
 
-  HabitAnalysisInputBuilder();
+  HabitAnalysisBuilder();
 
-  HabitAnalysisInputBuilder get _$this {
+  HabitAnalysisBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _userId = $v.userId;
       _startDate = $v.startDate;
       _endDate = $v.endDate;
       _habits = $v.habits.toBuilder();
@@ -311,30 +282,28 @@ class HabitAnalysisInputBuilder
   }
 
   @override
-  void replace(HabitAnalysisInput other) {
+  void replace(HabitAnalysis other) {
     ArgumentError.checkNotNull(other, 'other');
-    _$v = other as _$HabitAnalysisInput;
+    _$v = other as _$HabitAnalysis;
   }
 
   @override
-  void update(void Function(HabitAnalysisInputBuilder)? updates) {
+  void update(void Function(HabitAnalysisBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  HabitAnalysisInput build() => _build();
+  HabitAnalysis build() => _build();
 
-  _$HabitAnalysisInput _build() {
-    _$HabitAnalysisInput _$result;
+  _$HabitAnalysis _build() {
+    _$HabitAnalysis _$result;
     try {
       _$result = _$v ??
-          new _$HabitAnalysisInput._(
-            userId: BuiltValueNullFieldError.checkNotNull(
-                userId, r'HabitAnalysisInput', 'userId'),
+          new _$HabitAnalysis._(
             startDate: BuiltValueNullFieldError.checkNotNull(
-                startDate, r'HabitAnalysisInput', 'startDate'),
+                startDate, r'HabitAnalysis', 'startDate'),
             endDate: BuiltValueNullFieldError.checkNotNull(
-                endDate, r'HabitAnalysisInput', 'endDate'),
+                endDate, r'HabitAnalysis', 'endDate'),
             habits: habits.build(),
           );
     } catch (_) {
@@ -344,7 +313,7 @@ class HabitAnalysisInputBuilder
         habits.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            r'HabitAnalysisInput', _$failedField, e.toString());
+            r'HabitAnalysis', _$failedField, e.toString());
       }
       rethrow;
     }

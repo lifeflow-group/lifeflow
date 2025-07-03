@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../../../core/utils/helpers.dart';
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/category.dart';
 import '../../../data/services/analytics/analytics_service.dart';
@@ -302,7 +301,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        getRepeatFrequencyLabel(context, repeatFrequency),
+                        repeatFrequency?.getLocalizedName(context) ??
+                            l10n.noRepeatLabel,
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
@@ -598,7 +598,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               ),
               ...RepeatFrequency.values.map((frequency) {
                 return ListTile(
-                  title: Text(getRepeatFrequencyLabel(context, frequency),
+                  title: Text(frequency.getLocalizedName(context),
                       style: Theme.of(context).textTheme.titleMedium),
                   onTap: () {
                     // Use controller to track repeat frequency option selected

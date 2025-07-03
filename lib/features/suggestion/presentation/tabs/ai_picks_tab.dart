@@ -7,12 +7,9 @@ import '../../../../data/domain/models/habit.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../../shared/actions/habit_actions.dart';
 import '../../controllers/ai_picks_controller.dart';
+import '../widgets/ai_picks_content.dart';
 import '../widgets/action_selection_bar.dart';
-import '../widgets/empty_suggestions_view.dart';
-import '../widgets/loading_view.dart';
-import '../widgets/suggestion_card.dart';
-import '../widgets/error_view.dart';
-import '../widgets/no_connectivity_view.dart';
+import '../widgets/personalization_fields.dart';
 
 /// Tab that displays personalized suggestions for the user
 class AIPicksTab extends ConsumerStatefulWidget {
@@ -32,89 +29,68 @@ class _AIPicksTabState extends ConsumerState<AIPicksTab> {
     final analyticsService = ref.read(analyticsServiceProvider);
     final suggestionsState = ref.watch(aiPicksControllerProvider);
     final notifier = ref.read(aiPicksControllerProvider.notifier);
+    final submitted = suggestionsState.value?.submitted ?? false;
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () => notifier.refresh(),
-        child: suggestionsState.when(
-          loading: () => const LoadingView(),
-          error: (err, stack) => ErrorView(
-            error: err,
-            controller: notifier,
-            l10n: l10n,
-            analyticsService: analyticsService,
-            tabController: widget.tabController,
-            componentName: 'AIPicksTab',
-          ),
-          data: (state) {
-            // Check connectivity status from controller
-            if (state.hasConnectivity == false) {
-              return NoConnectivityView(onRetry: () => notifier.refresh());
-            }
-
-            final suggestions = state.suggestions;
-
-            return SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+      body: submitted
+          ? AIPicksContent(
+              suggestionsState: suggestionsState,
+              l10n: l10n,
+              analyticsService: analyticsService,
+              notifier: notifier,
+              tabController: widget.tabController,
+              onHabitTap: _handleHabitTap,
+            )
+          : Container(
+              height: MediaQuery.of(context).size.height * 0.6,
+              padding: const EdgeInsets.all(24.0),
+              child: Center(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (suggestions.isEmpty)
-                      EmptySuggestionsView(
-                        l10n: l10n,
-                        analyticsService: analyticsService,
-                        tabController: widget.tabController,
-                      )
-                    else
-                      ...suggestions.map((suggestion) {
-                        return SuggestionCard(
-                          suggestion: suggestion,
-                          isSelected: state.selectedIds.contains(suggestion.id),
-                          onToggleSelection: () =>
-                              notifier.toggleSuggestion(suggestion.id),
-                          onHabitTap: (newHabit) =>
-                              _handleHabitTap(context, newHabit, suggestion.id),
-                        );
-                      }),
-                    // Add padding at the bottom for the action bar
-                    if (suggestions.isNotEmpty) const SizedBox(height: 65),
+                    const Icon(
+                      Icons.lightbulb_outline,
+                      size: 64,
+                      color: Colors.amber,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.personalizedSuggestionsWelcome,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               ),
-            );
-          },
-        ),
-      ),
-      // Add bottomSheet based on state
-      bottomSheet: suggestionsState.maybeWhen(
-        data: (state) {
-          final suggestions = state.suggestions;
-          if (suggestions.isEmpty) {
-            // Don't show bottomSheet when there are no suggestions
-            return null;
-          }
-
-          return ActionSelectionBar(
-            isAllSelected: state.isAllSelected(),
-            hasAnySelection: state.hasSelections,
-            selectAllLabel: l10n.selectAll,
-            applyButtonLabel: l10n.applySelected,
-            onToggleAll: (selected) {
-              notifier.toggleAll(selected);
-            },
-            onApply: () => _handleApplySelected(
-              context: context,
-              notifier: notifier,
-              l10n: l10n,
-              analyticsService: analyticsService,
-              selectedCount: state.selectedCount,
             ),
-          );
-        },
-        orElse: () => null, // Don't show when loading or error
-      ),
+      bottomSheet: submitted
+          ? suggestionsState.maybeWhen(
+              data: (state) {
+                final suggestions = state.suggestions;
+                if (suggestions.isEmpty) {
+                  return null;
+                }
+                return ActionSelectionBar(
+                  isAllSelected: state.isAllSelected(),
+                  hasAnySelection: state.hasSelections,
+                  selectAllLabel: l10n.selectAll,
+                  applyButtonLabel: l10n.applySelected,
+                  onToggleAll: (selected) {
+                    notifier.toggleAll(selected);
+                  },
+                  onApply: () => _handleApplySelected(
+                    context: context,
+                    notifier: notifier,
+                    l10n: l10n,
+                    analyticsService: analyticsService,
+                    selectedCount: state.selectedCount,
+                  ),
+                );
+              },
+              orElse: () => null,
+            )
+          : PersonalizationFields(),
     );
   }
 

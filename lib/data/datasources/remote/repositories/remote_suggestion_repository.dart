@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/logger.dart';
-import '../../../domain/models/habit_analysis_input.dart';
+import '../../../domain/models/ai_suggestion_request_input.dart';
 import '../../../domain/models/suggestion.dart';
 import '../api/suggestion_api_service.dart';
 
@@ -19,7 +19,7 @@ class RemoteSuggestionRepository {
 
   /// Generate AI suggestions based on user preferences
   Future<List<Suggestion>> generateAISuggestions(
-      HabitAnalysisInput input) async {
+      AISuggestionRequestInput input) async {
     // Get JSON data from API service
     final suggestionsJson = await _apiService.generateAISuggestions(input);
 

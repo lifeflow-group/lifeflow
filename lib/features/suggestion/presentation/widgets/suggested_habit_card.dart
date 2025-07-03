@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:lifeflow/core/utils/helpers.dart';
 
 import '../../../../data/domain/models/habit.dart';
 
@@ -96,7 +95,8 @@ class SuggestedHabitCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     String frequency =
-        getRepeatFrequencyLabel(context, habit.series?.repeatFrequency);
+        habit.series?.repeatFrequency?.getLocalizedName(context) ??
+            l10n.noRepeatLabel;
 
     String repeatText = l10n.repeatsEvery(frequency);
     String reminderText =

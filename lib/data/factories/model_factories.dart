@@ -4,10 +4,12 @@ import 'package:uuid/uuid.dart';
 
 import '../domain/models/category.dart';
 import '../domain/models/habit.dart';
-import '../domain/models/habit_analysis_input.dart';
+import '../domain/models/habit_analysis.dart';
 import '../domain/models/habit_plan.dart';
 import '../domain/models/habit_series.dart';
+import '../domain/models/personalization_context.dart';
 import '../domain/models/suggestion.dart';
+import '../domain/models/ai_suggestion_request_input.dart';
 import '../datasources/local/app_database.dart';
 
 /// Generates a new unique ID with the specified prefix
@@ -151,4 +153,21 @@ HabitsTableData applyExceptionOverride(
     currentValue: Value(exception.currentValue ?? habit.currentValue),
     isCompleted: Value(exception.isCompleted ?? habit.isCompleted),
   );
+}
+
+AISuggestionRequestInput newAISuggestionRequestInput({
+  String? id,
+  String? userId,
+  DateTime? createdAt,
+  DataSourceType dataSourceType = DataSourceType.both,
+  PersonalizationContext? personalizationContext,
+  HabitAnalysis? habitAnalysis,
+}) {
+  return AISuggestionRequestInput((b) => b
+    ..id = id ?? generateNewId('personalization')
+    ..userId = userId
+    ..createdAt = createdAt ?? DateTime.now().toUtc()
+    ..dataSourceType = dataSourceType
+    ..personalizationContext = personalizationContext?.toBuilder()
+    ..habitAnalysis = habitAnalysis?.toBuilder());
 }

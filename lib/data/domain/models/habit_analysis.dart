@@ -8,12 +8,10 @@ import 'habit.dart';
 import 'category.dart';
 import 'habit_exception.dart';
 
-part 'habit_analysis_input.g.dart';
+part 'habit_analysis.g.dart';
 
-abstract class HabitAnalysisInput
-    implements Built<HabitAnalysisInput, HabitAnalysisInputBuilder> {
-  // User ID to identify the habit list.
-  String get userId;
+abstract class HabitAnalysis
+    implements Built<HabitAnalysis, HabitAnalysisBuilder> {
   // Start date for analysis (beginning of the month)
   DateTime get startDate;
   // End date for analysis (end of the month)
@@ -22,21 +20,19 @@ abstract class HabitAnalysisInput
   // Optimized list of habits
   BuiltList<HabitData> get habits;
 
-  HabitAnalysisInput._();
+  HabitAnalysis._();
 
-  factory HabitAnalysisInput(
-          [void Function(HabitAnalysisInputBuilder) updates]) =
-      _$HabitAnalysisInput;
+  factory HabitAnalysis([void Function(HabitAnalysisBuilder) updates]) =
+      _$HabitAnalysis;
 
-  factory HabitAnalysisInput.fromJson(Map<String, dynamic> json) =>
-      serializers.deserializeWith(HabitAnalysisInput.serializer, json)!;
+  factory HabitAnalysis.fromJson(Map<String, dynamic> json) =>
+      serializers.deserializeWith(HabitAnalysis.serializer, json)!;
 
   Map<String, dynamic> toJson() =>
-      serializers.serializeWith(HabitAnalysisInput.serializer, this)
+      serializers.serializeWith(HabitAnalysis.serializer, this)
           as Map<String, dynamic>;
 
-  static Serializer<HabitAnalysisInput> get serializer =>
-      _$habitAnalysisInputSerializer;
+  static Serializer<HabitAnalysis> get serializer => _$habitAnalysisSerializer;
 }
 
 abstract class HabitData implements Built<HabitData, HabitDataBuilder> {

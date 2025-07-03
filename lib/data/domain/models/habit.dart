@@ -1,6 +1,8 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_collection/built_collection.dart';
+import 'package:flutter/material.dart' show BuildContext;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../serializers.dart';
 import 'category.dart';
@@ -14,6 +16,20 @@ class RepeatFrequency extends EnumClass {
   static const RepeatFrequency monthly = _$monthly;
 
   const RepeatFrequency._(super.name);
+
+  String getLocalizedName(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (this) {
+      case RepeatFrequency.daily:
+        return l10n.repeatDaily;
+      case RepeatFrequency.weekly:
+        return l10n.repeatWeekly;
+      case RepeatFrequency.monthly:
+        return l10n.repeatMonthly;
+      default:
+        return l10n.noRepeatLabel;
+    }
+  }
 
   static BuiltSet<RepeatFrequency> get values => _$repeatFrequencyValues;
   static RepeatFrequency valueOf(String name) => _$repeatFrequencyValueOf(name);

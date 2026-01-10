@@ -6,7 +6,7 @@ part of 'category.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Category> _$categorySerializer = new _$CategorySerializer();
+Serializer<Category> _$categorySerializer = _$CategorySerializer();
 
 class _$CategorySerializer implements StructuredSerializer<Category> {
   @override
@@ -36,7 +36,7 @@ class _$CategorySerializer implements StructuredSerializer<Category> {
   @override
   Category deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new CategoryBuilder();
+    final result = CategoryBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -78,26 +78,20 @@ class _$Category extends Category {
   final String colorHex;
 
   factory _$Category([void Function(CategoryBuilder)? updates]) =>
-      (new CategoryBuilder()..update(updates))._build();
+      (CategoryBuilder()..update(updates))._build();
 
   _$Category._(
       {required this.id,
       required this.name,
       required this.iconPath,
       required this.colorHex})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'Category', 'id');
-    BuiltValueNullFieldError.checkNotNull(name, r'Category', 'name');
-    BuiltValueNullFieldError.checkNotNull(iconPath, r'Category', 'iconPath');
-    BuiltValueNullFieldError.checkNotNull(colorHex, r'Category', 'colorHex');
-  }
-
+      : super._();
   @override
   Category rebuild(void Function(CategoryBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  CategoryBuilder toBuilder() => new CategoryBuilder()..replace(this);
+  CategoryBuilder toBuilder() => CategoryBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -166,7 +160,6 @@ class CategoryBuilder implements Builder<Category, CategoryBuilder> {
 
   @override
   void replace(Category other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Category;
   }
 
@@ -180,7 +173,7 @@ class CategoryBuilder implements Builder<Category, CategoryBuilder> {
 
   _$Category _build() {
     final _$result = _$v ??
-        new _$Category._(
+        _$Category._(
           id: BuiltValueNullFieldError.checkNotNull(id, r'Category', 'id'),
           name:
               BuiltValueNullFieldError.checkNotNull(name, r'Category', 'name'),

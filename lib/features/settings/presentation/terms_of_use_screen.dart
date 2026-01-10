@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:markdown_widget/markdown_widget.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../../data/services/analytics/analytics_service.dart';
+import '../../../src/generated/l10n/app_localizations.dart';
 import '../controllers/terms_of_use_controller.dart';
 
 class TermsOfUseScreen extends ConsumerStatefulWidget {

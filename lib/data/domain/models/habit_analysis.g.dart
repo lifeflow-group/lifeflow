@@ -7,8 +7,8 @@ part of 'habit_analysis.dart';
 // **************************************************************************
 
 Serializer<HabitAnalysis> _$habitAnalysisSerializer =
-    new _$HabitAnalysisSerializer();
-Serializer<HabitData> _$habitDataSerializer = new _$HabitDataSerializer();
+    _$HabitAnalysisSerializer();
+Serializer<HabitData> _$habitDataSerializer = _$HabitDataSerializer();
 
 class _$HabitAnalysisSerializer implements StructuredSerializer<HabitAnalysis> {
   @override
@@ -39,7 +39,7 @@ class _$HabitAnalysisSerializer implements StructuredSerializer<HabitAnalysis> {
   HabitAnalysis deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new HabitAnalysisBuilder();
+    final result = HabitAnalysisBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -133,7 +133,7 @@ class _$HabitDataSerializer implements StructuredSerializer<HabitData> {
   @override
   HabitData deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new HabitDataBuilder();
+    final result = HabitDataBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -204,23 +204,17 @@ class _$HabitAnalysis extends HabitAnalysis {
   final BuiltList<HabitData> habits;
 
   factory _$HabitAnalysis([void Function(HabitAnalysisBuilder)? updates]) =>
-      (new HabitAnalysisBuilder()..update(updates))._build();
+      (HabitAnalysisBuilder()..update(updates))._build();
 
   _$HabitAnalysis._(
       {required this.startDate, required this.endDate, required this.habits})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        startDate, r'HabitAnalysis', 'startDate');
-    BuiltValueNullFieldError.checkNotNull(endDate, r'HabitAnalysis', 'endDate');
-    BuiltValueNullFieldError.checkNotNull(habits, r'HabitAnalysis', 'habits');
-  }
-
+      : super._();
   @override
   HabitAnalysis rebuild(void Function(HabitAnalysisBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  HabitAnalysisBuilder toBuilder() => new HabitAnalysisBuilder()..replace(this);
+  HabitAnalysisBuilder toBuilder() => HabitAnalysisBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -265,7 +259,7 @@ class HabitAnalysisBuilder
 
   ListBuilder<HabitData>? _habits;
   ListBuilder<HabitData> get habits =>
-      _$this._habits ??= new ListBuilder<HabitData>();
+      _$this._habits ??= ListBuilder<HabitData>();
   set habits(ListBuilder<HabitData>? habits) => _$this._habits = habits;
 
   HabitAnalysisBuilder();
@@ -283,7 +277,6 @@ class HabitAnalysisBuilder
 
   @override
   void replace(HabitAnalysis other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$HabitAnalysis;
   }
 
@@ -299,7 +292,7 @@ class HabitAnalysisBuilder
     _$HabitAnalysis _$result;
     try {
       _$result = _$v ??
-          new _$HabitAnalysis._(
+          _$HabitAnalysis._(
             startDate: BuiltValueNullFieldError.checkNotNull(
                 startDate, r'HabitAnalysis', 'startDate'),
             endDate: BuiltValueNullFieldError.checkNotNull(
@@ -312,7 +305,7 @@ class HabitAnalysisBuilder
         _$failedField = 'habits';
         habits.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'HabitAnalysis', _$failedField, e.toString());
       }
       rethrow;
@@ -347,7 +340,7 @@ class _$HabitData extends HabitData {
   final BuiltList<HabitException> exceptions;
 
   factory _$HabitData([void Function(HabitDataBuilder)? updates]) =>
-      (new HabitDataBuilder()..update(updates))._build();
+      (HabitDataBuilder()..update(updates))._build();
 
   _$HabitData._(
       {required this.id,
@@ -361,25 +354,13 @@ class _$HabitData extends HabitData {
       required this.startDate,
       this.untilDate,
       required this.exceptions})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'HabitData', 'id');
-    BuiltValueNullFieldError.checkNotNull(name, r'HabitData', 'name');
-    BuiltValueNullFieldError.checkNotNull(category, r'HabitData', 'category');
-    BuiltValueNullFieldError.checkNotNull(
-        trackingType, r'HabitData', 'trackingType');
-    BuiltValueNullFieldError.checkNotNull(
-        reminderEnabled, r'HabitData', 'reminderEnabled');
-    BuiltValueNullFieldError.checkNotNull(startDate, r'HabitData', 'startDate');
-    BuiltValueNullFieldError.checkNotNull(
-        exceptions, r'HabitData', 'exceptions');
-  }
-
+      : super._();
   @override
   HabitData rebuild(void Function(HabitDataBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  HabitDataBuilder toBuilder() => new HabitDataBuilder()..replace(this);
+  HabitDataBuilder toBuilder() => HabitDataBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -446,7 +427,7 @@ class HabitDataBuilder implements Builder<HabitData, HabitDataBuilder> {
   set name(String? name) => _$this._name = name;
 
   CategoryBuilder? _category;
-  CategoryBuilder get category => _$this._category ??= new CategoryBuilder();
+  CategoryBuilder get category => _$this._category ??= CategoryBuilder();
   set category(CategoryBuilder? category) => _$this._category = category;
 
   TrackingType? _trackingType;
@@ -482,7 +463,7 @@ class HabitDataBuilder implements Builder<HabitData, HabitDataBuilder> {
 
   ListBuilder<HabitException>? _exceptions;
   ListBuilder<HabitException> get exceptions =>
-      _$this._exceptions ??= new ListBuilder<HabitException>();
+      _$this._exceptions ??= ListBuilder<HabitException>();
   set exceptions(ListBuilder<HabitException>? exceptions) =>
       _$this._exceptions = exceptions;
 
@@ -511,7 +492,6 @@ class HabitDataBuilder implements Builder<HabitData, HabitDataBuilder> {
 
   @override
   void replace(HabitData other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$HabitData;
   }
 
@@ -527,7 +507,7 @@ class HabitDataBuilder implements Builder<HabitData, HabitDataBuilder> {
     _$HabitData _$result;
     try {
       _$result = _$v ??
-          new _$HabitData._(
+          _$HabitData._(
             id: BuiltValueNullFieldError.checkNotNull(id, r'HabitData', 'id'),
             name: BuiltValueNullFieldError.checkNotNull(
                 name, r'HabitData', 'name'),
@@ -553,7 +533,7 @@ class HabitDataBuilder implements Builder<HabitData, HabitDataBuilder> {
         _$failedField = 'exceptions';
         exceptions.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'HabitData', _$failedField, e.toString());
       }
       rethrow;

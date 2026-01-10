@@ -6,7 +6,7 @@ part of 'habit_series.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<HabitSeries> _$habitSeriesSerializer = new _$HabitSeriesSerializer();
+Serializer<HabitSeries> _$habitSeriesSerializer = _$HabitSeriesSerializer();
 
 class _$HabitSeriesSerializer implements StructuredSerializer<HabitSeries> {
   @override
@@ -51,7 +51,7 @@ class _$HabitSeriesSerializer implements StructuredSerializer<HabitSeries> {
   @override
   HabitSeries deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new HabitSeriesBuilder();
+    final result = HabitSeriesBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -106,7 +106,7 @@ class _$HabitSeries extends HabitSeries {
   final RepeatFrequency? repeatFrequency;
 
   factory _$HabitSeries([void Function(HabitSeriesBuilder)? updates]) =>
-      (new HabitSeriesBuilder()..update(updates))._build();
+      (HabitSeriesBuilder()..update(updates))._build();
 
   _$HabitSeries._(
       {required this.id,
@@ -115,20 +115,13 @@ class _$HabitSeries extends HabitSeries {
       required this.startDate,
       this.untilDate,
       this.repeatFrequency})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'HabitSeries', 'id');
-    BuiltValueNullFieldError.checkNotNull(userId, r'HabitSeries', 'userId');
-    BuiltValueNullFieldError.checkNotNull(habitId, r'HabitSeries', 'habitId');
-    BuiltValueNullFieldError.checkNotNull(
-        startDate, r'HabitSeries', 'startDate');
-  }
-
+      : super._();
   @override
   HabitSeries rebuild(void Function(HabitSeriesBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  HabitSeriesBuilder toBuilder() => new HabitSeriesBuilder()..replace(this);
+  HabitSeriesBuilder toBuilder() => HabitSeriesBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -216,7 +209,6 @@ class HabitSeriesBuilder implements Builder<HabitSeries, HabitSeriesBuilder> {
 
   @override
   void replace(HabitSeries other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$HabitSeries;
   }
 
@@ -230,7 +222,7 @@ class HabitSeriesBuilder implements Builder<HabitSeries, HabitSeriesBuilder> {
 
   _$HabitSeries _build() {
     final _$result = _$v ??
-        new _$HabitSeries._(
+        _$HabitSeries._(
           id: BuiltValueNullFieldError.checkNotNull(id, r'HabitSeries', 'id'),
           userId: BuiltValueNullFieldError.checkNotNull(
               userId, r'HabitSeries', 'userId'),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../core/utils/helpers.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
+import '../../../../src/generated/l10n/app_localizations.dart';
 import '../../../settings/controllers/settings_controller.dart';
 import '../../controllers/overview_controller.dart';
 import '../widgets/chart_section.dart';

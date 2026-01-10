@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../data/domain/models/habit.dart';
 import '../../../data/domain/models/category.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../shared/widgets/scope_dialog.dart';
+import '../../../src/generated/l10n/app_localizations.dart';
 import '../controllers/habit_detail_controller.dart';
 import 'widgets/category_bottom_sheet.dart';
 
@@ -334,52 +334,38 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                 ),
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RadioListTile<TrackingType>(
-                            title: Text(l10n.trackingTypeComplete,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold)),
-                            value: TrackingType.complete,
-                            groupValue: habitTrackingType,
-                            onChanged: (value) {
-                              if (value == null) return;
+                    RadioGroup<TrackingType>(
+                      groupValue: habitTrackingType,
+                      onChanged: (value) {
+                        if (value == null) return;
 
-                              // Use controller to track tracking type changed
-                              _analyticsService
-                                  .trackTrackingTypeChanged('complete');
-
-                              controller.updateTrackingType(value);
-                            },
+                        _analyticsService.trackTrackingTypeChanged(value.name);
+                        controller.updateTrackingType(value);
+                      },
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: RadioListTile<TrackingType>(
+                              title: Text(l10n.trackingTypeComplete,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold)),
+                              value: TrackingType.complete,
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: RadioListTile<TrackingType>(
-                            title: Text(l10n.trackingTypeProgress,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold)),
-                            value: TrackingType.progress,
-                            groupValue: habitTrackingType,
-                            onChanged: (value) {
-                              if (value == null) return;
-
-                              _analyticsService
-                                  .trackTrackingTypeChanged(value.name);
-                              controller.updateTrackingType(value);
-                              if (value == TrackingType.progress &&
-                                  habitTargetValue == 0 &&
-                                  habitUnit == '') {
-                                _showProgressDialog(context, ref);
-                              }
-                            },
+                          Expanded(
+                            child: RadioListTile<TrackingType>(
+                              title: Text(l10n.trackingTypeProgress,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold)),
+                              value: TrackingType.progress,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     // --- Display Progress value if selected ---
                     if (habitTrackingType == TrackingType.progress)

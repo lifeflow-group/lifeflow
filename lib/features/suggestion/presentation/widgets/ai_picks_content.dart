@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../data/domain/models/habit.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
+import '../../../../src/generated/l10n/app_localizations.dart';
 import '../../controllers/ai_picks_controller.dart';
 import 'empty_suggestions_view.dart';
 import 'loading_view.dart';

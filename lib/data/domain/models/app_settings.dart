@@ -2,9 +2,9 @@ import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart' show BuildContext, ThemeMode;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../core/constants/app_languages.dart';
+import '../../../src/generated/l10n/app_localizations.dart';
 import '../serializers.dart';
 import 'language.dart';
 
@@ -65,7 +65,8 @@ class ThemeModeSetting extends EnumClass {
   const ThemeModeSetting._(super.name);
 
   static BuiltSet<ThemeModeSetting> get values => _$themeModeSettingValues;
-  static ThemeModeSetting valueOf(String name) => _$themeModeSettingValueOf(name);
+  static ThemeModeSetting valueOf(String name) =>
+      _$themeModeSettingValueOf(name);
 
   ThemeMode toThemeMode() {
     switch (this) {
@@ -93,7 +94,7 @@ class ThemeModeSetting extends EnumClass {
         return name;
     }
   }
-  
+
   // Keeping the original display method for cases where BuildContext is not available
   String get display {
     switch (this) {
@@ -109,7 +110,8 @@ class ThemeModeSetting extends EnumClass {
   }
 
   String serialize() {
-    return serializers.serializeWith(ThemeModeSetting.serializer, this) as String;
+    return serializers.serializeWith(ThemeModeSetting.serializer, this)
+        as String;
   }
 
   static ThemeModeSetting deserialize(String string) {
@@ -117,7 +119,8 @@ class ThemeModeSetting extends EnumClass {
         as ThemeModeSetting;
   }
 
-  static Serializer<ThemeModeSetting> get serializer => _$themeModeSettingSerializer;
+  static Serializer<ThemeModeSetting> get serializer =>
+      _$themeModeSettingSerializer;
 }
 
 abstract class AppSettings implements Built<AppSettings, AppSettingsBuilder> {

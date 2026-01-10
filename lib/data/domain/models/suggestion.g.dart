@@ -6,7 +6,7 @@ part of 'suggestion.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Suggestion> _$suggestionSerializer = new _$SuggestionSerializer();
+Serializer<Suggestion> _$suggestionSerializer = _$SuggestionSerializer();
 
 class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
   @override
@@ -41,7 +41,7 @@ class _$SuggestionSerializer implements StructuredSerializer<Suggestion> {
   @override
   Suggestion deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new SuggestionBuilder();
+    final result = SuggestionBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -83,26 +83,20 @@ class _$Suggestion extends Suggestion {
   final Habit? habit;
 
   factory _$Suggestion([void Function(SuggestionBuilder)? updates]) =>
-      (new SuggestionBuilder()..update(updates))._build();
+      (SuggestionBuilder()..update(updates))._build();
 
   _$Suggestion._(
       {required this.id,
       required this.title,
       required this.description,
       this.habit})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'Suggestion', 'id');
-    BuiltValueNullFieldError.checkNotNull(title, r'Suggestion', 'title');
-    BuiltValueNullFieldError.checkNotNull(
-        description, r'Suggestion', 'description');
-  }
-
+      : super._();
   @override
   Suggestion rebuild(void Function(SuggestionBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  SuggestionBuilder toBuilder() => new SuggestionBuilder()..replace(this);
+  SuggestionBuilder toBuilder() => SuggestionBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -152,7 +146,7 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
   set description(String? description) => _$this._description = description;
 
   HabitBuilder? _habit;
-  HabitBuilder get habit => _$this._habit ??= new HabitBuilder();
+  HabitBuilder get habit => _$this._habit ??= HabitBuilder();
   set habit(HabitBuilder? habit) => _$this._habit = habit;
 
   SuggestionBuilder();
@@ -171,7 +165,6 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
 
   @override
   void replace(Suggestion other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Suggestion;
   }
 
@@ -187,7 +180,7 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
     _$Suggestion _$result;
     try {
       _$result = _$v ??
-          new _$Suggestion._(
+          _$Suggestion._(
             id: BuiltValueNullFieldError.checkNotNull(id, r'Suggestion', 'id'),
             title: BuiltValueNullFieldError.checkNotNull(
                 title, r'Suggestion', 'title'),
@@ -201,7 +194,7 @@ class SuggestionBuilder implements Builder<Suggestion, SuggestionBuilder> {
         _$failedField = 'habit';
         _habit?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'Suggestion', _$failedField, e.toString());
       }
       rethrow;

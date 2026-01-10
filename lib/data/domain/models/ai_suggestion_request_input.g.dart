@@ -20,21 +20,21 @@ DataSourceType _$dataSourceTypeValueOf(String name) {
     case 'both':
       return _$both;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<DataSourceType> _$dataSourceTypeValues =
-    new BuiltSet<DataSourceType>(const <DataSourceType>[
+    BuiltSet<DataSourceType>(const <DataSourceType>[
   _$personalizationOnly,
   _$habitsOnly,
   _$both,
 ]);
 
 Serializer<AISuggestionRequestInput> _$aISuggestionRequestInputSerializer =
-    new _$AISuggestionRequestInputSerializer();
+    _$AISuggestionRequestInputSerializer();
 Serializer<DataSourceType> _$dataSourceTypeSerializer =
-    new _$DataSourceTypeSerializer();
+    _$DataSourceTypeSerializer();
 
 class _$AISuggestionRequestInputSerializer
     implements StructuredSerializer<AISuggestionRequestInput> {
@@ -85,7 +85,7 @@ class _$AISuggestionRequestInputSerializer
   AISuggestionRequestInput deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new AISuggestionRequestInputBuilder();
+    final result = AISuggestionRequestInputBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -159,7 +159,7 @@ class _$AISuggestionRequestInput extends AISuggestionRequestInput {
 
   factory _$AISuggestionRequestInput(
           [void Function(AISuggestionRequestInputBuilder)? updates]) =>
-      (new AISuggestionRequestInputBuilder()..update(updates))._build();
+      (AISuggestionRequestInputBuilder()..update(updates))._build();
 
   _$AISuggestionRequestInput._(
       {required this.id,
@@ -168,17 +168,7 @@ class _$AISuggestionRequestInput extends AISuggestionRequestInput {
       required this.dataSourceType,
       required this.personalizationContext,
       this.habitAnalysis})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        id, r'AISuggestionRequestInput', 'id');
-    BuiltValueNullFieldError.checkNotNull(
-        createdAt, r'AISuggestionRequestInput', 'createdAt');
-    BuiltValueNullFieldError.checkNotNull(
-        dataSourceType, r'AISuggestionRequestInput', 'dataSourceType');
-    BuiltValueNullFieldError.checkNotNull(personalizationContext,
-        r'AISuggestionRequestInput', 'personalizationContext');
-  }
-
+      : super._();
   @override
   AISuggestionRequestInput rebuild(
           void Function(AISuggestionRequestInputBuilder) updates) =>
@@ -186,7 +176,7 @@ class _$AISuggestionRequestInput extends AISuggestionRequestInput {
 
   @override
   AISuggestionRequestInputBuilder toBuilder() =>
-      new AISuggestionRequestInputBuilder()..replace(this);
+      AISuggestionRequestInputBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -250,14 +240,14 @@ class AISuggestionRequestInputBuilder
 
   PersonalizationContextBuilder? _personalizationContext;
   PersonalizationContextBuilder get personalizationContext =>
-      _$this._personalizationContext ??= new PersonalizationContextBuilder();
+      _$this._personalizationContext ??= PersonalizationContextBuilder();
   set personalizationContext(
           PersonalizationContextBuilder? personalizationContext) =>
       _$this._personalizationContext = personalizationContext;
 
   HabitAnalysisBuilder? _habitAnalysis;
   HabitAnalysisBuilder get habitAnalysis =>
-      _$this._habitAnalysis ??= new HabitAnalysisBuilder();
+      _$this._habitAnalysis ??= HabitAnalysisBuilder();
   set habitAnalysis(HabitAnalysisBuilder? habitAnalysis) =>
       _$this._habitAnalysis = habitAnalysis;
 
@@ -281,7 +271,6 @@ class AISuggestionRequestInputBuilder
 
   @override
   void replace(AISuggestionRequestInput other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$AISuggestionRequestInput;
   }
 
@@ -297,7 +286,7 @@ class AISuggestionRequestInputBuilder
     _$AISuggestionRequestInput _$result;
     try {
       _$result = _$v ??
-          new _$AISuggestionRequestInput._(
+          _$AISuggestionRequestInput._(
             id: BuiltValueNullFieldError.checkNotNull(
                 id, r'AISuggestionRequestInput', 'id'),
             userId: userId,
@@ -316,7 +305,7 @@ class AISuggestionRequestInputBuilder
         _$failedField = 'habitAnalysis';
         _habitAnalysis?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'AISuggestionRequestInput', _$failedField, e.toString());
       }
       rethrow;

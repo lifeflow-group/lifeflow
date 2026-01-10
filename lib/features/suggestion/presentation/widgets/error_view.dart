@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../core/utils/logger.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
+import '../../../../src/generated/l10n/app_localizations.dart';
 
 /// Error state widget for when there's an error loading content
 class ErrorView extends StatelessWidget {

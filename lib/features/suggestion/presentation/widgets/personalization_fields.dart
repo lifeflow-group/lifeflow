@@ -1,11 +1,11 @@
 import 'package:built_value/built_value.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../data/domain/models/ai_suggestion_request_input.dart';
 import '../../../../data/domain/models/personalization_context.dart';
+import '../../../../src/generated/l10n/app_localizations.dart';
 import '../../controllers/ai_picks_controller.dart';
 import 'personalization_action_chip.dart';
 

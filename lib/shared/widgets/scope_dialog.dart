@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../../src/generated/l10n/app_localizations.dart';
 
 enum ActionScope {
   onlyThis, // Edit only this day (create HabitException)

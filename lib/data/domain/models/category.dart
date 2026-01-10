@@ -1,8 +1,8 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:flutter/material.dart' show BuildContext;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../src/generated/l10n/app_localizations.dart';
 import '../serializers.dart';
 
 part 'category.g.dart';

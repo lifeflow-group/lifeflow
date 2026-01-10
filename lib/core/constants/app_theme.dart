@@ -43,7 +43,7 @@ class AppTheme {
       bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     ).apply(bodyColor: lightTextColor, displayColor: lightTextColor),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: cardLight,
       shadowColor: Colors.black26,
       elevation: 4,
@@ -98,7 +98,7 @@ class AppTheme {
       bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     ).apply(bodyColor: darkTextColor, displayColor: darkTextColor),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: cardDark,
       shadowColor: Colors.black87,
       elevation: 4,
@@ -143,7 +143,7 @@ class AppTheme {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: Color(0xFF323232),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),

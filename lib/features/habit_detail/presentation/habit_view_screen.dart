@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../data/controllers/habit_controller.dart';
 import '../../../data/domain/models/habit.dart';
@@ -10,6 +9,7 @@ import '../../../data/domain/models/scheduled_notification.dart';
 import '../../../data/services/analytics/analytics_service.dart';
 import '../../../shared/actions/habit_actions.dart';
 import '../../../shared/widgets/enter_number_dialog.dart';
+import '../../../src/generated/l10n/app_localizations.dart';
 import '../../home/controllers/home_controller.dart';
 import '../controllers/habit_detail_controller.dart';
 import 'widgets/view_row.dart';

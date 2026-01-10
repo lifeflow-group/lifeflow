@@ -6,7 +6,7 @@ part of 'language.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Language> _$languageSerializer = new _$LanguageSerializer();
+Serializer<Language> _$languageSerializer = _$LanguageSerializer();
 
 class _$LanguageSerializer implements StructuredSerializer<Language> {
   @override
@@ -35,7 +35,7 @@ class _$LanguageSerializer implements StructuredSerializer<Language> {
   @override
   Language deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new LanguageBuilder();
+    final result = LanguageBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -73,21 +73,13 @@ class _$Language extends Language {
   String? __dateFormatLocale;
 
   factory _$Language([void Function(LanguageBuilder)? updates]) =>
-      (new LanguageBuilder()..update(updates))._build();
+      (LanguageBuilder()..update(updates))._build();
 
   _$Language._(
       {required this.languageCode,
       required this.countryCode,
       required this.languageName})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        languageCode, r'Language', 'languageCode');
-    BuiltValueNullFieldError.checkNotNull(
-        countryCode, r'Language', 'countryCode');
-    BuiltValueNullFieldError.checkNotNull(
-        languageName, r'Language', 'languageName');
-  }
-
+      : super._();
   @override
   Locale get locale => __locale ??= super.locale;
 
@@ -99,7 +91,7 @@ class _$Language extends Language {
       (toBuilder()..update(updates)).build();
 
   @override
-  LanguageBuilder toBuilder() => new LanguageBuilder()..replace(this);
+  LanguageBuilder toBuilder() => LanguageBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -160,7 +152,6 @@ class LanguageBuilder implements Builder<Language, LanguageBuilder> {
 
   @override
   void replace(Language other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Language;
   }
 
@@ -174,7 +165,7 @@ class LanguageBuilder implements Builder<Language, LanguageBuilder> {
 
   _$Language _build() {
     final _$result = _$v ??
-        new _$Language._(
+        _$Language._(
           languageCode: BuiltValueNullFieldError.checkNotNull(
               languageCode, r'Language', 'languageCode'),
           countryCode: BuiltValueNullFieldError.checkNotNull(

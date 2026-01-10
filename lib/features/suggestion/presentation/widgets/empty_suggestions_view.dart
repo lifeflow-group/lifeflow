@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../data/services/analytics/analytics_service.dart';
+import '../../../../src/generated/l10n/app_localizations.dart';
 
 /// Empty state widget for when no suggestions are available
 class EmptySuggestionsView extends StatelessWidget {

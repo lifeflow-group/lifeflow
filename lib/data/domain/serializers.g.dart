@@ -6,7 +6,7 @@ part of 'serializers.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializers _$serializers = (new Serializers().toBuilder()
+Serializers _$serializers = (Serializers().toBuilder()
       ..add(AISuggestionRequestInput.serializer)
       ..add(AppSettings.serializer)
       ..add(Category.serializer)
@@ -29,13 +29,13 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(WeekStartDay.serializer)
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(HabitData)]),
-          () => new ListBuilder<HabitData>())
+          () => ListBuilder<HabitData>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(HabitException)]),
-          () => new ListBuilder<HabitException>())
+          () => ListBuilder<HabitException>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Suggestion)]),
-          () => new ListBuilder<Suggestion>()))
+          () => ListBuilder<Suggestion>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

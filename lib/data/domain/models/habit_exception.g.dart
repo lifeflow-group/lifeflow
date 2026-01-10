@@ -7,7 +7,7 @@ part of 'habit_exception.dart';
 // **************************************************************************
 
 Serializer<HabitException> _$habitExceptionSerializer =
-    new _$HabitExceptionSerializer();
+    _$HabitExceptionSerializer();
 
 class _$HabitExceptionSerializer
     implements StructuredSerializer<HabitException> {
@@ -62,7 +62,7 @@ class _$HabitExceptionSerializer
   HabitException deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new HabitExceptionBuilder();
+    final result = HabitExceptionBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -128,7 +128,7 @@ class _$HabitException extends HabitException {
   final bool? isCompleted;
 
   factory _$HabitException([void Function(HabitExceptionBuilder)? updates]) =>
-      (new HabitExceptionBuilder()..update(updates))._build();
+      (HabitExceptionBuilder()..update(updates))._build();
 
   _$HabitException._(
       {required this.id,
@@ -139,24 +139,13 @@ class _$HabitException extends HabitException {
       this.targetValue,
       this.currentValue,
       this.isCompleted})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'HabitException', 'id');
-    BuiltValueNullFieldError.checkNotNull(
-        habitSeriesId, r'HabitException', 'habitSeriesId');
-    BuiltValueNullFieldError.checkNotNull(date, r'HabitException', 'date');
-    BuiltValueNullFieldError.checkNotNull(
-        isSkipped, r'HabitException', 'isSkipped');
-    BuiltValueNullFieldError.checkNotNull(
-        reminderEnabled, r'HabitException', 'reminderEnabled');
-  }
-
+      : super._();
   @override
   HabitException rebuild(void Function(HabitExceptionBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  HabitExceptionBuilder toBuilder() =>
-      new HabitExceptionBuilder()..replace(this);
+  HabitExceptionBuilder toBuilder() => HabitExceptionBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -262,7 +251,6 @@ class HabitExceptionBuilder
 
   @override
   void replace(HabitException other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$HabitException;
   }
 
@@ -276,7 +264,7 @@ class HabitExceptionBuilder
 
   _$HabitException _build() {
     final _$result = _$v ??
-        new _$HabitException._(
+        _$HabitException._(
           id: BuiltValueNullFieldError.checkNotNull(
               id, r'HabitException', 'id'),
           habitSeriesId: BuiltValueNullFieldError.checkNotNull(

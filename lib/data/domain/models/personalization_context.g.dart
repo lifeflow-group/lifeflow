@@ -25,12 +25,12 @@ PersonalityType _$personalityTypeValueOf(String name) {
     case 'analytical':
       return _$analytical;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<PersonalityType> _$personalityTypeValues =
-    new BuiltSet<PersonalityType>(const <PersonalityType>[
+    BuiltSet<PersonalityType>(const <PersonalityType>[
   _$introverted,
   _$extroverted,
   _$disciplined,
@@ -57,12 +57,12 @@ TimePreference _$timePreferenceValueOf(String name) {
     case 'flexible':
       return _$flexible;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<TimePreference> _$timePreferenceValues =
-    new BuiltSet<TimePreference>(const <TimePreference>[
+    BuiltSet<TimePreference>(const <TimePreference>[
   _$morning,
   _$noon,
   _$afternoon,
@@ -83,25 +83,25 @@ GuidanceLevel _$guidanceLevelValueOf(String name) {
     case 'advanced':
       return _$advanced;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<GuidanceLevel> _$guidanceLevelValues =
-    new BuiltSet<GuidanceLevel>(const <GuidanceLevel>[
+    BuiltSet<GuidanceLevel>(const <GuidanceLevel>[
   _$simple,
   _$intermediate,
   _$advanced,
 ]);
 
 Serializer<PersonalizationContext> _$personalizationContextSerializer =
-    new _$PersonalizationContextSerializer();
+    _$PersonalizationContextSerializer();
 Serializer<PersonalityType> _$personalityTypeSerializer =
-    new _$PersonalityTypeSerializer();
+    _$PersonalityTypeSerializer();
 Serializer<TimePreference> _$timePreferenceSerializer =
-    new _$TimePreferenceSerializer();
+    _$TimePreferenceSerializer();
 Serializer<GuidanceLevel> _$guidanceLevelSerializer =
-    new _$GuidanceLevelSerializer();
+    _$GuidanceLevelSerializer();
 
 class _$PersonalizationContextSerializer
     implements StructuredSerializer<PersonalizationContext> {
@@ -151,7 +151,7 @@ class _$PersonalizationContextSerializer
   PersonalizationContext deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new PersonalizationContextBuilder();
+    final result = PersonalizationContextBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -248,18 +248,14 @@ class _$PersonalizationContext extends PersonalizationContext {
 
   factory _$PersonalizationContext(
           [void Function(PersonalizationContextBuilder)? updates]) =>
-      (new PersonalizationContextBuilder()..update(updates))._build();
+      (PersonalizationContextBuilder()..update(updates))._build();
 
   _$PersonalizationContext._(
       {required this.goals,
       this.personalityType,
       this.timePreference,
       this.guidanceLevel})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        goals, r'PersonalizationContext', 'goals');
-  }
-
+      : super._();
   @override
   PersonalizationContext rebuild(
           void Function(PersonalizationContextBuilder) updates) =>
@@ -267,7 +263,7 @@ class _$PersonalizationContext extends PersonalizationContext {
 
   @override
   PersonalizationContextBuilder toBuilder() =>
-      new PersonalizationContextBuilder()..replace(this);
+      PersonalizationContextBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -342,7 +338,6 @@ class PersonalizationContextBuilder
 
   @override
   void replace(PersonalizationContext other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$PersonalizationContext;
   }
 
@@ -356,7 +351,7 @@ class PersonalizationContextBuilder
 
   _$PersonalizationContext _build() {
     final _$result = _$v ??
-        new _$PersonalizationContext._(
+        _$PersonalizationContext._(
           goals: BuiltValueNullFieldError.checkNotNull(
               goals, r'PersonalizationContext', 'goals'),
           personalityType: personalityType,

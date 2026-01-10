@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/app_constants.dart';
@@ -8,6 +8,7 @@ import 'core/constants/app_languages.dart';
 import 'core/routing/app_router.dart';
 import 'data/providers/locale_provider.dart';
 import 'data/providers/theme_provider.dart';
+import 'src/generated/l10n/app_localizations.dart';
 
 class LifeFlowApp extends ConsumerWidget {
   const LifeFlowApp({super.key});

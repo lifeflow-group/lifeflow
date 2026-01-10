@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../data/factories/default_data.dart';
 import '../../../../data/providers/filter_providers.dart';
 import '../../../../data/domain/models/category.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
+import '../../../../src/generated/l10n/app_localizations.dart';
 import '../../../habit_detail/presentation/widgets/category_bottom_sheet.dart';
 import '../../controllers/habit_plans_controller.dart';
 import '../widgets/error_view.dart';

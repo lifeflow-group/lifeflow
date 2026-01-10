@@ -19,12 +19,12 @@ RepeatFrequency _$repeatFrequencyValueOf(String name) {
     case 'monthly':
       return _$monthly;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<RepeatFrequency> _$repeatFrequencyValues =
-    new BuiltSet<RepeatFrequency>(const <RepeatFrequency>[
+    BuiltSet<RepeatFrequency>(const <RepeatFrequency>[
   _$daily,
   _$weekly,
   _$monthly,
@@ -40,21 +40,20 @@ TrackingType _$trackingTypeValueOf(String name) {
     case 'progress':
       return _$progress;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<TrackingType> _$trackingTypeValues =
-    new BuiltSet<TrackingType>(const <TrackingType>[
+    BuiltSet<TrackingType>(const <TrackingType>[
   _$complete,
   _$progress,
 ]);
 
 Serializer<RepeatFrequency> _$repeatFrequencySerializer =
-    new _$RepeatFrequencySerializer();
-Serializer<TrackingType> _$trackingTypeSerializer =
-    new _$TrackingTypeSerializer();
-Serializer<Habit> _$habitSerializer = new _$HabitSerializer();
+    _$RepeatFrequencySerializer();
+Serializer<TrackingType> _$trackingTypeSerializer = _$TrackingTypeSerializer();
+Serializer<Habit> _$habitSerializer = _$HabitSerializer();
 
 class _$RepeatFrequencySerializer
     implements PrimitiveSerializer<RepeatFrequency> {
@@ -161,7 +160,7 @@ class _$HabitSerializer implements StructuredSerializer<Habit> {
   @override
   Habit deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new HabitBuilder();
+    final result = HabitBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -251,7 +250,7 @@ class _$Habit extends Habit {
   final bool? isCompleted;
 
   factory _$Habit([void Function(HabitBuilder)? updates]) =>
-      (new HabitBuilder()..update(updates))._build();
+      (HabitBuilder()..update(updates))._build();
 
   _$Habit._(
       {required this.id,
@@ -266,24 +265,13 @@ class _$Habit extends Habit {
       this.currentValue,
       this.unit,
       this.isCompleted})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'Habit', 'id');
-    BuiltValueNullFieldError.checkNotNull(name, r'Habit', 'name');
-    BuiltValueNullFieldError.checkNotNull(userId, r'Habit', 'userId');
-    BuiltValueNullFieldError.checkNotNull(category, r'Habit', 'category');
-    BuiltValueNullFieldError.checkNotNull(date, r'Habit', 'date');
-    BuiltValueNullFieldError.checkNotNull(
-        reminderEnabled, r'Habit', 'reminderEnabled');
-    BuiltValueNullFieldError.checkNotNull(
-        trackingType, r'Habit', 'trackingType');
-  }
-
+      : super._();
   @override
   Habit rebuild(void Function(HabitBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  HabitBuilder toBuilder() => new HabitBuilder()..replace(this);
+  HabitBuilder toBuilder() => HabitBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -357,7 +345,7 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
   set userId(String? userId) => _$this._userId = userId;
 
   CategoryBuilder? _category;
-  CategoryBuilder get category => _$this._category ??= new CategoryBuilder();
+  CategoryBuilder get category => _$this._category ??= CategoryBuilder();
   set category(CategoryBuilder? category) => _$this._category = category;
 
   DateTime? _date;
@@ -365,7 +353,7 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
   set date(DateTime? date) => _$this._date = date;
 
   HabitSeriesBuilder? _series;
-  HabitSeriesBuilder get series => _$this._series ??= new HabitSeriesBuilder();
+  HabitSeriesBuilder get series => _$this._series ??= HabitSeriesBuilder();
   set series(HabitSeriesBuilder? series) => _$this._series = series;
 
   bool? _reminderEnabled;
@@ -420,7 +408,6 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
 
   @override
   void replace(Habit other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Habit;
   }
 
@@ -436,7 +423,7 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
     _$Habit _$result;
     try {
       _$result = _$v ??
-          new _$Habit._(
+          _$Habit._(
             id: BuiltValueNullFieldError.checkNotNull(id, r'Habit', 'id'),
             name: BuiltValueNullFieldError.checkNotNull(name, r'Habit', 'name'),
             userId: BuiltValueNullFieldError.checkNotNull(
@@ -462,8 +449,7 @@ class HabitBuilder implements Builder<Habit, HabitBuilder> {
         _$failedField = 'series';
         _series?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
-            r'Habit', _$failedField, e.toString());
+        throw BuiltValueNestedFieldError(r'Habit', _$failedField, e.toString());
       }
       rethrow;
     }

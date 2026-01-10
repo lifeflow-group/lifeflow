@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../core/constants/app_languages.dart';
 import '../../../data/domain/models/app_settings.dart';
 import '../../../data/domain/models/language.dart';
 import '../../../data/services/analytics/analytics_service.dart';
+import '../../../src/generated/l10n/app_localizations.dart';
 import '../controllers/settings_controller.dart';
 import 'widgets/settings_divider.dart';
 import 'widgets/settings_item.dart';

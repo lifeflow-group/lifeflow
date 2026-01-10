@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../src/generated/l10n/app_localizations.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../overview/presentation/screens/overview_screen.dart';
 import '../../settings/presentation/settings_screen.dart';

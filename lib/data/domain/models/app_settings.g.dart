@@ -16,12 +16,12 @@ WeekStartDay _$weekStartDayValueOf(String name) {
     case 'sunday':
       return _$sunday;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<WeekStartDay> _$weekStartDayValues =
-    new BuiltSet<WeekStartDay>(const <WeekStartDay>[
+    BuiltSet<WeekStartDay>(const <WeekStartDay>[
   _$monday,
   _$sunday,
 ]);
@@ -39,22 +39,21 @@ ThemeModeSetting _$themeModeSettingValueOf(String name) {
     case 'system':
       return _$system;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<ThemeModeSetting> _$themeModeSettingValues =
-    new BuiltSet<ThemeModeSetting>(const <ThemeModeSetting>[
+    BuiltSet<ThemeModeSetting>(const <ThemeModeSetting>[
   _$light,
   _$dark,
   _$system,
 ]);
 
-Serializer<WeekStartDay> _$weekStartDaySerializer =
-    new _$WeekStartDaySerializer();
+Serializer<WeekStartDay> _$weekStartDaySerializer = _$WeekStartDaySerializer();
 Serializer<ThemeModeSetting> _$themeModeSettingSerializer =
-    new _$ThemeModeSettingSerializer();
-Serializer<AppSettings> _$appSettingsSerializer = new _$AppSettingsSerializer();
+    _$ThemeModeSettingSerializer();
+Serializer<AppSettings> _$appSettingsSerializer = _$AppSettingsSerializer();
 
 class _$WeekStartDaySerializer implements PrimitiveSerializer<WeekStartDay> {
   @override
@@ -118,7 +117,7 @@ class _$AppSettingsSerializer implements StructuredSerializer<AppSettings> {
   @override
   AppSettings deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new AppSettingsBuilder();
+    final result = AppSettingsBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -155,26 +154,19 @@ class _$AppSettings extends AppSettings {
   final ThemeModeSetting themeMode;
 
   factory _$AppSettings([void Function(AppSettingsBuilder)? updates]) =>
-      (new AppSettingsBuilder()..update(updates))._build();
+      (AppSettingsBuilder()..update(updates))._build();
 
   _$AppSettings._(
       {required this.weekStartDay,
       required this.language,
       required this.themeMode})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        weekStartDay, r'AppSettings', 'weekStartDay');
-    BuiltValueNullFieldError.checkNotNull(language, r'AppSettings', 'language');
-    BuiltValueNullFieldError.checkNotNull(
-        themeMode, r'AppSettings', 'themeMode');
-  }
-
+      : super._();
   @override
   AppSettings rebuild(void Function(AppSettingsBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  AppSettingsBuilder toBuilder() => new AppSettingsBuilder()..replace(this);
+  AppSettingsBuilder toBuilder() => AppSettingsBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -214,7 +206,7 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
       _$this._weekStartDay = weekStartDay;
 
   LanguageBuilder? _language;
-  LanguageBuilder get language => _$this._language ??= new LanguageBuilder();
+  LanguageBuilder get language => _$this._language ??= LanguageBuilder();
   set language(LanguageBuilder? language) => _$this._language = language;
 
   ThemeModeSetting? _themeMode;
@@ -238,7 +230,6 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
 
   @override
   void replace(AppSettings other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$AppSettings;
   }
 
@@ -254,7 +245,7 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
     _$AppSettings _$result;
     try {
       _$result = _$v ??
-          new _$AppSettings._(
+          _$AppSettings._(
             weekStartDay: BuiltValueNullFieldError.checkNotNull(
                 weekStartDay, r'AppSettings', 'weekStartDay'),
             language: language.build(),
@@ -267,7 +258,7 @@ class AppSettingsBuilder implements Builder<AppSettings, AppSettingsBuilder> {
         _$failedField = 'language';
         language.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'AppSettings', _$failedField, e.toString());
       }
       rethrow;

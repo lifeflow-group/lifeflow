@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../../data/domain/models/habit.dart';
+import '../../../../src/generated/l10n/app_localizations.dart';
 
 class SuggestedHabitCard extends StatelessWidget {
   final Habit habit;
@@ -55,10 +55,11 @@ class SuggestedHabitCard extends StatelessWidget {
                   ),
                 ),
                 habit.trackingType == TrackingType.complete
-                    ? Radio<bool>(
-                        value: false,
-                        groupValue: null,
+                    ? RadioGroup<bool>(
                         onChanged: (bool? value) {},
+                        child: Radio<bool>(
+                          value: false,
+                        ),
                       )
                     : Padding(
                         padding: EdgeInsets.all(4.0),

@@ -6,7 +6,7 @@ part of 'habit_plan.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<HabitPlan> _$habitPlanSerializer = new _$HabitPlanSerializer();
+Serializer<HabitPlan> _$habitPlanSerializer = _$HabitPlanSerializer();
 
 class _$HabitPlanSerializer implements StructuredSerializer<HabitPlan> {
   @override
@@ -44,7 +44,7 @@ class _$HabitPlanSerializer implements StructuredSerializer<HabitPlan> {
   @override
   HabitPlan deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new HabitPlanBuilder();
+    final result = HabitPlanBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -100,7 +100,7 @@ class _$HabitPlan extends HabitPlan {
   final BuiltList<Suggestion> suggestions;
 
   factory _$HabitPlan([void Function(HabitPlanBuilder)? updates]) =>
-      (new HabitPlanBuilder()..update(updates))._build();
+      (HabitPlanBuilder()..update(updates))._build();
 
   _$HabitPlan._(
       {required this.id,
@@ -109,23 +109,13 @@ class _$HabitPlan extends HabitPlan {
       required this.description,
       required this.imagePath,
       required this.suggestions})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(id, r'HabitPlan', 'id');
-    BuiltValueNullFieldError.checkNotNull(title, r'HabitPlan', 'title');
-    BuiltValueNullFieldError.checkNotNull(category, r'HabitPlan', 'category');
-    BuiltValueNullFieldError.checkNotNull(
-        description, r'HabitPlan', 'description');
-    BuiltValueNullFieldError.checkNotNull(imagePath, r'HabitPlan', 'imagePath');
-    BuiltValueNullFieldError.checkNotNull(
-        suggestions, r'HabitPlan', 'suggestions');
-  }
-
+      : super._();
   @override
   HabitPlan rebuild(void Function(HabitPlanBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  HabitPlanBuilder toBuilder() => new HabitPlanBuilder()..replace(this);
+  HabitPlanBuilder toBuilder() => HabitPlanBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -177,7 +167,7 @@ class HabitPlanBuilder implements Builder<HabitPlan, HabitPlanBuilder> {
   set title(String? title) => _$this._title = title;
 
   CategoryBuilder? _category;
-  CategoryBuilder get category => _$this._category ??= new CategoryBuilder();
+  CategoryBuilder get category => _$this._category ??= CategoryBuilder();
   set category(CategoryBuilder? category) => _$this._category = category;
 
   String? _description;
@@ -190,7 +180,7 @@ class HabitPlanBuilder implements Builder<HabitPlan, HabitPlanBuilder> {
 
   ListBuilder<Suggestion>? _suggestions;
   ListBuilder<Suggestion> get suggestions =>
-      _$this._suggestions ??= new ListBuilder<Suggestion>();
+      _$this._suggestions ??= ListBuilder<Suggestion>();
   set suggestions(ListBuilder<Suggestion>? suggestions) =>
       _$this._suggestions = suggestions;
 
@@ -212,7 +202,6 @@ class HabitPlanBuilder implements Builder<HabitPlan, HabitPlanBuilder> {
 
   @override
   void replace(HabitPlan other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$HabitPlan;
   }
 
@@ -228,7 +217,7 @@ class HabitPlanBuilder implements Builder<HabitPlan, HabitPlanBuilder> {
     _$HabitPlan _$result;
     try {
       _$result = _$v ??
-          new _$HabitPlan._(
+          _$HabitPlan._(
             id: BuiltValueNullFieldError.checkNotNull(id, r'HabitPlan', 'id'),
             title: BuiltValueNullFieldError.checkNotNull(
                 title, r'HabitPlan', 'title'),
@@ -248,7 +237,7 @@ class HabitPlanBuilder implements Builder<HabitPlan, HabitPlanBuilder> {
         _$failedField = 'suggestions';
         suggestions.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'HabitPlan', _$failedField, e.toString());
       }
       rethrow;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 
@@ -9,6 +9,7 @@ import '../../../../data/domain/models/habit.dart';
 import '../../../../data/domain/models/habit_plan.dart';
 import '../../../../data/services/analytics/analytics_service.dart';
 import '../../../../shared/actions/habit_actions.dart';
+import '../../../../src/generated/l10n/app_localizations.dart';
 import '../../controllers/habit_plan_detail_controller.dart'; // Import controller mới
 import '../widgets/action_selection_bar.dart';
 import '../widgets/suggestion_card.dart';

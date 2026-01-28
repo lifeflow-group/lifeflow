@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAX6kZast7i2hJJMdKyBPBJP23WNXnTzQ0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>973717899498</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.nvh.lifeflow</string>
+	<key>PROJECT_ID</key>
+	<string>lifeflow-nvh</string>
+	<key>STORAGE_BUCKET</key>
+	<string>lifeflow-nvh.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:973717899498:ios:6acdbe3996c53a6c80ef93</string>
+</dict>
+</plist>

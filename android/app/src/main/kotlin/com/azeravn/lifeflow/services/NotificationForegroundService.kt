@@ -1,4 +1,4 @@
-package com.azeravn.lifeflow.services
+package com.nvh.lifeflow.services
 
 import android.app.*
 import android.content.Intent
@@ -6,7 +6,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.azeravn.lifeflow.R
+import com.nvh.lifeflow.R
 
 class NotificationForegroundService : Service() {
 

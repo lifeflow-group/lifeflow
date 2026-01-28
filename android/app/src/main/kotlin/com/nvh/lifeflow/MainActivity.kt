@@ -1,4 +1,4 @@
-package com.azeravn.lifeflow
+package com.nvh.lifeflow
 
 import android.content.Intent
 import android.os.Build
@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
-import com.azeravn.lifeflow.services.NotificationForegroundService
+import com.nvh.lifeflow.services.NotificationForegroundService
 
 class MainActivity : FlutterActivity() {
 

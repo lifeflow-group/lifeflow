@@ -47,29 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAbAUSvoVLCIm_JkMewXPVRH86f1H6Zr0I',
-    appId: '1:698817676474:web:293a0234b5315d979bae83',
-    messagingSenderId: '698817676474',
-    projectId: 'lifeflow-azvn',
-    authDomain: 'lifeflow-azvn.firebaseapp.com',
-    storageBucket: 'lifeflow-azvn.firebasestorage.app',
-    measurementId: 'G-102SSX4VZS',
+    apiKey: 'AIzaSyCOA7n91OBB4Y_OFIW3yDAxuCJVuHHRDnk',
+    appId: '1:973717899498:web:173e36a64c84df2d80ef93',
+    messagingSenderId: '973717899498',
+    projectId: 'lifeflow-nvh',
+    authDomain: 'lifeflow-nvh.firebaseapp.com',
+    storageBucket: 'lifeflow-nvh.firebasestorage.app',
+    measurementId: 'G-7P76ZX0STE',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAX3G0vVOcB5-_fiH1hVLy1P8tkHUtF4XE',
-    appId: '1:698817676474:android:4453d5e6c6cdf0919bae83',
-    messagingSenderId: '698817676474',
-    projectId: 'lifeflow-azvn',
-    storageBucket: 'lifeflow-azvn.firebasestorage.app',
+    apiKey: 'AIzaSyAnvTkHvnBIaNuW99UlldgJ7UeLylg94Hs',
+    appId: '1:973717899498:android:7204a5dd76ee9e4380ef93',
+    messagingSenderId: '973717899498',
+    projectId: 'lifeflow-nvh',
+    storageBucket: 'lifeflow-nvh.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB1VDFSYUu6NsZ3HO7ZgAVDGzJLbSGfyf4',
-    appId: '1:698817676474:ios:95befe77da79c5409bae83',
-    messagingSenderId: '698817676474',
-    projectId: 'lifeflow-azvn',
-    storageBucket: 'lifeflow-azvn.firebasestorage.app',
-    iosBundleId: 'com.azeravn.lifeflow',
+    apiKey: 'AIzaSyAX6kZast7i2hJJMdKyBPBJP23WNXnTzQ0',
+    appId: '1:973717899498:ios:6acdbe3996c53a6c80ef93',
+    messagingSenderId: '973717899498',
+    projectId: 'lifeflow-nvh',
+    storageBucket: 'lifeflow-nvh.firebasestorage.app',
+    iosBundleId: 'com.nvh.lifeflow',
   );
+
 }

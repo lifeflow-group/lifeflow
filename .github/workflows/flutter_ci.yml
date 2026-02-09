@@ -1,0 +1,66 @@
+name: LifeFlow CI
+
+# Trigger on push or pull request to the master branch
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    # Using macOS is required for iOS builds
+    runs-on: macos-latest
+
+    steps:
+      # 1. Checkout the repository code
+      - uses: actions/checkout@v4
+
+      # 2. Setup Java for Android components (if needed in the same workflow)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. Setup Flutter environment
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      # 4. Create a dummy google-services.json for Android
+      - name: Create dummy google-services.json
+        run: echo '{}' > android/app/google-services.json
+
+      # 5. Create a dummy GoogleService-Info.plist for iOS
+      - name: Create dummy GoogleService-Info.plist
+        run: echo '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict></dict></plist>' > ios/Runner/GoogleService-Info.plist
+
+      # 6. Create a dummy .env file
+      - name: Create dummy .env
+        run: touch .env
+
+      # 7. Install Flutter dependencies
+      - name: Install Dependencies
+        run: flutter pub get
+
+      # 8. Run code generation (Drift, Built Value, etc.)
+      - name: Run Code Generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      # 9. Static code analysis
+      - name: Analyze Code
+        run: flutter analyze
+
+      # 10. Run Unit and Widget tests
+      - name: Run Tests
+        run: flutter test
+
+      # 11. Build iOS (No codesigning required for CI check)
+      - name: Build iOS
+        run: flutter build ios --debug --no-codesign
+
+      # 12. Build Android APK
+      - name: Build Android APK
+        run: flutter build apk --debug

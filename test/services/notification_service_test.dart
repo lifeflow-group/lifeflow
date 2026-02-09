@@ -283,7 +283,7 @@ void main() {
           uiLocalNotificationDateInterpretation:
               any(named: 'uiLocalNotificationDateInterpretation'),
           androidScheduleMode: any(named: 'androidScheduleMode'),
-        )).called(8);
+        )).called(30);
   });
 
   test(

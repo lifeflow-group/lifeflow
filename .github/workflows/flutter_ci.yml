@@ -3,7 +3,7 @@ name: LifeFlow CI
 # Trigger on push or pull request to the master branch
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "**" ]
 

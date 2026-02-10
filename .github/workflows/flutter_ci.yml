@@ -31,7 +31,25 @@ jobs:
 
       # 4. Create a dummy google-services.json for Android
       - name: Create dummy google-services.json
-        run: echo '{}' > android/app/google-services.json
+        run: |
+          cat > android/app/google-services.json <<EOF
+          {
+            "project_info": {
+              "project_number": "1234567890",
+              "project_id": "dummy-project-id"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:1234567890:android:abcdef123456",
+                  "android_client_info": {
+                    "package_name": "com.example.lifeflow"
+                  }
+                }
+              }
+            ]
+          }
+          EOF
 
       # 5. Create a dummy GoogleService-Info.plist for iOS
       - name: Create dummy GoogleService-Info.plist

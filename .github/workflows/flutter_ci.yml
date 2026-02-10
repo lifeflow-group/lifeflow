@@ -35,19 +35,32 @@ jobs:
           cat > android/app/google-services.json <<EOF
           {
             "project_info": {
-              "project_number": "1234567890",
-              "project_id": "dummy-project-id"
+              "project_number": "973717899498",
+              "project_id": "lifeflow-nvh",
+              "storage_bucket": "lifeflow-nvh.firebasestorage.app"
             },
             "client": [
               {
                 "client_info": {
-                  "mobilesdk_app_id": "1:1234567890:android:abcdef123456",
+                  "mobilesdk_app_id": "1:973717899498:android:7204a5dd76ee9e4380ef93",
                   "android_client_info": {
-                    "package_name": "com.example.lifeflow"
+                    "package_name": "com.nvh.lifeflow"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyAnvTkHvnBIaNuW99UlldgJ7UeLylg94Hs"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
                   }
                 }
               }
-            ]
+            ],
+            "configuration_version": "1"
           }
           EOF
 

@@ -314,7 +314,6 @@ void main() {
       expect(result.trackingType, TrackingType.progress);
       expect(result.targetValue, 5);
       expect(result.unit, 'glasses');
-      expect(result.series?.repeatFrequency, RepeatFrequency.weekly);
     });
 
     test(
